@@ -17,8 +17,6 @@ import "./interfaces/IVemoVoucher.sol";
 import "./Common.sol";
 
 contract ERC6551Account is IERC165, IERC1271, IERC6551Account, IERC6551Executable, IVemoAccount {
-    receive() external payable {}
-
     uint256 public _state;
 
     // constants definition
@@ -316,4 +314,10 @@ contract ERC6551Account is IERC165, IERC1271, IERC6551Account, IERC6551Executabl
     function state() external view returns (uint256) {
         return _state;
     }
+
+    function schedules(uint256 index) external view returns (VestingSchedule memory) {
+        return _schedules[index];
+    }
+
+    receive() external payable {}
 }
