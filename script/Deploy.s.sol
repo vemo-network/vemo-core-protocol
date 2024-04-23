@@ -6,8 +6,6 @@ import "src/ERC6551Registry.sol";
 import "src/ERC6551Account.sol";
 import "src/Voucher.sol";
 import "src/DataRegistryV2.sol";
-import "test/Factory.sol";
-import "test/NFT.sol";
 
 import {Upgrades} from "openzeppelin-foundry-upgrades/Upgrades.sol";
 

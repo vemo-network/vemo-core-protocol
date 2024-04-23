@@ -16,10 +16,10 @@ import "../src/interfaces/IVemoVoucher.sol";
 import "../src/interfaces/IERC6551Account.sol";
 import "../src/helpers/DataStruct.sol";
 
-import "./NFT.sol";
-import "./USDT.sol";
-import "./USDC.sol";
-import "./Factory.sol";
+import "./mock/NFT.sol";
+import "./mock/USDT.sol";
+import "./mock/USDC.sol";
+import "./mock/Factory.sol";
 
 contract VoucherTest is Test {
     uint256 defaultAdminPrivateKey = 1;
