@@ -47,7 +47,6 @@ contract RegistryTest is Test {
         // initData is mandatory with Vemo ecosystem
         address deployedAccount =
             registry.createAccount(address(implementation), salt, chainId, tokenAddress, tokenId, initData);
-        
 
         address registryComputedAddress =
             registry.account(address(implementation), salt, chainId, tokenAddress, tokenId);
@@ -62,13 +61,10 @@ contract RegistryTest is Test {
         bytes32 salt = bytes32(uint256(400));
         bytes memory initData;
 
-        address account =
-            registry.account(address(implementation), salt, chainId, tokenAddress, tokenId);
+        address account = registry.account(address(implementation), salt, chainId, tokenAddress, tokenId);
 
         vm.expectEmit(true, true, true, true);
-        emit ERC6551AccountCreated(
-            account, address(implementation), salt, chainId, tokenAddress, tokenId
-        );
+        emit ERC6551AccountCreated(account, address(implementation), salt, chainId, tokenAddress, tokenId);
 
         address deployedAccount =
             registry.createAccount(address(implementation), salt, chainId, tokenAddress, tokenId, initData);

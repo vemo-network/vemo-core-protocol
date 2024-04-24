@@ -128,7 +128,7 @@ contract CreateBatchTest is Test {
         vm.stopPrank();
         assertEq(50, usdt.balanceOf(voucherAccount));
         assertEq(50, usdt.balanceOf(user));
-        assertEq(100, usdc.balanceOf(user)); 
+        assertEq(100, usdc.balanceOf(user));
         assertEq(100, usdc.balanceOf(feeReceiver));
 
         remainingValue = dataRegistry.read(nftAddress, tokenId, keccak256(BALANCE_KEY));

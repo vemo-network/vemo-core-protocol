@@ -180,7 +180,7 @@ contract ERC6551Account is IERC165, IERC1271, IERC6551Account, IERC6551Executabl
 
             // update vesting status
             if (schedule.remainingAmount == 0) {
-                schedule.isVested = VESTED_STATUS; 
+                schedule.isVested = VESTED_STATUS;
             } else {
                 schedule.isVested = VESTING_STATUS;
             }

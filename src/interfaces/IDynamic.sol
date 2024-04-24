@@ -17,12 +17,7 @@ interface IDynamic {
      * @param key the Keccak256 hashed key
      * @param value the ABI encoded value
      */
-    function write(
-        address collection,
-        uint256 tokenId,
-        bytes32 key,
-        bytes calldata value
-    ) external;
+    function write(address collection, uint256 tokenId, bytes32 key, bytes calldata value) external;
 
     /**
      * @dev Write batch metadata for multiple NFTs in terms of key/value.
@@ -33,13 +28,8 @@ interface IDynamic {
      * @param key the Keccak256 hashed key
      * @param value the ABI encoded value
      */
-    function writeBatch(
-        address collection,
-        uint256 startId,
-        uint256 endId,
-        bytes32 key,
-        bytes calldata value
-    ) external;
+    function writeBatch(address collection, uint256 startId, uint256 endId, bytes32 key, bytes calldata value)
+        external;
 
     /**
      * @dev Write batch metadata for single NFT in terms of key/value.
@@ -64,9 +54,5 @@ interface IDynamic {
      * @param key the Keccak256 hashed key
      * @return the ABI encoded value
      */
-    function read(
-        address collection,
-        uint256 tokenId,
-        bytes32 key
-    ) external view returns (bytes memory);
+    function read(address collection, uint256 tokenId, bytes32 key) external view returns (bytes memory);
 }

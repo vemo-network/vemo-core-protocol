@@ -11,6 +11,7 @@ interface IVemoAccount {
     function getDataFee() external view returns (VestingFee memory fee);
 
     function getClaimableAndSchedule(uint256 timestamp, uint256 _amount)
-        external view
+        external
+        view
         returns (uint256 claimableAmount, uint8 batchSize, VestingSchedule[] memory);
 }

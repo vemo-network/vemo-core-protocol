@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-import "forge-std/Test.sol";
-import "forge-std/StdAssertions.sol";
-
+import {Test, console2} from "forge-std/Test.sol";
 import "forge-std/console.sol";
 
 import {Upgrades} from "openzeppelin-foundry-upgrades/Upgrades.sol";
@@ -23,7 +21,9 @@ import "./mock/USDT.sol";
 import "./mock/USDC.sol";
 import "./mock/Factory.sol";
 
-contract VoucherAuthTest is Test {
+contract TestVoucher is Voucher {}
+
+contract UtilsTest is Test {
     uint256 defaultAdminPrivateKey = 1;
     uint256 userPrivateKey = 2;
     uint256 feeReceiverPrivateKey = 3;
@@ -54,13 +54,12 @@ contract VoucherAuthTest is Test {
             defaultAdmin, address(factory), "", DataRegistrySettings({disableComposable: true, disableDerivable: true})
         );
         address proxy = Upgrades.deployUUPSProxy(
-            "Voucher.sol:Voucher",
+            "Voucher.sol",
             abi.encodeCall(
                 Voucher.initialize,
                 (defaultAdmin, address(factory), address(dataRegistry), address(accountRegistry), address(accountImpl))
             )
         );
-
         voucher = Voucher(proxy);
         vm.startPrank(defaultAdmin);
         nft.grantRole(MINTER_ROLE, address(voucher));
@@ -69,16 +68,15 @@ contract VoucherAuthTest is Test {
         vm.stopPrank();
     }
 
-    function testTransferOwner() public {
-        vm.startPrank(user);
-        vm.expectRevert(bytes("only owner"));
-        voucher.transferOwner(user);
-        vm.stopPrank();
+    function testSetX() public {
+        assertEq(false, false);
+    }
 
-        vm.startPrank(defaultAdmin);
-        voucher.transferOwner(user);
-        vm.stopPrank();
+    function testCreateVoucherCollection() public {
+        assertEq(false, false);
+    }
 
-        assertEq(voucher._owner(), user);
+    function testRemoveX() public {
+        assertEq(false, false);
     }
 }

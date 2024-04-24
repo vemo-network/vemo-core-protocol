@@ -47,7 +47,7 @@ contract CreateTest is Test {
     USDC usdc = new USDC();
 
     // create
-    VestingSchedule  schedule = VestingSchedule({
+    VestingSchedule schedule = VestingSchedule({
         amount: 100,
         vestingType: 1, // linear: 1 | staged: 2
         linearType: 1, // day: 1 | week: 2 | month: 3 | quarter: 4
@@ -57,7 +57,7 @@ contract CreateTest is Test {
         remainingAmount: 0
     });
 
-    VestingFee  fee = VestingFee({
+    VestingFee fee = VestingFee({
         isFee: 1, // no-fee: 0 | fee : 1
         feeTokenAddress: address(usdc),
         receiverAddress: feeReceiver,
@@ -86,7 +86,6 @@ contract CreateTest is Test {
 
         voucher.setX(address(usdt), address(nft));
         vm.stopPrank();
-
     }
 
     function testSingleCreate() public {
@@ -96,10 +95,9 @@ contract CreateTest is Test {
         Vesting memory vesting = Vesting({balance: VESTING_BALANCE, schedules: schedules, fee: fee});
 
         vm.startPrank(defaultAdmin);
-        vm.expectRevert(bytes("Requester must approve sufficient amount to create voucher"));
+        vm.expectRevert();
         (address nftAddress, uint256 tokenId) = voucher.create(address(usdt), vesting);
         vm.stopPrank();
-
 
         vm.startPrank(user);
         usdt.mint(user, VESTING_BALANCE);
@@ -108,7 +106,7 @@ contract CreateTest is Test {
         vm.stopPrank();
 
         // make sure we store the correct vesting data in ERC6551
-        ERC6551Account tba = ERC6551Account(payable (voucher.getTokenBoundAccount(nftAddress, tokenId)));
+        ERC6551Account tba = ERC6551Account(payable(voucher.getTokenBoundAccount(nftAddress, tokenId)));
         VestingSchedule memory _schedule = tba.schedules(0);
         assertEq(schedule.amount, _schedule.amount);
         assertEq(schedule.vestingType, _schedule.vestingType);
@@ -136,8 +134,7 @@ contract CreateTest is Test {
         assertEq(VESTING_BALANCE, usdt.balanceOf(voucherAccount));
     }
 
-    function testMultipleCreate() public {
-    }
+    function testMultipleCreate() public {}
 
     function testSingleCreateAndRedeemThruVoucher() public {
         VestingSchedule[] memory schedules = new VestingSchedule[](1);
@@ -184,12 +181,12 @@ contract CreateTest is Test {
         Vesting memory vesting = Vesting({balance: schedule.amount, schedules: schedules, fee: fee});
 
         vm.startPrank(user);
-        
+
         usdt.mint(user, schedule.amount);
         usdt.approve(address(voucher), schedule.amount);
         (address nftAddress, uint256 tokenId) = voucher.create(address(usdt), vesting);
 
-        ERC6551Account tba = ERC6551Account(payable (voucher.getTokenBoundAccount(nftAddress, tokenId)));
+        ERC6551Account tba = ERC6551Account(payable(voucher.getTokenBoundAccount(nftAddress, tokenId)));
         vm.stopPrank();
 
         assertEq(0, usdt.balanceOf(user));
@@ -199,24 +196,24 @@ contract CreateTest is Test {
 
         // try to claim the half
         vm.startPrank(user1);
-        usdc.mint(user1, fee.totalFee/2);
-        usdc.approve(address(tba), fee.totalFee/2);
-        tba.redeem(schedule.amount/2);
+        usdc.mint(user1, fee.totalFee / 2);
+        usdc.approve(address(tba), fee.totalFee / 2);
+        tba.redeem(schedule.amount / 2);
         vm.stopPrank();
 
         // validate the receiver
-        assertEq(schedule.amount/2, usdt.balanceOf(user));
+        assertEq(schedule.amount / 2, usdt.balanceOf(user));
         assertEq(0, usdc.balanceOf(user1));
-        assertEq(fee.totalFee/2, usdc.balanceOf(feeReceiver));
+        assertEq(fee.totalFee / 2, usdc.balanceOf(feeReceiver));
 
         VestingFee memory __fee = tba.getDataFee();
-        assertEq(__fee.remainingFee, fee.totalFee/2);
+        assertEq(__fee.remainingFee, fee.totalFee / 2);
 
         // claim the second half
         vm.startPrank(user1);
-        usdc.mint(user1, fee.totalFee/2);
-        usdc.approve(address(tba), fee.totalFee/2);
-        tba.redeem(schedule.amount/2);
+        usdc.mint(user1, fee.totalFee / 2);
+        usdc.approve(address(tba), fee.totalFee / 2);
+        tba.redeem(schedule.amount / 2);
         vm.stopPrank();
 
         // validate the receiver

@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/interfaces/IERC20.sol";
 import "@openzeppelin/contracts/interfaces/IERC721.sol";
 import "@openzeppelin/contracts/interfaces/IERC721Receiver.sol";
+import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 import "./interfaces/IDynamic.sol";
@@ -17,7 +18,7 @@ import "./interfaces/IERC6551Registry.sol";
 
 import "./Common.sol";
 
-contract Voucher is IERC721Receiver, IVemoVoucher, UUPSUpgradeable {
+contract Voucher is IERC721Receiver, IVemoVoucher, UUPSUpgradeable, ReentrancyGuardUpgradeable {
     // Contract deployer address
     address public _owner;
 
@@ -35,15 +36,6 @@ contract Voucher is IERC721Receiver, IVemoVoucher, UUPSUpgradeable {
         _owner = newOwner;
     }
 
-    uint8 private lock;
-
-    modifier noReentrance() {
-        require(lock == 0, "Contract is locking");
-        lock = 1;
-        _;
-        lock = 0;
-    }
-
     bytes private constant BALANCE_KEY = "BALANCE";
     uint8 private constant FEE_STATUS = 1;
 
@@ -58,10 +50,10 @@ contract Voucher is IERC721Receiver, IVemoVoucher, UUPSUpgradeable {
     address[] private _nfts;
     mapping(address => mapping(uint256 => address)) private _tbaNftMap;
 
-    address private _protocolFactoryAddress;
-    address private _dataRegistry;
-    address private _erc6551Registry;
-    address private _erc6551AccountImpl;
+    address public protocolFactoryAddress;
+    address public dataRegistry;
+    address public erc6551Registry;
+    address public erc6551AccountImpl;
 
     // data schemas
     event VoucherCreated(
@@ -74,37 +66,39 @@ contract Voucher is IERC721Receiver, IVemoVoucher, UUPSUpgradeable {
 
     function initialize(
         address owner,
-        address factoryAddress,
-        address dataRegistry,
-        address erc6551Registry,
-        address erc6551AccountImpl
+        address _factoryAddress,
+        address _dataRegistry,
+        address _erc6551Registry,
+        address _erc6551AccountImpl
     ) public virtual initializer {
-        require(factoryAddress != address(0), "Invalid ERC20 token address");
-        require(dataRegistry != address(0), "Invalid Data registry address");
-        require(erc6551Registry != address(0), "Invalid ERC6551 registry address");
-        require(erc6551AccountImpl != address(0), "Invalid ERC6551 Account Impl address");
-        lock = 0;
-        _protocolFactoryAddress = factoryAddress;
-        _dataRegistry = dataRegistry;
-        _erc6551Registry = erc6551Registry;
-        _erc6551AccountImpl = erc6551AccountImpl;
+        require(_factoryAddress != address(0), "Invalid ERC20 token address");
+        require(_dataRegistry != address(0), "Invalid Data registry address");
+        require(_erc6551Registry != address(0), "Invalid ERC6551 registry address");
+        require(_erc6551AccountImpl != address(0), "Invalid ERC6551 Account Impl address");
+
+        __ReentrancyGuard_init();
+
+        protocolFactoryAddress = _factoryAddress;
+        dataRegistry = _dataRegistry;
+        erc6551Registry = _erc6551Registry;
+        erc6551AccountImpl = _erc6551AccountImpl;
         _owner = owner;
     }
 
-    function setFactory(address factory) public onlyOwner {
-        _protocolFactoryAddress = factory;
+    function setFactory(address _factory) public onlyOwner {
+        protocolFactoryAddress = _factory;
     }
 
-    function setDataRegistry(address dataRegistry) public onlyOwner {
-        _dataRegistry = dataRegistry;
+    function setDataRegistry(address _dataRegistry) public onlyOwner {
+        dataRegistry = _dataRegistry;
     }
 
-    function setERC6551Registry(address erc6551Registry) public onlyOwner {
-        _erc6551Registry = erc6551Registry;
+    function setERC6551Registry(address _erc6551Registry) public onlyOwner {
+        erc6551Registry = _erc6551Registry;
     }
 
-    function setERC6551AccountImpl(address erc6551AccountImpl) public onlyOwner {
-        _erc6551AccountImpl = erc6551AccountImpl;
+    function setERC6551AccountImpl(address _erc6551AccountImpl) public onlyOwner {
+        erc6551AccountImpl = _erc6551AccountImpl;
     }
 
     // ====================================================
@@ -114,7 +108,7 @@ contract Voucher is IERC721Receiver, IVemoVoucher, UUPSUpgradeable {
         return IERC721Receiver.onERC721Received.selector;
     }
 
-    function updateVestingScheduleBeforeCreate(VestingSchedule[] memory schedules)
+    function _prepareVestingSchedule(VestingSchedule[] memory schedules)
         internal
         pure
         returns (VestingSchedule[] memory)
@@ -130,25 +124,26 @@ contract Voucher is IERC721Receiver, IVemoVoucher, UUPSUpgradeable {
         string calldata name,
         string calldata symbol,
         IFactory.CollectionSettings calldata settings
-    ) public noReentrance returns (bool) {
-        address nft = IFactory(_protocolFactoryAddress).createCollection(
+    ) public nonReentrant returns (address) {
+        if (tokenNftMap[token] != address(0)) return tokenNftMap[token];
+
+        address nft = IFactory(protocolFactoryAddress).createCollection(
             name, symbol, settings, IFactory.CollectionKind.ERC721Standard
         );
-        if (tokenNftMap[token] == address(0)) {
-            tokenNftMap[token] = nft;
-            _tokens.push(token);
-            _nfts.push(nft);
-        }
-        return true;
+
+        tokenNftMap[token] = nft;
+        _tokens.push(token);
+        _nfts.push(nft);
+
+        return nft;
     }
 
     function setX(address _token, address _nft) public onlyOwner {
-        if (tokenNftMap[_token] == address(0)) {
-            // Update the value at this address
-            tokenNftMap[_token] = _nft;
-            _tokens.push(_token);
-            _nfts.push(_nft);
-        }
+        require(tokenNftMap[_token] == address(0));
+
+        tokenNftMap[_token] = _nft;
+        _tokens.push(_token);
+        _nfts.push(_nft);
     }
 
     function removeX(address token) public onlyOwner {
@@ -156,6 +151,7 @@ contract Voucher is IERC721Receiver, IVemoVoucher, UUPSUpgradeable {
         if (nft == address(0)) {
             return;
         }
+
         delete tokenNftMap[token];
         _removeToken(token);
         _removeNft(nft);
@@ -186,13 +182,9 @@ contract Voucher is IERC721Receiver, IVemoVoucher, UUPSUpgradeable {
         }
     }
 
-    function create(address tokenAddress, Vesting memory vesting) public noReentrance returns (address, uint256) {
+    function create(address tokenAddress, Vesting memory vesting) public nonReentrant returns (address, uint256) {
         address nftAddress = getNftAddressFromMap(tokenAddress);
-        require(
-            isQualifiedCreator(tokenAddress, msg.sender, vesting.balance),
-            "Requester must approve sufficient amount to create voucher"
-        );
-        vesting.schedules = updateVestingScheduleBeforeCreate(vesting.schedules);
+        vesting.schedules = _prepareVestingSchedule(vesting.schedules);
         vesting.fee.remainingFee = vesting.fee.totalFee;
 
         // mint new voucher
@@ -201,12 +193,12 @@ contract Voucher is IERC721Receiver, IVemoVoucher, UUPSUpgradeable {
         // create erc6551 token bound account
         bytes memory initData = abi.encodeWithSignature(
             "initialize(address,address,(uint256,(uint256,uint8,uint8,uint256,uint256,uint8,uint256)[],(uint8,address,address,uint256,uint256)))",
-            _dataRegistry,
+            dataRegistry,
             address(this),
             vesting
         );
-        address account = IERC6551Registry(_erc6551Registry).createAccount(
-            _erc6551AccountImpl, bytes32(_salt++), block.chainid, nftAddress, tokenId, initData
+        address account = IERC6551Registry(erc6551Registry).createAccount(
+            erc6551AccountImpl, bytes32(_salt++), block.chainid, nftAddress, tokenId, initData
         );
         _tbaNftMap[nftAddress][tokenId] = account;
 
@@ -214,13 +206,13 @@ contract Voucher is IERC721Receiver, IVemoVoucher, UUPSUpgradeable {
         require(IERC20(tokenAddress).transferFrom(msg.sender, account, vesting.balance), "Stake voucher balance failed");
 
         // grant writer role for account
-        AccessControl(_dataRegistry).grantRole(WRITER_ROLE, account);
+        AccessControl(dataRegistry).grantRole(WRITER_ROLE, account);
 
         // transfer voucher to requester
         IERC721(nftAddress).transferFrom(address(this), msg.sender, tokenId);
 
         // write to data registry
-        IDynamic(_dataRegistry).write(nftAddress, tokenId, keccak256(BALANCE_KEY), abi.encode(vesting.balance));
+        IDynamic(dataRegistry).write(nftAddress, tokenId, keccak256(BALANCE_KEY), abi.encode(vesting.balance));
 
         emit VoucherCreated(msg.sender, tokenAddress, vesting.balance, nftAddress, tokenId);
 
@@ -229,36 +221,32 @@ contract Voucher is IERC721Receiver, IVemoVoucher, UUPSUpgradeable {
 
     function createBatch(address tokenAddress, BatchVesting memory batch, uint96 royaltyRate)
         public
-        noReentrance
+        nonReentrant
         returns (address, uint256, uint256)
     {
         address nftAddress = getNftAddressFromMap(tokenAddress);
 
         require(batch.vesting.balance * batch.quantity > 0, "Total balance must be greater than zero");
         require(batch.quantity == batch.tokenUris.length, "Length of tokenUris must be equal to quantity");
-        
-        batch.vesting.schedules = updateVestingScheduleBeforeCreate(batch.vesting.schedules);
+
+        batch.vesting.schedules = _prepareVestingSchedule(batch.vesting.schedules);
         batch.vesting.fee.remainingFee = batch.vesting.fee.totalFee;
 
-        require(
-            isQualifiedCreator(tokenAddress, msg.sender, batch.vesting.balance * batch.quantity),
-            "Requester must approve sufficient amount to create voucher"
-        );
-
         // mint nfts
-        (uint256 startId, uint256 endId) =
-            ICollection(nftAddress).safeMintBatchWithTokenUrisAndRoyalty(msg.sender, batch.tokenUris, msg.sender, royaltyRate);
+        (uint256 startId, uint256 endId) = ICollection(nftAddress).safeMintBatchWithTokenUrisAndRoyalty(
+            msg.sender, batch.tokenUris, msg.sender, royaltyRate
+        );
 
         for (uint256 tokenId = startId; tokenId <= endId; tokenId++) {
             // create erc6551 token bound account
             bytes memory initData = abi.encodeWithSignature(
                 "initialize(address,address,(uint256,(uint256,uint8,uint8,uint256,uint256,uint8,uint256)[],(uint8,address,address,uint256,uint256)))",
-                _dataRegistry,
+                dataRegistry,
                 address(this),
                 batch.vesting
             );
-            address account = IERC6551Registry(_erc6551Registry).createAccount(
-                _erc6551AccountImpl, bytes32(_salt++), block.chainid, nftAddress, tokenId, initData
+            address account = IERC6551Registry(erc6551Registry).createAccount(
+                erc6551AccountImpl, bytes32(_salt++), block.chainid, nftAddress, tokenId, initData
             );
             _tbaNftMap[nftAddress][tokenId] = account;
 
@@ -269,27 +257,20 @@ contract Voucher is IERC721Receiver, IVemoVoucher, UUPSUpgradeable {
             );
 
             // grant writer role for account
-            AccessControl(_dataRegistry).grantRole(WRITER_ROLE, account);
+            AccessControl(dataRegistry).grantRole(WRITER_ROLE, account);
 
             emit VoucherCreated(msg.sender, tokenAddress, batch.vesting.balance, nftAddress, tokenId);
         }
 
         // write data registry
-        IDynamic(_dataRegistry).writeBatch(
+        IDynamic(dataRegistry).writeBatch(
             nftAddress, startId, endId, keccak256(BALANCE_KEY), abi.encode(batch.vesting.balance)
         );
 
         return (nftAddress, startId, endId);
     }
 
-    function isQualifiedCreator(address tokenAddress, address creator, uint256 amount) internal view returns (bool) {
-        if (IERC20(tokenAddress).allowance(creator, address(this)) < amount) {
-            return false;
-        }
-        return true;
-    }
-
-    function redeem(address nftAddress, uint256 tokenId, uint256 amount) public noReentrance returns (bool) {
+    function redeem(address nftAddress, uint256 tokenId, uint256 amount) public nonReentrant returns (bool) {
         require(isOwner(msg.sender, tokenId, nftAddress), "Redeemer must be true owner of voucher");
         address tba = _tbaNftMap[nftAddress][tokenId];
 
@@ -336,8 +317,7 @@ contract Voucher is IERC721Receiver, IVemoVoucher, UUPSUpgradeable {
         returns (uint256 totalAmount, uint256 claimable, VestingSchedule[] memory schedules, VestingFee memory fee)
     {
         (uint256 balance, VestingSchedule[] memory oschedules) = getDataBalanceAndSchedule(nftAddress, tokenId);
-        (uint256 claimableAmount, , ) =
-            getClaimableAndSchedule(nftAddress, tokenId, block.timestamp, MAX_INT);
+        (uint256 claimableAmount,,) = getClaimableAndSchedule(nftAddress, tokenId, block.timestamp, MAX_INT);
 
         fee = getDataFee(nftAddress, tokenId);
 

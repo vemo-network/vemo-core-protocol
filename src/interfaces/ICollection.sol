@@ -11,8 +11,7 @@ interface ICollection {
         uint96 royaltyRate
     ) external returns (uint256 startId, uint256 endId);
 
-    function royaltyInfo(
-        uint256 tokenId,
-        uint256 salePrice
-    ) external returns (address receiver, uint256 royaltyAmount);
+    function royaltyInfo(uint256 tokenId, uint256 salePrice)
+        external
+        returns (address receiver, uint256 royaltyAmount);
 }
