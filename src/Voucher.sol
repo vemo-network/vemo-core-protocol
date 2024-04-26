@@ -203,7 +203,8 @@ contract Voucher is IERC721Receiver, IVemoVoucher, UUPSUpgradeable, ReentrancyGu
         _tbaNftMap[nftAddress][tokenId] = account;
 
         // stake amount of token to erc6551 token bound account
-        require(IERC20(tokenAddress).transferFrom(msg.sender, account, vesting.balance), "Stake voucher balance failed");
+        IERC20(tokenAddress).transferFrom(msg.sender, account, vesting.balance);
+        require(IERC20(tokenAddress).balanceOf(account) == vesting.balance, "Stake voucher balance failed" );
 
         // grant writer role for account
         AccessControl(dataRegistry).grantRole(WRITER_ROLE, account);
@@ -251,10 +252,8 @@ contract Voucher is IERC721Receiver, IVemoVoucher, UUPSUpgradeable, ReentrancyGu
             _tbaNftMap[nftAddress][tokenId] = account;
 
             // stake amount of token to erc6551 token bound account
-            require(
-                IERC20(tokenAddress).transferFrom(msg.sender, account, batch.vesting.balance),
-                "Stake voucher balance failed"
-            );
+            IERC20(tokenAddress).transferFrom(msg.sender, account, batch.vesting.balance);
+            require(IERC20(tokenAddress).balanceOf(account) == batch.vesting.balance, "Stake voucher balance failed" );
 
             // grant writer role for account
             AccessControl(dataRegistry).grantRole(WRITER_ROLE, account);
@@ -280,6 +279,10 @@ contract Voucher is IERC721Receiver, IVemoVoucher, UUPSUpgradeable, ReentrancyGu
         VestingFee memory fee = getDataFee(nftAddress, tokenId);
 
         uint256 feeAmount = Math.mulDiv(transferAmount, fee.remainingFee, balance);
+        /**
+         * Audit: if feeToken deducts fee-on-transfer, we will never get enough token 
+         * 
+         */
         if (feeAmount > 0 && fee.isFee == FEE_STATUS) {
             require(
                 IERC20(fee.feeTokenAddress).transferFrom(msg.sender, address(this), feeAmount),
