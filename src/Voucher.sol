@@ -192,9 +192,10 @@ contract Voucher is IERC721Receiver, IVemoVoucher, UUPSUpgradeable, ReentrancyGu
 
         // create erc6551 token bound account
         bytes memory initData = abi.encodeWithSignature(
-            "initialize(address,address,(uint256,(uint256,uint8,uint8,uint256,uint256,uint8,uint256)[],(uint8,address,address,uint256,uint256)))",
+            "initialize(address,address,address,(uint256,(uint256,uint8,uint8,uint256,uint256,uint8,uint256)[],(uint8,address,address,uint256,uint256)))",
             dataRegistry,
             address(this),
+            tokenAddress,
             vesting
         );
         address account = IERC6551Registry(erc6551Registry).createAccount(
@@ -241,9 +242,10 @@ contract Voucher is IERC721Receiver, IVemoVoucher, UUPSUpgradeable, ReentrancyGu
         for (uint256 tokenId = startId; tokenId <= endId; tokenId++) {
             // create erc6551 token bound account
             bytes memory initData = abi.encodeWithSignature(
-                "initialize(address,address,(uint256,(uint256,uint8,uint8,uint256,uint256,uint8,uint256)[],(uint8,address,address,uint256,uint256)))",
+                "initialize(address,address,address,(uint256,(uint256,uint8,uint8,uint256,uint256,uint8,uint256)[],(uint8,address,address,uint256,uint256)))",
                 dataRegistry,
                 address(this),
+                tokenAddress,
                 batch.vesting
             );
             address account = IERC6551Registry(erc6551Registry).createAccount(

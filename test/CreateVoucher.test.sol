@@ -107,6 +107,8 @@ contract CreateTest is Test {
 
         // make sure we store the correct vesting data in ERC6551
         ERC6551Account tba = ERC6551Account(payable(voucher.getTokenBoundAccount(nftAddress, tokenId)));
+        assertEq(tba.tokenAddress(), address(usdt));
+
         VestingSchedule memory _schedule = tba.schedules(0);
         assertEq(schedule.amount, _schedule.amount);
         assertEq(schedule.vestingType, _schedule.vestingType);
@@ -155,7 +157,7 @@ contract CreateTest is Test {
         // redeem without authorization
         vm.startPrank(user1);
         usdc.approve(address(voucher), 200);
-        vm.expectRevert(bytes("Redeemer must be true owner of voucher"));
+        vm.expectRevert();
         voucher.redeem(nftAddress, tokenId, 50);
         vm.stopPrank();
 

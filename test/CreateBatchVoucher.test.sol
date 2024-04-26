@@ -103,6 +103,9 @@ contract CreateBatchTest is Test {
             voucher.createBatch(address(usdt), BatchVesting({vesting: vesting, quantity: 1, tokenUris: tokenUris}), 0);
         vm.stopPrank();
 
+        ERC6551Account tba = ERC6551Account(payable(voucher.getTokenBoundAccount(nftAddress, tokenId)));
+        assertEq(tba.tokenAddress(), address(usdt));
+        
         assertEq(address(nft), nftAddress);
         assertEq(user, nft.ownerOf(tokenId));
 

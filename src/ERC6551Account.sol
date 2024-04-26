@@ -45,17 +45,19 @@ contract ERC6551Account is IERC165, IERC1271, IERC6551Account, IERC6551Executabl
     uint256 private _balance;
     VestingFee private _fee;
     VestingSchedule[] private _schedules;
+    address public tokenAddress;
 
     /**
      * @dev
      * The function for initializing immutable data: _dataRegistry
      * This function MUST be call once and only once right after the ERC6551Account is created in the same transaction
      */
-    function initialize(address dataRegistry, address voucher, Vesting calldata vesting) external {
+    function initialize(address dataRegistry, address voucher, address _tokenAddress, Vesting calldata vesting) external {
         require(_voucher == address(0), "ERC6551Account: initialize() can execute only once");
         _dataRegistry = dataRegistry;
         _voucher = voucher;
         _balance = vesting.balance;
+        tokenAddress = _tokenAddress;
         if (vesting.fee.isFee == FEE_STATUS) {
             _fee = vesting.fee;
         }
@@ -69,8 +71,6 @@ contract ERC6551Account is IERC165, IERC1271, IERC6551Account, IERC6551Executabl
         require(amount > 0, "ERC6551Account: want amount must be greater than zero");
 
         require(chainId == block.chainid, "ERC6551Account: invalid chain id");
-
-        address tokenAddress = IVemoVoucher(_voucher).getTokenAddressFromNftAddress(nftAddress);
 
         (uint256 balance,) = getDataBalanceAndSchedule();
 
