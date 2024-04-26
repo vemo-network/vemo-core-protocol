@@ -42,7 +42,7 @@ contract ERC6551Account is IERC165, IERC1271, IERC6551Account, IERC6551Executabl
 
     address private _dataRegistry;
     address private _voucher;
-    uint256 private _balance;
+    uint256 public _balance;
     VestingFee private _fee;
     VestingSchedule[] private _schedules;
     address public tokenAddress;
@@ -96,9 +96,8 @@ contract ERC6551Account is IERC165, IERC1271, IERC6551Account, IERC6551Executabl
         uint256 feeAmount = Math.mulDiv(transferAmount, fee.remainingFee, balance);
 
         // update voucher data: balance
-        uint256 updatedFee = balance - transferAmount;
-        _balance = updatedFee;
-        IDynamic(_dataRegistry).write(nftAddress, tokenId, keccak256(BALANCE_KEY), abi.encode(updatedFee));
+        _balance = balance - transferAmount;
+        IDynamic(_dataRegistry).write(nftAddress, tokenId, keccak256(BALANCE_KEY), abi.encode(_balance));
 
         // update voucher data: schedule
         for (uint256 idx = 0; idx < schedules.length; idx++) {
