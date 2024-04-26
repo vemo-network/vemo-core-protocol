@@ -271,7 +271,6 @@ contract Voucher is IERC721Receiver, IVemoVoucher, UUPSUpgradeable, ReentrancyGu
     }
 
     function redeem(address nftAddress, uint256 tokenId, uint256 amount) public nonReentrant returns (bool) {
-        require(isOwner(msg.sender, tokenId, nftAddress), "Redeemer must be true owner of voucher");
         address tba = _tbaNftMap[nftAddress][tokenId];
 
         // transfer fee for tba
