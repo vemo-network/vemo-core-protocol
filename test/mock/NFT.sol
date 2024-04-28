@@ -18,15 +18,11 @@ contract NFT is ERC721Royalty, AccessControl {
         return "https://google.com";
     }
 
-    function tokenURI(
-        uint256 tokenId
-    ) public view override returns (string memory) {
+    function tokenURI(uint256 tokenId) public view override returns (string memory) {
         return _tokenUris[tokenId];
     }
 
-    function safeMint(
-        address to
-    ) public onlyRole(MINTER_ROLE) returns (uint256) {
+    function safeMint(address to) public onlyRole(MINTER_ROLE) returns (uint256) {
         uint256 tokenId = _nextTokenId++;
         _safeMint(to, tokenId);
         return tokenId;
@@ -38,13 +34,7 @@ contract NFT is ERC721Royalty, AccessControl {
         address receiver,
         uint96 royaltyRate
     ) external onlyRole(MINTER_ROLE) returns (uint256 startId, uint256 endId) {
-        return
-            _mintBatchWithTokenUrisAndRoyalty(
-                to,
-                tokenUris,
-                receiver,
-                royaltyRate
-            );
+        return _mintBatchWithTokenUrisAndRoyalty(to, tokenUris, receiver, royaltyRate);
     }
 
     function _mintBatchWithTokenUrisAndRoyalty(
@@ -53,10 +43,7 @@ contract NFT is ERC721Royalty, AccessControl {
         address receiver,
         uint96 royaltyRate
     ) private returns (uint256 startId, uint256 endId) {
-        require(
-            tokenUris.length <= MAX_BATCH_SIZE,
-            "Batch size MUST not exceed limit"
-        );
+        require(tokenUris.length <= MAX_BATCH_SIZE, "Batch size MUST not exceed limit");
         uint8 j;
         uint256 tokenId;
         startId = _nextTokenId;
@@ -76,9 +63,7 @@ contract NFT is ERC721Royalty, AccessControl {
 
     // The following functions are overrides required by Solidity.
 
-    function supportsInterface(
-        bytes4 interfaceId
-    ) public view override(ERC721Royalty, AccessControl) returns (bool) {
+    function supportsInterface(bytes4 interfaceId) public view override(ERC721Royalty, AccessControl) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
 }
