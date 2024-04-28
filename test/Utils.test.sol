@@ -7,21 +7,19 @@ import "forge-std/console.sol";
 import {Upgrades} from "openzeppelin-foundry-upgrades/Upgrades.sol";
 
 import "../src/DataRegistryV2.sol";
-import "../src/ERC6551Account.sol";
-import "../src/ERC6551Registry.sol";
-import "../src/Voucher.sol";
+import "../src/VoucherAccount.sol";
+import "../src/AccountRegistry.sol";
+import "../src/VoucherFactory.sol";
 import "../src/Common.sol";
 
-import "../src/interfaces/IVemoVoucher.sol";
-import "../src/interfaces/IERC6551Account.sol";
+import "../src/interfaces/IVoucherFactory.sol";
+import "../src/interfaces/IVoucherAccount.sol";
 import "../src/helpers/DataStruct.sol";
 
 import "./mock/NFT.sol";
 import "./mock/USDT.sol";
 import "./mock/USDC.sol";
 import "./mock/Factory.sol";
-
-contract TestVoucher is Voucher {}
 
 contract UtilsTest is Test {
     uint256 defaultAdminPrivateKey = 1;
@@ -37,12 +35,12 @@ contract UtilsTest is Test {
 
     bytes private constant BALANCE_KEY = "BALANCE";
 
-    Voucher voucher;
+    VoucherFactory voucher;
     Factory factory = new Factory();
     NFT nft;
     DataRegistryV2 dataRegistry;
-    ERC6551Registry accountRegistry = new ERC6551Registry();
-    ERC6551Account accountImpl = new ERC6551Account();
+    AccountRegistry accountRegistry = new AccountRegistry();
+    VoucherAccount accountImpl = new VoucherAccount();
     address account;
     USDT usdt = new USDT();
     USDC usdc = new USDC();
@@ -54,13 +52,13 @@ contract UtilsTest is Test {
             defaultAdmin, address(factory), "", DataRegistrySettings({disableComposable: true, disableDerivable: true})
         );
         address proxy = Upgrades.deployUUPSProxy(
-            "Voucher.sol",
+            "VoucherFactory.sol:VoucherFactory",
             abi.encodeCall(
-                Voucher.initialize,
+                VoucherFactory.initialize,
                 (defaultAdmin, address(factory), address(dataRegistry), address(accountRegistry), address(accountImpl))
             )
         );
-        voucher = Voucher(proxy);
+        voucher = VoucherFactory(proxy);
         vm.startPrank(defaultAdmin);
         nft.grantRole(MINTER_ROLE, address(voucher));
         dataRegistry.grantRole(DEFAULT_ADMIN_ROLE, address(voucher));

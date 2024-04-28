@@ -2,17 +2,17 @@ pragma solidity ^0.8.0;
 
 import "forge-std/Test.sol";
 
-import "../src/ERC6551Registry.sol";
+import "../src/AccountRegistry.sol";
 import "./mock/NFT.sol";
-import "../src/ERC6551Account.sol";
+import "../src/VoucherAccount.sol";
 
 import "../src/interfaces/IERC6551Executable.sol";
 
 contract RegistryTest is Test {
-    ERC6551Registry public registry;
-    ERC6551Account public implementation;
+    AccountRegistry public registry;
+    VoucherAccount public implementation;
 
-    event ERC6551AccountCreated(
+    event VoucherAccountCreated(
         address account,
         address indexed implementation,
         bytes32 salt,
@@ -22,19 +22,12 @@ contract RegistryTest is Test {
     );
 
     function setUp() public {
-        registry = new ERC6551Registry();
-        implementation = new ERC6551Account();
+        registry = new AccountRegistry();
+        implementation = new VoucherAccount();
 
         // Ensure interface IDs don't unexpectedly change
-        assertEq(type(IERC6551Account).interfaceId, bytes4(0x6faff5f1));
+        assertEq(type(IVoucherAccount).interfaceId, bytes4(0x05db6c7e));
         assertEq(type(IERC6551Executable).interfaceId, bytes4(0x51945447));
-
-        console.log("Account Interface");
-        console.logBytes4(type(IERC6551Account).interfaceId);
-        console.log("Execution Interface");
-        console.logBytes4(type(IERC6551Executable).interfaceId);
-        console.log("isValidSigner");
-        console.logBytes4(IERC6551Account.isValidSigner.selector);
     }
 
     function testDeploy() public {
@@ -64,7 +57,7 @@ contract RegistryTest is Test {
         address account = registry.account(address(implementation), salt, chainId, tokenAddress, tokenId);
 
         vm.expectEmit(true, true, true, true);
-        emit ERC6551AccountCreated(account, address(implementation), salt, chainId, tokenAddress, tokenId);
+        emit VoucherAccountCreated(account, address(implementation), salt, chainId, tokenAddress, tokenId);
 
         address deployedAccount =
             registry.createAccount(address(implementation), salt, chainId, tokenAddress, tokenId, initData);

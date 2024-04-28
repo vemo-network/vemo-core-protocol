@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-interface IERC6551Registry {
+interface IAccountRegistry {
     /**
-     * @dev The registry MUST emit the ERC6551AccountCreated event upon successful account creation.
+     * @dev The registry MUST emit the VoucherAccountCreated event upon successful account creation.
      */
-    event ERC6551AccountCreated(
+    event VoucherAccountCreated(
         address account,
         address indexed implementation,
         bytes32 salt,
@@ -17,14 +17,14 @@ interface IERC6551Registry {
     /**
      * @dev The registry MUST revert with AccountCreationFailed error if the create2 operation fails.
      */
-    error ERC6551AccountCreationFailed();
+    error VoucherAccountCreationFailed();
 
     /**
      * @dev Creates a token bound account for a non-fungible token.
      *
      * If account has already been created, returns the account address without calling create2.
      *
-     * Emits ERC6551AccountCreated event.
+     * Emits VoucherAccountCreated event.
      *
      * @return account The address of the token bound account
      */

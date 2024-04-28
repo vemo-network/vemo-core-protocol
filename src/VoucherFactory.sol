@@ -12,13 +12,13 @@ import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/U
 import "./interfaces/IDynamic.sol";
 import "./interfaces/IFactory.sol";
 import "./interfaces/ICollection.sol";
-import "./interfaces/IVemoVoucher.sol";
-import "./interfaces/IVemoAccount.sol";
-import "./interfaces/IERC6551Registry.sol";
+import "./interfaces/IVoucherFactory.sol";
+import "./interfaces/IVoucherAccount.sol";
+import "./interfaces/IAccountRegistry.sol";
 
 import "./Common.sol";
 
-contract Voucher is IERC721Receiver, IVemoVoucher, UUPSUpgradeable, ReentrancyGuardUpgradeable {
+contract VoucherFactory is IERC721Receiver, IVoucherFactory, UUPSUpgradeable, ReentrancyGuardUpgradeable {
     // Contract deployer address
     address public _owner;
 
@@ -52,8 +52,8 @@ contract Voucher is IERC721Receiver, IVemoVoucher, UUPSUpgradeable, ReentrancyGu
 
     address public protocolFactoryAddress;
     address public dataRegistry;
-    address public erc6551Registry;
-    address public erc6551AccountImpl;
+    address public accountRegistry;
+    address public voucherAccountImpl;
 
     // data schemas
     event VoucherCreated(
@@ -68,20 +68,20 @@ contract Voucher is IERC721Receiver, IVemoVoucher, UUPSUpgradeable, ReentrancyGu
         address owner,
         address _factoryAddress,
         address _dataRegistry,
-        address _erc6551Registry,
-        address _erc6551AccountImpl
+        address _accountRegistry,
+        address _voucherAccountImpl
     ) public virtual initializer {
         require(_factoryAddress != address(0), "Invalid ERC20 token address");
         require(_dataRegistry != address(0), "Invalid Data registry address");
-        require(_erc6551Registry != address(0), "Invalid ERC6551 registry address");
-        require(_erc6551AccountImpl != address(0), "Invalid ERC6551 Account Impl address");
+        require(_accountRegistry != address(0), "Invalid ERC6551 registry address");
+        require(_voucherAccountImpl != address(0), "Invalid ERC6551 Account Impl address");
 
         __ReentrancyGuard_init();
 
         protocolFactoryAddress = _factoryAddress;
         dataRegistry = _dataRegistry;
-        erc6551Registry = _erc6551Registry;
-        erc6551AccountImpl = _erc6551AccountImpl;
+        accountRegistry = _accountRegistry;
+        voucherAccountImpl = _voucherAccountImpl;
         _owner = owner;
     }
 
@@ -93,12 +93,12 @@ contract Voucher is IERC721Receiver, IVemoVoucher, UUPSUpgradeable, ReentrancyGu
         dataRegistry = _dataRegistry;
     }
 
-    function setERC6551Registry(address _erc6551Registry) public onlyOwner {
-        erc6551Registry = _erc6551Registry;
+    function setAccountRegistry(address _accountRegistry) public onlyOwner {
+        accountRegistry = _accountRegistry;
     }
 
-    function setERC6551AccountImpl(address _erc6551AccountImpl) public onlyOwner {
-        erc6551AccountImpl = _erc6551AccountImpl;
+    function setVoucherAccountImpl(address _voucherAccountImpl) public onlyOwner {
+        voucherAccountImpl = _voucherAccountImpl;
     }
 
     // ====================================================
@@ -198,8 +198,8 @@ contract Voucher is IERC721Receiver, IVemoVoucher, UUPSUpgradeable, ReentrancyGu
             tokenAddress,
             vesting
         );
-        address account = IERC6551Registry(erc6551Registry).createAccount(
-            erc6551AccountImpl, bytes32(_salt++), block.chainid, nftAddress, tokenId, initData
+        address account = IAccountRegistry(accountRegistry).createAccount(
+            voucherAccountImpl, bytes32(_salt++), block.chainid, nftAddress, tokenId, initData
         );
         _tbaNftMap[nftAddress][tokenId] = account;
 
@@ -248,8 +248,8 @@ contract Voucher is IERC721Receiver, IVemoVoucher, UUPSUpgradeable, ReentrancyGu
                 tokenAddress,
                 batch.vesting
             );
-            address account = IERC6551Registry(erc6551Registry).createAccount(
-                erc6551AccountImpl, bytes32(_salt++), block.chainid, nftAddress, tokenId, initData
+            address account = IAccountRegistry(accountRegistry).createAccount(
+                voucherAccountImpl, bytes32(_salt++), block.chainid, nftAddress, tokenId, initData
             );
             _tbaNftMap[nftAddress][tokenId] = account;
 
@@ -294,7 +294,7 @@ contract Voucher is IERC721Receiver, IVemoVoucher, UUPSUpgradeable, ReentrancyGu
         }
 
         // redeem voucher
-        IVemoAccount(tba).redeem(amount);
+        IVoucherAccount(tba).redeem(amount);
 
         emit VoucherRedeem(msg.sender, getTokenAddressFromNftAddress(nftAddress), transferAmount, nftAddress, tokenId);
         return true;
@@ -312,7 +312,7 @@ contract Voucher is IERC721Receiver, IVemoVoucher, UUPSUpgradeable, ReentrancyGu
     {
         address tba = _tbaNftMap[nftAddress][tokenId];
         require(tba != address(0), "Voucher: voucher does not exists");
-        return IVemoAccount(tba).getClaimableAndSchedule(timestamp, amount);
+        return IVoucherAccount(tba).getClaimableAndSchedule(timestamp, amount);
     }
 
     function getVoucher(address nftAddress, uint256 tokenId)
@@ -335,13 +335,13 @@ contract Voucher is IERC721Receiver, IVemoVoucher, UUPSUpgradeable, ReentrancyGu
     {
         address tba = _tbaNftMap[nftAddress][tokenId];
         require(tba != address(0), "Voucher: voucher does not exists");
-        return IVemoAccount(tba).getDataBalanceAndSchedule();
+        return IVoucherAccount(tba).getDataBalanceAndSchedule();
     }
 
     function getDataFee(address nftAddress, uint256 tokenId) public view returns (VestingFee memory fee) {
         address tba = _tbaNftMap[nftAddress][tokenId];
         require(tba != address(0), "Voucher: voucher does not exists");
-        return IVemoAccount(tba).getDataFee();
+        return IVoucherAccount(tba).getDataFee();
     }
 
     function getTokenBoundAccount(address nftAddress, uint256 tokenId) public view returns (address account) {

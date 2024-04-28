@@ -8,15 +8,14 @@ import "@openzeppelin/contracts/interfaces/IERC1271.sol";
 import "@openzeppelin/contracts/interfaces/IERC20.sol";
 import "@openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
 
-import "./interfaces/IERC6551Account.sol";
+import "./interfaces/IVoucherAccount.sol";
 import "./interfaces/IERC6551Executable.sol";
-import "./interfaces/IVemoAccount.sol";
+import "./interfaces/IERC6551Account.sol";
 import "./interfaces/IDynamic.sol";
-import "./interfaces/IVemoVoucher.sol";
 
 import "./Common.sol";
 
-contract ERC6551Account is IERC165, IERC1271, IERC6551Account, IERC6551Executable, IVemoAccount {
+contract VoucherAccount is IERC165, IERC1271, IVoucherAccount, IERC6551Executable, IERC6551Account {
     uint256 public _state;
 
     // constants definition
@@ -41,7 +40,7 @@ contract ERC6551Account is IERC165, IERC1271, IERC6551Account, IERC6551Executabl
     uint8 private constant VESTING_STATUS = 2; // this status is specific for linear vesting type
 
     address private _dataRegistry;
-    address private _voucher;
+    address private _voucherFactory;
     uint256 public _balance;
     VestingFee private _fee;
     VestingSchedule[] private _schedules;
@@ -50,12 +49,12 @@ contract ERC6551Account is IERC165, IERC1271, IERC6551Account, IERC6551Executabl
     /**
      * @dev
      * The function for initializing immutable data: _dataRegistry
-     * This function MUST be call once and only once right after the ERC6551Account is created in the same transaction
+     * This function MUST be call once and only once right after the VoucherAccount is created in the same transaction
      */
-    function initialize(address dataRegistry, address voucher, address _tokenAddress, Vesting calldata vesting) external {
-        require(_voucher == address(0), "ERC6551Account: initialize() can execute only once");
+    function initialize(address dataRegistry, address voucherFactory, address _tokenAddress, Vesting calldata vesting) external {
+        require(_voucherFactory == address(0), "VoucherAccount: initialize() can execute only once");
         _dataRegistry = dataRegistry;
-        _voucher = voucher;
+        _voucherFactory = voucherFactory;
         _balance = vesting.balance;
         tokenAddress = _tokenAddress;
         if (vesting.fee.isFee == FEE_STATUS) {
@@ -68,25 +67,25 @@ contract ERC6551Account is IERC165, IERC1271, IERC6551Account, IERC6551Executabl
 
     function redeem(uint256 amount) public {
         (uint256 chainId, address nftAddress, uint256 tokenId) = token();
-        require(amount > 0, "ERC6551Account: want amount must be greater than zero");
+        require(amount > 0, "VoucherAccount: want amount must be greater than zero");
 
-        require(chainId == block.chainid, "ERC6551Account: invalid chain id");
+        require(chainId == block.chainid, "VoucherAccount: invalid chain id");
 
         (uint256 balance,) = getDataBalanceAndSchedule();
 
         (uint256 claimableAmount, uint8 batchSize, VestingSchedule[] memory schedules) =
             getClaimableAndSchedule(block.timestamp, amount);
 
-        require(balance > 0, "ERC6551Account: voucher balance must be greater than zero");
+        require(balance > 0, "VoucherAccount: voucher balance must be greater than zero");
         require(
             claimableAmount <= IERC20(tokenAddress).balanceOf(address(this)),
-            "ERC6551Account: balance of voucher is insufficient for redeem"
+            "VoucherAccount: balance of voucher is insufficient for redeem"
         );
 
-        require(batchSize > 0, "ERC6551Account: not any schedule is available for vesting");
+        require(batchSize > 0, "VoucherAccount: not any schedule is available for vesting");
         require(
             claimableAmount <= balance,
-            "ERC6551Account: claimable amount must be less than or equal remaining balance of voucher"
+            "VoucherAccount: claimable amount must be less than or equal remaining balance of voucher"
         );
 
         uint256 transferAmount = amount > claimableAmount ? claimableAmount : amount;
@@ -108,7 +107,7 @@ contract ERC6551Account is IERC165, IERC1271, IERC6551Account, IERC6551Executabl
         if (feeAmount > 0 && fee.isFee == FEE_STATUS) {
             require(
                 IERC20(fee.feeTokenAddress).transferFrom(msg.sender, address(fee.receiverAddress), feeAmount),
-                "ERC6551Account: Transfer fee failed"
+                "VoucherAccount: Transfer fee failed"
             );
             fee.remainingFee -= feeAmount;
             _fee = fee;
@@ -117,7 +116,7 @@ contract ERC6551Account is IERC165, IERC1271, IERC6551Account, IERC6551Executabl
         // transfer erc20 token
         require(
             IERC20(tokenAddress).transfer(owner(), transferAmount),
-            "ERC6551Account: Transfer ERC20 token claimable amount failed"
+            "VoucherAccount: Transfer ERC20 token claimable amount failed"
         );
     }
 
@@ -193,7 +192,7 @@ contract ERC6551Account is IERC165, IERC1271, IERC6551Account, IERC6551Executabl
         view
         returns (uint256 claimableAmount, uint8 batchSize, VestingSchedule[] memory)
     {
-        (, VestingSchedule[] memory schedules) = getDataBalanceAndSchedule();
+        VestingSchedule[] memory schedules  = _schedules;
         uint8 j;
         while (batchSize < REDEEM_BATCH_SIZE && j + 1 <= schedules.length && _amount > 0) {
             if (schedules[j].isVested == VESTED_STATUS) {
@@ -263,7 +262,7 @@ contract ERC6551Account is IERC165, IERC1271, IERC6551Account, IERC6551Executabl
     }
 
     function execute(address, uint256, bytes calldata, uint8) external payable virtual returns (bytes memory) {
-        revert("ERC6551Account: does not support this function");
+        revert("VoucherAccount: does not support this function");
     }
 
     function isValidSigner(address signer, bytes calldata) external view returns (bytes4) {

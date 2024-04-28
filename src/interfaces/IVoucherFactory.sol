@@ -4,7 +4,7 @@ pragma solidity ^0.8.13;
 import "./IFactory.sol";
 import "../Common.sol";
 
-interface IVemoVoucher {
+interface IVoucherFactory {
     event VoucherRedeem(
         address indexed account,
         address indexed currency,
