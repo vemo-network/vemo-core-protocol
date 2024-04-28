@@ -161,7 +161,7 @@ contract VoucherFactory is IERC721Receiver, IVoucherFactory, UUPSUpgradeable, Re
         return (_tokens, _nfts);
     }
 
-    function getNftAddressFromMap(address tokenAddress) internal view returns (address nftAddress) {
+    function getNftAddressFromMap(address tokenAddress) public view returns (address nftAddress) {
         if (tokenNftMap[tokenAddress] == address(0)) {
             revert("Not support tokenAddress ");
         }

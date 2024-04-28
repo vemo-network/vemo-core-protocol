@@ -285,6 +285,7 @@ contract VoucherAccount is IERC165, IERC1271, IVoucherAccount, IERC6551Executabl
 
     function supportsInterface(bytes4 interfaceId) external pure returns (bool) {
         return interfaceId == type(IERC165).interfaceId || interfaceId == type(IERC6551Account).interfaceId
+            || interfaceId == type(IVoucherAccount).interfaceId
             || interfaceId == type(IERC6551Executable).interfaceId;
     }
 

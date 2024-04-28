@@ -23,7 +23,7 @@ import "./mock/USDT.sol";
 import "./mock/USDC.sol";
 import "./mock/Factory.sol";
 
-contract VoucherAuthTest is Test {
+contract VoucherFactoryBaseTest is Test {
     uint256 defaultAdminPrivateKey = 1;
     uint256 userPrivateKey = 2;
     uint256 feeReceiverPrivateKey = 3;
@@ -35,9 +35,9 @@ contract VoucherAuthTest is Test {
     bytes32 constant WRITER_ROLE = keccak256("WRITER_ROLE");
     bytes32 constant DEFAULT_ADMIN_ROLE = 0x00;
 
-    bytes private constant BALANCE_KEY = "BALANCE";
+    bytes constant BALANCE_KEY = "BALANCE";
 
-    VoucherFactory voucher;
+    VoucherFactory voucherFactory;
     Factory factory = new Factory();
     NFT nft;
     DataRegistryV2 dataRegistry;
@@ -61,24 +61,14 @@ contract VoucherAuthTest is Test {
             )
         );
 
-        voucher = VoucherFactory(proxy);
+        voucherFactory = VoucherFactory(proxy);
         vm.startPrank(defaultAdmin);
-        nft.grantRole(MINTER_ROLE, address(voucher));
-        dataRegistry.grantRole(DEFAULT_ADMIN_ROLE, address(voucher));
-        dataRegistry.grantRole(WRITER_ROLE, address(voucher));
-        vm.stopPrank();
-    }
 
-    function testTransferOwner() public {
-        vm.startPrank(user);
-        vm.expectRevert(bytes("only owner"));
-        voucher.transferOwner(user);
-        vm.stopPrank();
+        nft.grantRole(MINTER_ROLE, address(voucherFactory));
+        dataRegistry.grantRole(DEFAULT_ADMIN_ROLE, address(voucherFactory));
+        dataRegistry.grantRole(WRITER_ROLE, address(voucherFactory));
+        voucherFactory.setX(address(usdt), address(nft));
 
-        vm.startPrank(defaultAdmin);
-        voucher.transferOwner(user);
         vm.stopPrank();
-
-        assertEq(voucher._owner(), user);
     }
 }

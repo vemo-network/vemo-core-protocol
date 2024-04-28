@@ -5,46 +5,10 @@ import {Test, console2} from "forge-std/Test.sol";
 import "forge-std/console.sol";
 
 import {Upgrades} from "openzeppelin-foundry-upgrades/Upgrades.sol";
+import "./VoucherFactory.base.sol";
 
-import "../src/DataRegistryV2.sol";
-import "../src/VoucherAccount.sol";
-import "../src/AccountRegistry.sol";
-import "../src/VoucherFactory.sol";
-import "../src/Common.sol";
-
-import "../src/interfaces/IVoucherFactory.sol";
-import "../src/interfaces/IVoucherAccount.sol";
-import "../src/helpers/DataStruct.sol";
-
-import "./mock/NFT.sol";
-import "./mock/USDT.sol";
-import "./mock/USDC.sol";
-import "./mock/Factory.sol";
-
-contract CreateTest is Test {
-    uint256 defaultAdminPrivateKey = 1;
-    uint256 userPrivateKey = 2;
-    uint256 feeReceiverPrivateKey = 3;
-    address defaultAdmin = vm.addr(defaultAdminPrivateKey);
-    address user = vm.addr(userPrivateKey);
+contract FactoryCreateTest is Test, VoucherFactoryBaseTest {
     address user1 = vm.addr(4);
-    address feeReceiver = vm.addr(feeReceiverPrivateKey);
-
-    bytes32 constant MINTER_ROLE = keccak256("MINTER_ROLE");
-    bytes32 constant WRITER_ROLE = keccak256("WRITER_ROLE");
-    bytes32 constant DEFAULT_ADMIN_ROLE = 0x00;
-
-    bytes private constant BALANCE_KEY = "BALANCE";
-
-    VoucherFactory voucher;
-    Factory factory = new Factory();
-    NFT nft;
-    DataRegistryV2 dataRegistry;
-    AccountRegistry accountRegistry = new AccountRegistry();
-    VoucherAccount accountImpl = new VoucherAccount();
-    address account;
-    USDT usdt = new USDT();
-    USDC usdc = new USDC();
 
     // create
     VestingSchedule schedule = VestingSchedule({
@@ -65,29 +29,6 @@ contract CreateTest is Test {
         remainingFee: 200
     });
 
-    function setUp() public {
-        nft = new NFT(defaultAdmin);
-        dataRegistry = new DataRegistryV2();
-        dataRegistry.initialize(
-            defaultAdmin, address(factory), "", DataRegistrySettings({disableComposable: true, disableDerivable: true})
-        );
-        address proxy = Upgrades.deployUUPSProxy(
-            "VoucherFactory.sol:VoucherFactory",
-            abi.encodeCall(
-                VoucherFactory.initialize,
-                (defaultAdmin, address(factory), address(dataRegistry), address(accountRegistry), address(accountImpl))
-            )
-        );
-        voucher = VoucherFactory(proxy);
-        vm.startPrank(defaultAdmin);
-        nft.grantRole(MINTER_ROLE, address(voucher));
-        dataRegistry.grantRole(DEFAULT_ADMIN_ROLE, address(voucher));
-        dataRegistry.grantRole(WRITER_ROLE, address(voucher));
-
-        voucher.setX(address(usdt), address(nft));
-        vm.stopPrank();
-    }
-
     function testSingleCreate() public {
         uint256 VESTING_BALANCE = 100_000_000;
         VestingSchedule[] memory schedules = new VestingSchedule[](1);
@@ -96,17 +37,17 @@ contract CreateTest is Test {
 
         vm.startPrank(defaultAdmin);
         vm.expectRevert();
-        (address nftAddress, uint256 tokenId) = voucher.create(address(usdt), vesting);
+        (address nftAddress, uint256 tokenId) = voucherFactory.create(address(usdt), vesting);
         vm.stopPrank();
 
         vm.startPrank(user);
         usdt.mint(user, VESTING_BALANCE);
-        usdt.approve(address(voucher), VESTING_BALANCE);
-        (nftAddress, tokenId) = voucher.create(address(usdt), vesting);
+        usdt.approve(address(voucherFactory), VESTING_BALANCE);
+        (nftAddress, tokenId) = voucherFactory.create(address(usdt), vesting);
         vm.stopPrank();
 
         // make sure we store the correct vesting data in ERC6551
-        VoucherAccount tba = VoucherAccount(payable(voucher.getTokenBoundAccount(nftAddress, tokenId)));
+        VoucherAccount tba = VoucherAccount(payable(voucherFactory.getTokenBoundAccount(nftAddress, tokenId)));
         assertEq(tba.tokenAddress(), address(usdt));
 
         VestingSchedule memory _schedule = tba.schedules(0);
@@ -126,7 +67,7 @@ contract CreateTest is Test {
         uint256 remaining = abi.decode(remainingValue, (uint256));
         assertEq(remaining, VESTING_BALANCE);
 
-        address voucherAccount = voucher.getTokenBoundAccount(nftAddress, tokenId);
+        address voucherAccount = voucherFactory.getTokenBoundAccount(nftAddress, tokenId);
         address payable pAccount = payable(voucherAccount);
         (uint256 accountChainId, address accountNftAddress, uint256 accountTokenId) = IERC6551Account(pAccount).token();
         assertEq(block.chainid, accountChainId);
@@ -145,26 +86,26 @@ contract CreateTest is Test {
 
         vm.startPrank(user);
         usdt.mint(user, 100);
-        usdt.approve(address(voucher), 100);
-        (address nftAddress, uint256 tokenId) = voucher.create(address(usdt), vesting);
+        usdt.approve(address(voucherFactory), 100);
+        (address nftAddress, uint256 tokenId) = voucherFactory.create(address(usdt), vesting);
         vm.stopPrank();
 
-        address voucherAccount = voucher.getTokenBoundAccount(nftAddress, tokenId);
+        address voucherAccount = voucherFactory.getTokenBoundAccount(nftAddress, tokenId);
 
         skip(1000);
         usdc.mint(user, 200);
 
         // redeem without authorization
         vm.startPrank(user1);
-        usdc.approve(address(voucher), 200);
+        usdc.approve(address(voucherFactory), 200);
         vm.expectRevert();
-        voucher.redeem(nftAddress, tokenId, 50);
+        voucherFactory.redeem(nftAddress, tokenId, 50);
         vm.stopPrank();
 
         // redeem with authorization
         vm.startPrank(user);
-        usdc.approve(address(voucher), 200);
-        voucher.redeem(nftAddress, tokenId, 50);
+        usdc.approve(address(voucherFactory), 200);
+        voucherFactory.redeem(nftAddress, tokenId, 50);
         vm.stopPrank();
 
         assertEq(50, usdt.balanceOf(voucherAccount));
@@ -185,10 +126,10 @@ contract CreateTest is Test {
         vm.startPrank(user);
 
         usdt.mint(user, schedule.amount);
-        usdt.approve(address(voucher), schedule.amount);
-        (address nftAddress, uint256 tokenId) = voucher.create(address(usdt), vesting);
+        usdt.approve(address(voucherFactory), schedule.amount);
+        (address nftAddress, uint256 tokenId) = voucherFactory.create(address(usdt), vesting);
 
-        VoucherAccount tba = VoucherAccount(payable(voucher.getTokenBoundAccount(nftAddress, tokenId)));
+        VoucherAccount tba = VoucherAccount(payable(voucherFactory.getTokenBoundAccount(nftAddress, tokenId)));
         vm.stopPrank();
 
         assertEq(0, usdt.balanceOf(user));

@@ -2,10 +2,10 @@
 pragma solidity ^0.8.13;
 
 import "forge-std/Script.sol";
-import "src/AccountRegistry.sol";
-import "src/VoucherAccount.sol";
-import "src/VoucherFactory.sol";
-import "src/DataRegistryV2.sol";
+import "../src/AccountRegistry.sol";
+import "../src/VoucherAccount.sol";
+import "../src/VoucherFactory.sol";
+import "../src/DataRegistryV2.sol";
 
 import {Upgrades} from "openzeppelin-foundry-upgrades/Upgrades.sol";
 
