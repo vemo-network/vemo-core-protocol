@@ -1,24 +1,19 @@
 
 
 @startuml
-actor TokenHolder as "Token Holder"
-entity VestingPoolFactory as "Vesting Pool Factory"
+skinparam sequenceMessageAlign center
+actor PoolParticipant as "Pool Participants"
 entity VestingPool as "Vesting Pool"
 entity Collection as "NFT Collection"
 entity VoucherFactory as "Voucher Factory"
 entity VoucherAccount as "Voucher Account"
-actor PoolParticipant as "Pool Participants"
 
-TokenHolder -> VestingPoolFactory: Lock principle tokens\nwith vesting scheme
-create VestingPool
-VestingPoolFactory -> VestingPool: New Vesting Pool created
 
-PoolParticipant -> VestingPool: Mint voucher\nwith desired exchange token
-VestingPool -> VoucherFactory: Mint voucher\nwith vesting scheme and principle amount
-VoucherFactory -> Collection: Request to DareNFT protocol to create collection
-Collection -> PoolParticipant: Mint NFT that represents ownership of voucher
+PoolParticipant -> VestingPool: (1) Mint voucher\nwith desired exchange token
+VestingPool -> VoucherFactory: (2) Mint voucher
+VoucherFactory -> Collection: (3) Mint NFT
+Collection -> PoolParticipant: (4) Send NFT
 create VoucherAccount
-VoucherFactory -> VoucherAccount: Create VoucherAccount linked to NFT
+VoucherFactory -> VoucherAccount: (5) Create associated VoucherAccount
 
-PoolParticipant -> VoucherAccount: Redeem tokens\nat proper vesting time
 @enduml

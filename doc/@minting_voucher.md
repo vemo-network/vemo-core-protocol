@@ -1,23 +1,17 @@
 @startuml
+skinparam sequenceMessageAlign center
 actor TokenHolder as "Token Holder"
 entity VoucherFactory as "Voucher Factory"
 entity VoucherAccount as "Voucher Account"
-entity Collection as "NFT Collection"
-
-TokenHolder -> VoucherFactory: Request/Create voucher collection
-create Collection
-VoucherFactory -> Collection: Mint a nft collection
+entity NFT as "NFT Collection"
 
 
-TokenHolder -> VoucherFactory:  Lock principle tokens\nwith vesting scheme
-create Collection
-VoucherFactory -> Collection: mint voucher nft
-Collection -> TokenHolder: NFT minted
+TokenHolder -> VoucherFactory:  (1) Create Voucher
+create NFT
+VoucherFactory -> NFT: (2) mint voucher's nft
+NFT -> TokenHolder: (3) new NFT
 create VoucherAccount
-VoucherFactory -> VoucherAccount: mint voucher account
-VoucherAccount -> TokenHolder: voucher account minted
+VoucherFactory -> VoucherAccount: (4) create an associated voucher account 
 
 
-
-TokenHolder -> VoucherAccount: Redeem tokens\nat proper vesting time
 @enduml
