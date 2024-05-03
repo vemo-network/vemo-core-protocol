@@ -182,7 +182,9 @@ contract VoucherFactory is IERC721Receiver, IVoucherFactory, UUPSUpgradeable, Re
         }
     }
 
-    function create(address tokenAddress, Vesting memory vesting) public nonReentrant returns (address, uint256) {
+    function create(address tokenAddress, Vesting memory vesting, address receiver) public nonReentrant returns (address, uint256) {
+        require(receiver != address(0));
+
         address nftAddress = getNftAddressFromMap(tokenAddress);
         vesting.schedules = _prepareVestingSchedule(vesting.schedules);
         vesting.fee.remainingFee = vesting.fee.totalFee;
@@ -211,17 +213,17 @@ contract VoucherFactory is IERC721Receiver, IVoucherFactory, UUPSUpgradeable, Re
         AccessControl(dataRegistry).grantRole(WRITER_ROLE, account);
 
         // transfer voucher to requester
-        IERC721(nftAddress).transferFrom(address(this), msg.sender, tokenId);
+        IERC721(nftAddress).transferFrom(address(this), receiver, tokenId);
 
         // write to data registry
         IDynamic(dataRegistry).write(nftAddress, tokenId, keccak256(BALANCE_KEY), abi.encode(vesting.balance));
 
-        emit VoucherCreated(msg.sender, tokenAddress, vesting.balance, nftAddress, tokenId);
+        emit VoucherCreated(receiver, tokenAddress, vesting.balance, nftAddress, tokenId);
 
         return (nftAddress, tokenId);
     }
 
-    function createBatch(address tokenAddress, BatchVesting memory batch, uint96 royaltyRate)
+    function createBatch(address tokenAddress, BatchVesting memory batch, uint96 royaltyRate, address receiver)
         public
         nonReentrant
         returns (address, uint256, uint256)
@@ -236,7 +238,7 @@ contract VoucherFactory is IERC721Receiver, IVoucherFactory, UUPSUpgradeable, Re
 
         // mint nfts
         (uint256 startId, uint256 endId) = ICollection(nftAddress).safeMintBatchWithTokenUrisAndRoyalty(
-            msg.sender, batch.tokenUris, msg.sender, royaltyRate
+            receiver, batch.tokenUris, receiver, royaltyRate
         );
 
         for (uint256 tokenId = startId; tokenId <= endId; tokenId++) {
@@ -260,7 +262,7 @@ contract VoucherFactory is IERC721Receiver, IVoucherFactory, UUPSUpgradeable, Re
             // grant writer role for account
             AccessControl(dataRegistry).grantRole(WRITER_ROLE, account);
 
-            emit VoucherCreated(msg.sender, tokenAddress, batch.vesting.balance, nftAddress, tokenId);
+            emit VoucherCreated(receiver, tokenAddress, batch.vesting.balance, nftAddress, tokenId);
         }
 
         // write data registry

@@ -37,13 +37,13 @@ contract FactoryCreateTest is Test, VoucherFactoryBaseTest {
 
         vm.startPrank(defaultAdmin);
         vm.expectRevert();
-        (address nftAddress, uint256 tokenId) = voucherFactory.create(address(usdt), vesting);
+        (address nftAddress, uint256 tokenId) = voucherFactory.create(address(usdt), vesting, address(defaultAdmin));
         vm.stopPrank();
 
         vm.startPrank(user);
         usdt.mint(user, VESTING_BALANCE);
         usdt.approve(address(voucherFactory), VESTING_BALANCE);
-        (nftAddress, tokenId) = voucherFactory.create(address(usdt), vesting);
+        (nftAddress, tokenId) = voucherFactory.create(address(usdt), vesting, address(user));
         vm.stopPrank();
 
         // make sure we store the correct vesting data in ERC6551
@@ -87,7 +87,7 @@ contract FactoryCreateTest is Test, VoucherFactoryBaseTest {
         vm.startPrank(user);
         usdt.mint(user, 100);
         usdt.approve(address(voucherFactory), 100);
-        (address nftAddress, uint256 tokenId) = voucherFactory.create(address(usdt), vesting);
+        (address nftAddress, uint256 tokenId) = voucherFactory.create(address(usdt), vesting, user);
         vm.stopPrank();
 
         address voucherAccount = voucherFactory.getTokenBoundAccount(nftAddress, tokenId);
@@ -127,7 +127,7 @@ contract FactoryCreateTest is Test, VoucherFactoryBaseTest {
 
         usdt.mint(user, schedule.amount);
         usdt.approve(address(voucherFactory), schedule.amount);
-        (address nftAddress, uint256 tokenId) = voucherFactory.create(address(usdt), vesting);
+        (address nftAddress, uint256 tokenId) = voucherFactory.create(address(usdt), vesting, address(user));
 
         VoucherAccount tba = VoucherAccount(payable(voucherFactory.getTokenBoundAccount(nftAddress, tokenId)));
         vm.stopPrank();
