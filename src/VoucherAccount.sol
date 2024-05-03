@@ -16,32 +16,32 @@ import "./interfaces/IDynamic.sol";
 import "./Common.sol";
 
 contract VoucherAccount is IERC165, IERC1271, IVoucherAccount, IERC6551Executable, IERC6551Account {
-    uint256 public _state;
+    uint256 private _state;
 
     // constants definition
-    uint8 private constant LINEAR_VESTING_TYPE = 1;
-    uint8 private constant STAGED_VESTING_TYPE = 2;
+    uint8 public constant LINEAR_VESTING_TYPE = 1;
+    uint8 public constant STAGED_VESTING_TYPE = 2;
 
-    uint8 private constant SECOND_LINEAR_VESTING_TYPE = 6;
-    uint8 private constant DAILY_LINEAR_VESTING_TYPE = 1;
-    uint8 private constant WEEKLY_LINEAR_VESTING_TYPE = 2;
-    uint8 private constant MONTHLY_LINEAR_VESTING_TYPE = 3;
-    uint8 private constant QUARTERLY_LINEAR_VESTING_TYPE = 4;
-    uint8 private constant YEARLY_LINEAR_VESTING_TYPE = 5;
+    uint8 public constant SECOND_LINEAR_VESTING_TYPE = 6;
+    uint8 public constant DAILY_LINEAR_VESTING_TYPE = 1;
+    uint8 public constant WEEKLY_LINEAR_VESTING_TYPE = 2;
+    uint8 public constant MONTHLY_LINEAR_VESTING_TYPE = 3;
+    uint8 public constant QUARTERLY_LINEAR_VESTING_TYPE = 4;
+    uint8 public constant YEARLY_LINEAR_VESTING_TYPE = 5;
 
-    bytes private constant BALANCE_KEY = "BALANCE";
+    bytes public constant BALANCE_KEY = "BALANCE";
 
-    uint8 private constant REDEEM_BATCH_SIZE = 10; // maximum number of schedules to be redeemed onetime
+    uint8 public constant REDEEM_BATCH_SIZE = 10; // maximum number of schedules to be redeemed onetime
 
-    uint8 private constant FEE_STATUS = 1;
+    uint8 public constant FEE_STATUS = 1;
 
-    uint8 private constant UNVESTED_STATUS = 0;
-    uint8 private constant VESTED_STATUS = 1;
-    uint8 private constant VESTING_STATUS = 2; // this status is specific for linear vesting type
+    uint8 public constant UNVESTED_STATUS = 0;
+    uint8 public constant VESTED_STATUS = 1;
+    uint8 public constant VESTING_STATUS = 2; // this status is specific for linear vesting type
 
     address private _dataRegistry;
     address private _voucherFactory;
-    uint256 public _balance;
+    uint256 public balance;
     VestingFee private _fee;
     VestingSchedule[] private _schedules;
     address public tokenAddress;
@@ -55,7 +55,7 @@ contract VoucherAccount is IERC165, IERC1271, IVoucherAccount, IERC6551Executabl
         require(_voucherFactory == address(0), "VoucherAccount: initialize() can execute only once");
         _dataRegistry = dataRegistry;
         _voucherFactory = voucherFactory;
-        _balance = vesting.balance;
+        balance = vesting.balance;
         tokenAddress = _tokenAddress;
         if (vesting.fee.isFee == FEE_STATUS) {
             _fee = vesting.fee;
@@ -71,12 +71,12 @@ contract VoucherAccount is IERC165, IERC1271, IVoucherAccount, IERC6551Executabl
 
         require(chainId == block.chainid, "VoucherAccount: invalid chain id");
 
-        (uint256 balance,) = getDataBalanceAndSchedule();
+        (uint256 _balanceBefore,) = getDataBalanceAndSchedule();
 
         (uint256 claimableAmount, uint8 batchSize, VestingSchedule[] memory schedules) =
             getClaimableAndSchedule(block.timestamp, amount);
 
-        require(balance > 0, "VoucherAccount: voucher balance must be greater than zero");
+        require(_balanceBefore > 0, "VoucherAccount: voucher balance must be greater than zero");
         require(
             claimableAmount <= IERC20(tokenAddress).balanceOf(address(this)),
             "VoucherAccount: balance of voucher is insufficient for redeem"
@@ -84,7 +84,7 @@ contract VoucherAccount is IERC165, IERC1271, IVoucherAccount, IERC6551Executabl
 
         require(batchSize > 0, "VoucherAccount: not any schedule is available for vesting");
         require(
-            claimableAmount <= balance,
+            claimableAmount <= _balanceBefore,
             "VoucherAccount: claimable amount must be less than or equal remaining balance of voucher"
         );
 
@@ -92,11 +92,11 @@ contract VoucherAccount is IERC165, IERC1271, IVoucherAccount, IERC6551Executabl
 
         VestingFee memory fee = getDataFee();
 
-        uint256 feeAmount = Math.mulDiv(transferAmount, fee.remainingFee, balance);
+        uint256 feeAmount = Math.mulDiv(transferAmount, fee.remainingFee, _balanceBefore);
 
         // update voucher data: balance
-        _balance = balance - transferAmount;
-        IDynamic(_dataRegistry).write(nftAddress, tokenId, keccak256(BALANCE_KEY), abi.encode(_balance));
+        balance = _balanceBefore - transferAmount;
+        IDynamic(_dataRegistry).write(nftAddress, tokenId, keccak256(BALANCE_KEY), abi.encode(balance));
 
         // update voucher data: schedule
         for (uint256 idx = 0; idx < schedules.length; idx++) {
@@ -120,7 +120,7 @@ contract VoucherAccount is IERC165, IERC1271, IVoucherAccount, IERC6551Executabl
         );
     }
 
-    function getClaimableStagedVesting(
+    function _getClaimableStagedVesting(
         VestingSchedule memory schedule,
         uint256 timestamp,
         uint256 _amount,
@@ -143,7 +143,7 @@ contract VoucherAccount is IERC165, IERC1271, IVoucherAccount, IERC6551Executabl
         return (schedule, claimableAmount, batchSize, _amount);
     }
 
-    function getClaimableLinearVesting(
+    function _getClaimableLinearVesting(
         VestingSchedule memory schedule,
         uint256 timestamp,
         uint256 _amount,
@@ -163,7 +163,7 @@ contract VoucherAccount is IERC165, IERC1271, IVoucherAccount, IERC6551Executabl
             }
             batchSize++;
         } else if (timestamp >= schedule.startTimestamp) {
-            uint256 linearClaimableAmount = calculateLinearClaimableAmount(timestamp, schedule);
+            uint256 linearClaimableAmount = _calculateLinearClaimableAmount(timestamp, schedule);
             // claimable amount can not exceed remaining amount
             linearClaimableAmount =
                 (schedule.remainingAmount > linearClaimableAmount ? linearClaimableAmount : schedule.remainingAmount);
@@ -199,10 +199,10 @@ contract VoucherAccount is IERC165, IERC1271, IVoucherAccount, IERC6551Executabl
                 // schedule is already vested, thus ignore
             } else if (schedules[j].vestingType == STAGED_VESTING_TYPE) {
                 (schedules[j], claimableAmount, batchSize, _amount) =
-                    getClaimableStagedVesting(schedules[j], timestamp, _amount, batchSize, claimableAmount);
+                    _getClaimableStagedVesting(schedules[j], timestamp, _amount, batchSize, claimableAmount);
             } else if (schedules[j].vestingType == LINEAR_VESTING_TYPE) {
                 (schedules[j], claimableAmount, batchSize, _amount) =
-                    getClaimableLinearVesting(schedules[j], timestamp, _amount, batchSize, claimableAmount);
+                    _getClaimableLinearVesting(schedules[j], timestamp, _amount, batchSize, claimableAmount);
             }
             j++;
         }
@@ -210,7 +210,7 @@ contract VoucherAccount is IERC165, IERC1271, IVoucherAccount, IERC6551Executabl
         return (claimableAmount, batchSize, schedules);
     }
 
-    function calculateLinearClaimableAmount(uint256 timestamp, VestingSchedule memory linearSchedule)
+    function _calculateLinearClaimableAmount(uint256 timestamp, VestingSchedule memory linearSchedule)
         internal
         pure
         returns (uint256)
@@ -254,7 +254,7 @@ contract VoucherAccount is IERC165, IERC1271, IVoucherAccount, IERC6551Executabl
     }
 
     function getDataBalanceAndSchedule() public view returns (uint256, VestingSchedule[] memory) {
-        return (_balance, _schedules);
+        return (balance, _schedules);
     }
 
     function getDataFee() public view returns (VestingFee memory) {
