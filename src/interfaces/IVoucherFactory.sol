@@ -27,11 +27,11 @@ interface IVoucherFactory {
         external
         returns (uint256 claimableAmount, uint8 batchSize, VestingSchedule[] memory);
 
-    function create(address tokenAddress, Vesting memory vesting)
+    function create(address tokenAddress, Vesting memory vesting, address receiver)
         external
         returns (address nftAddress, uint256 tokenId);
 
-    function createBatch(address tokenAddress, BatchVesting memory batch, uint96 royaltyRate)
+    function createBatch(address tokenAddress, BatchVesting memory batch, uint96 royaltyRate, address receiver)
         external
         returns (address nftAddress, uint256 startId, uint256 endId);
 

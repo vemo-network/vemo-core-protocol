@@ -38,7 +38,7 @@ contract FactoryCreateBatchTest is Test, VoucherFactoryBaseTest {
         string[] memory tokenUris = new string[](1);
         tokenUris[0] = "tokenUri";
         (address nftAddress, uint256 tokenId,) =
-            voucherFactory.createBatch(address(usdt), BatchVesting({vesting: vesting, quantity: 1, tokenUris: tokenUris}), 0);
+            voucherFactory.createBatch(address(usdt), BatchVesting({vesting: vesting, quantity: 1, tokenUris: tokenUris}), 0, user);
         vm.stopPrank();
 
         VoucherAccount tba = VoucherAccount(payable(voucherFactory.getTokenBoundAccount(nftAddress, tokenId)));
