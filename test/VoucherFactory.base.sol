@@ -29,6 +29,7 @@ contract VoucherFactoryBaseTest is Test {
     uint256 feeReceiverPrivateKey = 3;
     address defaultAdmin = vm.addr(defaultAdminPrivateKey);
     address user = vm.addr(userPrivateKey);
+    address userReceiver = vm.addr(userPrivateKey+99);
     address feeReceiver = vm.addr(feeReceiverPrivateKey);
 
     bytes32 constant MINTER_ROLE = keccak256("MINTER_ROLE");

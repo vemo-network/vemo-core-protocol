@@ -7,7 +7,7 @@ import "forge-std/console.sol";
 import {Upgrades} from "openzeppelin-foundry-upgrades/Upgrades.sol";
 import "./VoucherFactory.base.sol";
 
-contract FactoryCreateBatchTest is Test, VoucherFactoryBaseTest {
+contract FactoryCreateBatchForTest is Test, VoucherFactoryBaseTest {
     function testCreateBatchAndRedeem() public {
         // create
         VestingSchedule memory schedule = VestingSchedule({
@@ -38,14 +38,14 @@ contract FactoryCreateBatchTest is Test, VoucherFactoryBaseTest {
         string[] memory tokenUris = new string[](1);
         tokenUris[0] = "tokenUri";
         (address nftAddress, uint256 tokenId,) =
-            voucherFactory.createBatch(address(usdt), BatchVesting({vesting: vesting, quantity: 1, tokenUris: tokenUris}), 0);
+            voucherFactory.createBatchFor(address(usdt), BatchVesting({vesting: vesting, quantity: 1, tokenUris: tokenUris}), 0, userReceiver);
         vm.stopPrank();
 
         VoucherAccount tba = VoucherAccount(payable(voucherFactory.getTokenBoundAccount(nftAddress, tokenId)));
 
         assertEq(tba.tokenAddress(), address(usdt));
         assertEq(address(nft), nftAddress);
-        assertEq(user, nft.ownerOf(tokenId));
+        assertEq(userReceiver, nft.ownerOf(tokenId));
 
         bytes memory remainingValue = dataRegistry.read(nftAddress, tokenId, keccak256(BALANCE_KEY));
         uint256 remaining = abi.decode(remainingValue, (uint256));
@@ -60,6 +60,11 @@ contract FactoryCreateBatchTest is Test, VoucherFactoryBaseTest {
         assertEq(tokenId, accountTokenId);
         assertEq(0, usdt.balanceOf(user));
         assertEq(100, usdt.balanceOf(voucherAccount));
+
+        // transfer ERC721 to user
+        vm.startPrank(userReceiver);
+        nft.transferFrom(userReceiver, user, tokenId);
+        vm.stopPrank();
 
         // redeem
         skip(1000);

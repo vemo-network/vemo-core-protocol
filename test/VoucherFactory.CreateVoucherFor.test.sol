@@ -7,7 +7,7 @@ import "forge-std/console.sol";
 import {Upgrades} from "openzeppelin-foundry-upgrades/Upgrades.sol";
 import "./VoucherFactory.base.sol";
 
-contract FactoryCreateTest is Test, VoucherFactoryBaseTest {
+contract FactoryCreateForTest is Test, VoucherFactoryBaseTest {
     address user1 = vm.addr(4);
 
     // create
@@ -37,13 +37,13 @@ contract FactoryCreateTest is Test, VoucherFactoryBaseTest {
 
         vm.startPrank(defaultAdmin);
         vm.expectRevert();
-        (address nftAddress, uint256 tokenId) = voucherFactory.create(address(usdt), vesting);
+        (address nftAddress, uint256 tokenId) = voucherFactory.createFor(address(usdt), vesting, address(defaultAdmin));
         vm.stopPrank();
 
         vm.startPrank(user);
         usdt.mint(user, VESTING_BALANCE);
         usdt.approve(address(voucherFactory), VESTING_BALANCE);
-        (nftAddress, tokenId) = voucherFactory.create(address(usdt), vesting);
+        (nftAddress, tokenId) = voucherFactory.createFor(address(usdt), vesting, address(userReceiver));
         vm.stopPrank();
 
         // make sure we store the correct vesting data in ERC6551
@@ -60,7 +60,7 @@ contract FactoryCreateTest is Test, VoucherFactoryBaseTest {
         assertEq(schedule.amount, _schedule.remainingAmount);
 
         assertEq(address(nft), nftAddress);
-        assertEq(user, nft.ownerOf(tokenId));
+        assertEq(userReceiver, nft.ownerOf(tokenId));
 
         // check usdt balance
         bytes memory remainingValue = dataRegistry.read(nftAddress, tokenId, keccak256(BALANCE_KEY));
@@ -87,11 +87,15 @@ contract FactoryCreateTest is Test, VoucherFactoryBaseTest {
         vm.startPrank(user);
         usdt.mint(user, 100);
         usdt.approve(address(voucherFactory), 100);
-        (address nftAddress, uint256 tokenId) = voucherFactory.create(address(usdt), vesting);
+        (address nftAddress, uint256 tokenId) = voucherFactory.createFor(address(usdt), vesting, userReceiver);
         vm.stopPrank();
 
         address voucherAccount = voucherFactory.getTokenBoundAccount(nftAddress, tokenId);
 
+        vm.startPrank(userReceiver);
+        nft.transferFrom(userReceiver, user, tokenId);
+        vm.stopPrank();
+        
         skip(1000);
         usdc.mint(user, 200);
 
@@ -127,7 +131,7 @@ contract FactoryCreateTest is Test, VoucherFactoryBaseTest {
 
         usdt.mint(user, schedule.amount);
         usdt.approve(address(voucherFactory), schedule.amount);
-        (address nftAddress, uint256 tokenId) = voucherFactory.create(address(usdt), vesting);
+        (address nftAddress, uint256 tokenId) = voucherFactory.createFor(address(usdt), vesting, address(user));
 
         VoucherAccount tba = VoucherAccount(payable(voucherFactory.getTokenBoundAccount(nftAddress, tokenId)));
         vm.stopPrank();
