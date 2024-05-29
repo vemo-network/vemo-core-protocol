@@ -55,7 +55,7 @@ $ cast <subcommand>
 ### Verify contract
 
 ```shell
-forge verify-contract "contract-name" --watch --chain 56 "contract_path:contract_name"  --etherscan-api-key "" --num-of-optimizations 200 --compiler-version 0.8.21 --constructor-args "contract-arg"
+forge verify-contract "contract-address" --watch --chain 56 "contract_path:contract_name"  --etherscan-api-key "" --num-of-optimizations 200 --compiler-version 0.8.21 --constructor-args "contract-arg"
 
 Note
 1. there are some scan/explorers that don't accept the tx parameters as contruction-arg, there is a script call abi.encode.js support encode/decode manually.
