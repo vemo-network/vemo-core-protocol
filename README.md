@@ -16,12 +16,12 @@ Owner: 0xF42694796976e9Fc2fA7287b4CFAD218516d0BC7
 | --- | --- | --- |
 | Factory | 0x34A4ac15dcAA1f498ca405a4d6C3aEc8108600b8 |  |
 | Data Registry V2 | 0x6dc54cd9570F30b28fDa3d82FA6191136Ef8d082 |  |
-| VoucherFactory | 0xbB740E17f3c177172CaAcCef2F472DB41b9b1d19 | Push production code	560342a	Matthew Dinh mailto:tiendv.52@gmail.com	Apr 13, 2024 at 11:52 AM |
-| VoucherFactory Imp | 0xa1bc57835A7FC612e3b2E36a6D44D3cE8EC3fed2 | Push production code	560342a	Matthew Dinh mailto:tiendv.52@gmail.com	Apr 13, 2024 at 11:52 AM |
-| AccountRegistry | 0x21672f86E2a77b7725169d09750dBC9D1E4b27b2 | Push production code	560342a	Matthew Dinh mailto:tiendv.52@gmail.com	Apr 13, 2024 at 11:52 AM |
-| VoucherAccount Iml | 0xEEa72E7B0aF76DA1Fb728FB7B3c4cC40184a66c0 | Push production code	560342a	Matthew Dinh mailto:tiendv.52@gmail.com	Apr 13, 2024 at 11:52 AM |
-| Vemo Vesting Factory | 0x296d2C371D4Be8A5368f5E541Bc62926051E92CC | Prepare for Production	35996fa	Matthew Dinh mailto:tiendv.52@gmail.com	Apr 8, 2024 at 11:24 PM |
-| Vemo Vesting Factory Impl | 0xbF907b4ff56E6EF9E648B4831aBF526cF5494896 | Prepare for Production	35996fa	Matthew Dinh mailto:tiendv.52@gmail.com	Apr 8, 2024 at 11:24 PM |
+| VoucherFactory | 0xbB740E17f3c177172CaAcCef2F472DB41b9b1d19 |  |
+| VoucherFactory Imp | 0xfb62695F550929b6630D7A395D8aB69605DbE230 |  |
+| AccountRegistry | 0x21672f86E2a77b7725169d09750dBC9D1E4b27b2 |  |
+| VoucherAccount Iml | 0xA70e9ECC8013a6B40BbBD03a6dC60d0390ACA0A3 |  |
+| Vemo Vesting Factory | 0x296d2C371D4Be8A5368f5E541Bc62926051E92CC | |
+| Vemo Vesting Factory Impl | 0xbF907b4ff56E6EF9E648B4831aBF526cF5494896 | |
 
 -----------------------------------
 Deployment on bnb mainnet 
