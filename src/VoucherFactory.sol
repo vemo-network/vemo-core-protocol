@@ -182,92 +182,16 @@ contract VoucherFactory is IERC721Receiver, IVoucherFactory, UUPSUpgradeable, Re
         }
     }
 
-    function create(address tokenAddress, Vesting memory vesting) public nonReentrant returns (address, uint256) {
-        address nftAddress = getNftAddressFromMap(tokenAddress);
-        vesting.schedules = _prepareVestingSchedule(vesting.schedules);
-        vesting.fee.remainingFee = vesting.fee.totalFee;
-
-        // mint new voucher
-        uint256 tokenId = ICollection(nftAddress).safeMint(address(this));
-
-        // create erc6551 token bound account
-        bytes memory initData = abi.encodeWithSignature(
-            "initialize(address,address,address,(uint256,(uint256,uint8,uint8,uint256,uint256,uint8,uint256)[],(uint8,address,address,uint256,uint256)))",
-            dataRegistry,
-            address(this),
-            tokenAddress,
-            vesting
-        );
-        address account = IAccountRegistry(accountRegistry).createAccount(
-            voucherAccountImpl, bytes32(_salt++), block.chainid, nftAddress, tokenId, initData
-        );
-        _tbaNftMap[nftAddress][tokenId] = account;
-
-        // stake amount of token to erc6551 token bound account
-        IERC20(tokenAddress).transferFrom(msg.sender, account, vesting.balance);
-        require(IERC20(tokenAddress).balanceOf(account) == vesting.balance, "Stake voucher balance failed" );
-
-        // grant writer role for account
-        AccessControl(dataRegistry).grantRole(WRITER_ROLE, account);
-
-        // transfer voucher to requester
-        IERC721(nftAddress).transferFrom(address(this), msg.sender, tokenId);
-
-        // write to data registry
-        IDynamic(dataRegistry).write(nftAddress, tokenId, keccak256(BALANCE_KEY), abi.encode(vesting.balance));
-
-        emit VoucherCreated(msg.sender, tokenAddress, vesting.balance, nftAddress, tokenId);
-
+    function create(address tokenAddress, Vesting memory vesting) public returns (address nftAddress, uint256 tokenId) {
+        (nftAddress, tokenId) = createFor(tokenAddress, vesting, msg.sender);
         return (nftAddress, tokenId);
     }
 
     function createBatch(address tokenAddress, BatchVesting memory batch, uint96 royaltyRate)
         public
-        nonReentrant
-        returns (address, uint256, uint256)
+        returns (address nftAddress, uint256 startId, uint256 endId)
     {
-        address nftAddress = getNftAddressFromMap(tokenAddress);
-
-        require(batch.vesting.balance * batch.quantity > 0, "Total balance must be greater than zero");
-        require(batch.quantity == batch.tokenUris.length, "Length of tokenUris must be equal to quantity");
-
-        batch.vesting.schedules = _prepareVestingSchedule(batch.vesting.schedules);
-        batch.vesting.fee.remainingFee = batch.vesting.fee.totalFee;
-
-        // mint nfts
-        (uint256 startId, uint256 endId) = ICollection(nftAddress).safeMintBatchWithTokenUrisAndRoyalty(
-            msg.sender, batch.tokenUris, msg.sender, royaltyRate
-        );
-
-        for (uint256 tokenId = startId; tokenId <= endId; tokenId++) {
-            // create erc6551 token bound account
-            bytes memory initData = abi.encodeWithSignature(
-                "initialize(address,address,address,(uint256,(uint256,uint8,uint8,uint256,uint256,uint8,uint256)[],(uint8,address,address,uint256,uint256)))",
-                dataRegistry,
-                address(this),
-                tokenAddress,
-                batch.vesting
-            );
-            address account = IAccountRegistry(accountRegistry).createAccount(
-                voucherAccountImpl, bytes32(_salt++), block.chainid, nftAddress, tokenId, initData
-            );
-            _tbaNftMap[nftAddress][tokenId] = account;
-
-            // stake amount of token to erc6551 token bound account
-            IERC20(tokenAddress).transferFrom(msg.sender, account, batch.vesting.balance);
-            require(IERC20(tokenAddress).balanceOf(account) == batch.vesting.balance, "Stake voucher balance failed" );
-
-            // grant writer role for account
-            AccessControl(dataRegistry).grantRole(WRITER_ROLE, account);
-
-            emit VoucherCreated(msg.sender, tokenAddress, batch.vesting.balance, nftAddress, tokenId);
-        }
-
-        // write data registry
-        IDynamic(dataRegistry).writeBatch(
-            nftAddress, startId, endId, keccak256(BALANCE_KEY), abi.encode(batch.vesting.balance)
-        );
-
+        (nftAddress, startId, endId) = createBatchFor(tokenAddress, batch, royaltyRate, msg.sender);
         return (nftAddress, startId, endId);
     }
 
@@ -361,6 +285,7 @@ contract VoucherFactory is IERC721Receiver, IVoucherFactory, UUPSUpgradeable, Re
 
         return (nftAddress, startId, endId);
     }
+
 
     function redeem(address nftAddress, uint256 tokenId, uint256 amount) public nonReentrant returns (bool) {
         address tba = _tbaNftMap[nftAddress][tokenId];
