@@ -24,6 +24,23 @@ if [[ "$DEPLOYMENT" != "Deploy" && "$DEPLOYMENT" != "Deploy.Account" ]]; then
     usage
 fi
 
+# Validate deployment parameter
+case $DEPLOYMENT in
+    Deploy)
+        CONTRACT_NAME="VoucherFactory"
+        CONTRACT_SOURCE="src/VoucherFactory.sol"
+        ;;
+    Deploy.Account)
+        CONTRACT_NAME="VoucherAccount"
+        CONTRACT_SOURCE="src/VoucherAccount.sol"
+        ;;
+    *)
+        echo "Error: Unsupported deployment '$DEPLOYMENT'"
+        usage
+        ;;
+esac
+
+
 # Set the RPC URL and Verifier URL based on the input chain
 case $CHAIN in
     avax-fuji)
@@ -61,14 +78,21 @@ DEPLOY_OUTPUT=$(forge clean && forge build && forge script script/${DEPLOYMENT}.
     --private-key $PRIVATE_KEY \
     --broadcast)
 
+# Print deployment output for debugging
+echo "$DEPLOY_OUTPUT"
+
 # Extract the contract address from the deploy output
-CONTRACT_ADDRESS=$(echo "$DEPLOY_OUTPUT" | grep -oP 'Contract Address: \K0x[a-fA-F0-9]{40}')
+# CONTRACT_ADDRESS=$(echo "$DEPLOY_OUTPUT" | grep -oP 'Contract Address: \K0x[a-fA-F0-9]{40}')
+CONTRACT_ADDRESS=$(echo "$DEPLOY_OUTPUT" | awk '/Contract Address:/ {print $3}')
+
+# Print contract address for debugging
+echo "Contract Address: $CONTRACT_ADDRESS"
 
 # Verify the contract using the captured contract address
 forge verify-contract $CONTRACT_ADDRESS \
     --watch \
     --chain $CHAIN_ID \
-    src/VoucherFactory.sol:VoucherFactory \
-    --etherscan-api-key "T13I2K7E5C6PX8K1DDGWFYQ3DMDVVI4FRC" \
+    $CONTRACT_SOURCE:$CONTRACT_NAME \
+    --etherscan-api-key "1VYRT81XHNBY8BC2X88N9ZF4XRBXUJDYKQ" \
     --num-of-optimizations 200 \
     --compiler-version 0.8.23
