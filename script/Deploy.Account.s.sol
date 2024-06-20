@@ -24,9 +24,8 @@ contract DeployVemoSC is Script {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         vm.startBroadcast(deployerPrivateKey);
 
-        VoucherFactory newImplementation = new VoucherFactory();
+        VoucherAccount newImplementation = new VoucherAccount();
 
-        // Upgrade the implementation
         vm.stopBroadcast();
     }
 }
