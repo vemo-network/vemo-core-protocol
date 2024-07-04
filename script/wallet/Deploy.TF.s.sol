@@ -27,7 +27,7 @@ contract DeployVemoWalletWithTokenboundFoundationSC is Script {
         vm.startBroadcast(deployerPrivateKey);
         
         string memory root = vm.projectRoot();
-        string memory path = string.concat(root, "/script/tokenbound.foundation.json");
+        string memory path = string.concat(root, "/script/wallet/tokenbound.foundation.json");
         string memory json = vm.readFile(path);
         bytes memory data = vm.parseJson(json);
         DeployedAddresses memory deployedAddresses = abi.decode(data, (DeployedAddresses));

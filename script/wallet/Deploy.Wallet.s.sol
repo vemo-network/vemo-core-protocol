@@ -33,12 +33,13 @@ contract DeployVemoWalletSC is Script {
         address entrypointERC4337 = 0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789;
         vm.startBroadcast(deployerPrivateKey);
 
-        // 0xFE3FB7C89D6Dd28f3213aff53275093a30D4BEda
+        // 0xb50D9B55b3F994ce5F881c4FAeA374cF69dBA3b1
         AccountGuardian guardian = new AccountGuardian(msg.sender);
 
-        // 0x354C2fe546d6890a5132afa10d41620f118703Ad
+        // 0x0deC1D7E2789f80084bB0d516381Cf80B0E7c5f7
         ERC6551Registry accountRegistry = new ERC6551Registry();
 
+        //0x1146212217dBC5A3ee7954D55A194c232F4aDeAC
         AccountV3 implementation = new AccountV3(
             entrypointERC4337, address(forwarder), address(accountRegistry), address(guardian));
 
@@ -74,11 +75,11 @@ contract DeployVemoWalletSC is Script {
             )
         );
 
-        console.logAddress(address(guardian));
-        console.logAddress(address(implementation));
-        console.logAddress(address(accountProxy));
-        console.logAddress(address(accountRegistry));
-        console.logAddress(address(proxy));
+        console.logAddress(address(guardian)); // 0xb50D9B55b3F994ce5F881c4FAeA374cF69dBA3b1
+        console.logAddress(address(implementation)); // 0x1146212217dBC5A3ee7954D55A194c232F4aDeAC
+        console.logAddress(address(accountProxy)); // 0xEA8909794F435ee03528cfA8CE8e0cCa8D7535Ae
+        console.logAddress(address(accountRegistry)); // 0xD629D25e20F26587C2Ee608fA0ebCA3aD4d00c6D
+        console.logAddress(address(proxy)); // 0xbd29f427d04Df4c89c5c5616e866c365a6Bf3682
         vm.stopBroadcast();
     }
 }

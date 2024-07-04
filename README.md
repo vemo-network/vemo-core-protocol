@@ -88,7 +88,12 @@ Deployment on bnb testnet
 | VoucherAccount Iml | 0x8C5a1809C962cb1bc664C7395F1C48E0f69d3f9F |
 | Vemo Vesting Factory | 0x38BE5E3f75C7D5F67558FC47c75c010783a28Cc9 |
 | Vemo Vesting Factory Impl | 0x21b2E6c9805871743aeAD44c65bAb6cb9F0f1c60 |
-
+| Guardian | 0xb50D9B55b3F994ce5F881c4FAeA374cF69dBA3b1 |
+| Wallet impl |  0x1146212217dBC5A3ee7954D55A194c232F4aDeAC  |
+| Wallet Proxy | 0xEA8909794F435ee03528cfA8CE8e0cCa8D7535Ae |
+| ERC6551 registry |  0x0deC1D7E2789f80084bB0d516381Cf80B0E7c5f7 |
+| WalletFactory Impl | 0xD629D25e20F26587C2Ee608fA0ebCA3aD4d00c6D |
+| WalletFactory | 0xbd29f427d04Df4c89c5c5616e866c365a6Bf3682 |
 ## Usage
 
 ### Build
