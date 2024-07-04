@@ -9,14 +9,14 @@ import "@openzeppelin/contracts/interfaces/IERC721Receiver.sol";
 import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
-import "./interfaces/IDynamic.sol";
-import "./interfaces/IFactory.sol";
-import "./interfaces/ICollection.sol";
+import "./interfaces/darenft/IDynamic.sol";
+import "./interfaces/darenft/IFactory.sol";
+import "./interfaces/darenft/ICollection.sol";
 import "./interfaces/IVoucherFactory.sol";
 import "./interfaces/IVoucherAccount.sol";
-import "./interfaces/IAccountRegistry.sol";
+import "./interfaces/erc6551/IAccountRegistry.sol";
 
-import "./Common.sol";
+import "./helpers/VemoVestingStruct.sol";
 
 contract VoucherFactory is IERC721Receiver, IVoucherFactory, UUPSUpgradeable, ReentrancyGuardUpgradeable {
     // Contract deployer address

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.13;
+pragma solidity ^0.8.21;
 
 import "@openzeppelin/contracts/utils/Create2.sol";
 
-import "./interfaces/IAccountRegistry.sol";
+import "./interfaces/erc6551/IAccountRegistry.sol";
 
 contract AccountRegistry is IAccountRegistry {
     function getERC6551CreationCode(
@@ -35,13 +35,13 @@ contract AccountRegistry is IAccountRegistry {
 
         if (_account.code.length != 0) return _account;
 
-        emit VoucherAccountCreated(_account, implementation, salt, chainId, tokenContract, tokenId);
+        emit ERC6551AccountCreated(_account, implementation, salt, chainId, tokenContract, tokenId);
 
         _account = Create2.deploy(0, salt, code);
 
         if (initData.length != 0) {
             (bool success,) = _account.call(initData);
-            if (!success) revert VoucherAccountCreationFailed();
+            if (!success) revert AccountCreationFailed();
         }
 
         return _account;

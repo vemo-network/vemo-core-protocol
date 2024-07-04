@@ -6,5 +6,5 @@ out = "out"
 libs = ["lib"]
 build_info = true
 extra_output = ["storageLayout"]
-
+fs_permissions = [{ access = "read", path = "./" }]
 # See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options

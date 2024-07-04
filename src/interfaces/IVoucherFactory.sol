@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.13;
+pragma solidity ^0.8.21;
 
-import "./IFactory.sol";
-import "../Common.sol";
+import "../helpers/VemoVestingStruct.sol";
 
 interface IVoucherFactory {
     event VoucherRedeem(
@@ -45,3 +44,4 @@ interface IVoucherFactory {
 
     function redeem(address nftAddress, uint256 tokenId, uint256 _amount) external returns (bool);
 }
+

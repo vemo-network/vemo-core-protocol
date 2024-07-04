@@ -4,15 +4,15 @@ import "forge-std/Test.sol";
 
 import "../src/AccountRegistry.sol";
 import "./mock/NFT.sol";
-import "../src/VoucherAccount.sol";
+import "../src/accounts/VoucherAccount.sol";
 
-import "../src/interfaces/IERC6551Executable.sol";
+import "../src/interfaces/erc6551/IERC6551Executable.sol";
 
 contract RegistryTest is Test {
     AccountRegistry public registry;
     VoucherAccount public implementation;
 
-    event VoucherAccountCreated(
+    event ERC6551AccountCreated(
         address account,
         address indexed implementation,
         bytes32 salt,
@@ -57,7 +57,7 @@ contract RegistryTest is Test {
         address account = registry.account(address(implementation), salt, chainId, tokenAddress, tokenId);
 
         vm.expectEmit(true, true, true, true);
-        emit VoucherAccountCreated(account, address(implementation), salt, chainId, tokenAddress, tokenId);
+        emit ERC6551AccountCreated(account, address(implementation), salt, chainId, tokenAddress, tokenId);
 
         address deployedAccount =
             registry.createAccount(address(implementation), salt, chainId, tokenAddress, tokenId, initData);

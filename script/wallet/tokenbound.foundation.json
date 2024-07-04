@@ -1,0 +1,9 @@
+{
+    "create2_factory":	"0x4e59b44847b379578588920ca78fbf26c0b4956c",	
+    "erc6551_registry":	"0x000000006551c19487814612e58fe06813775758",	
+    "account_proxy":	"0x55266d75d1a14e4572138116af39863ed6596e7f",	
+    "account_implementation":	"0x41c8f39463a868d3a88af00cd0fe7102f30e44ec",	
+    "account_guardian":	"0x2fe5ccb0d7ea195feb87987d3573f9fcce2b5d57",
+    "authenticated_multicall":	"0xca1167915584462449ee5b4ea51c37fe81ecdccd",
+    "layerzero_executor":	"0x0f220412bf22e05ebcc5070d60fd7136a08af22c"	
+}
