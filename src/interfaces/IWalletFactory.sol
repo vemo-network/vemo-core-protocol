@@ -19,13 +19,6 @@ interface IWalletFactory {
         string  dappURI
     );
 
-    event TBACreated(
-        address indexed collection,
-        uint256 indexed collectionIndex,
-        address  account,
-        uint256  chainId
-    );
-
     function createWalletCollection(
         uint160 collectionIndex,
         string calldata name,

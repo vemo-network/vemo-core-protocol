@@ -181,11 +181,11 @@ contract WalletFactory is IERC721Receiver, IWalletFactory, UUPSUpgradeable, Acce
      * @param chainId chainid
      */
     function createTBA(address nftAddress, uint256 tokenId, uint256 chainId) public override  {
-        address account = _createAndInitializeTBA(nftAddress, tokenId, chainId);
-        emit TBACreated(nftAddress, tokenId, account, chainId);
+        address tba = _createAndInitializeTBA(nftAddress, tokenId, chainId);
+        emit WalletCreated(tba, nftAddress, tokenId, address(0));
     }
 
-    function _createAndInitializeTBA(address nftAddress, uint256 tokenId, uint256 chainId) private returns (address) {
+    function _createAndInitializeTBA(address nftAddress, uint256 tokenId, uint256 chainId) internal returns (address) {
         address account = IERC6551Registry(accountRegistry).createAccount(
             walletProxy, bytes32(_TBA_SALT), chainId, nftAddress, tokenId
         );
