@@ -24,7 +24,7 @@ When a launchpad user purchases an allocation (e.g., $5000 token sale X), they m
 
 The below documentation contains the materials for interating with Smart Wallet
 #### Integrate Smart Wallet Flow
-![vemo-wallet-overview.png](https://www.planttext.com/api/plantuml/png/TP6zJiD048JxVOgLArnG13051OfZaOeWH2AeL-jLSk9yP-wdoDkpTg8OAw8xpNmpiz8jOwAGScSXVXlNKw0Ee_naSImRYP7sKbkpTyZYaWGWJZxWksOCcvvSYaWHYrVAZWyzjJEh00sPTCJ9di4N_rCw_qNMIbgF0yUH6rGyoNZM2m2OZTy-J-LFUBCeSPKrRQrdIiOxcAOLlThHo5s9JH1AWjjEcy-3S7sIvXkl0W-z6hmlSMDSmhVr3YPZmFvUgE13YLjnxGZoQUhbetcigaNDxBFxPspEQ4zrkPHYz6pqrU9kLGCijLx_y1S0)
+![vemo-wallet-overview.png](https://www.planttext.com/api/plantuml/png/TL4xJyCm4DxzAqwPoC1GIZeme8QgdG0Xg60-BjTYuTWXlWpzzrn2b8SYDlkxx-NpDWhMqfJEn6_hAwonXCW_3NlY9uuHpvmxU_P0x8LhWoIXXXVLMB8LUec04P8fa1YbMhd08pQUlYeiEifm6-RlN8OFT8xbqDbUEbwBmXyCFPuOOsQHr_UZ-HrShLBuR5JjN20K6xmPevMwo579JGfKCmh3MwdEVQ1PLbBzBYX0hQyArocKrWiy7uvc7BIqQKCbtgQwI5zqn3vg_xhRPDag9mgD_oTipb6VR6YACGQoUYhW-93FtxYGRTfucUm4JlfnhSvijPR--2y0)
 
 The deployment contract addresses of Wallet Factory on different chains: 
 | Contract Name | Address |
@@ -44,7 +44,7 @@ function createWalletCollection(
 ```
 - **WalletFactory.createFor**: Create a wallet (NFT and associated ERC6551 Account) for a specific user
 ```
-function createFor(address nftAddress, string memory tokenUri, address receiver) external  returns (uint256, address) {
+function createFor(address nftAddress, string memory tokenUri, address receiver) external  returns (uint256, address) {}
 ```
 
 ### Events
@@ -67,5 +67,12 @@ event WalletCreated(
     address receiver
 );
 ```
+
+### Requirements for Vemo Integration
+To ensure a smooth integration with Vemo, launchpads need to provide the following in APIs format:
+
+1. Allocation Details: Detailed information about the allocation including the amount, type of tokens, and the specific terms of the allocation. Any special conditions or requirements associated with the allocation.
+ 
+2. Vesting Status: A comprehensive vesting schedule outlining the timeline and conditions under which the allocated tokens will be released. Details on any cliffs, linear vesting periods, or other vesting mechanisms that apply to the tokens.
 
 
