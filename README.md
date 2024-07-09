@@ -49,6 +49,18 @@ MULTISIG OWNER: `0x540e56Fb440f71b788c8Fee2aab5A2ce292D65fC`
 - After deploy Vemo Vesting Pool
     - Set Voucher contract above
 
+- Wallet contracts
+
+BNB wallet contracts
+| Contract Name | Address |
+| --- | --- |
+| WalletFactory | 0x98c0a92798A3A80dB7C3317440086D84B3104A5e |
+| Registry |0xB0F0f594850e4E729796239E737aB8303b9586a4|
+| accImpl | 0x1eE14D9E455B43449F870A9668889E77A5c36c91|
+| accProxy |0x753Ae77F1E23f4CB02B3781bA4f3bAf21f282A49|
+| guardian |0xb37B339a6574Efa34EEFE055Aa2700E782601DBC|
+
+
 -------------------------------------------------------
 Deployment on avax testnet 
 owner: 0xaA6Fb5C8C0978532AaA46f99592cB0b71F11d94E
