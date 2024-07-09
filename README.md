@@ -138,6 +138,8 @@ $ cast <subcommand>
 ```shell
 forge verify-contract "contract-address" --watch --chain 56 "contract_path:contract_name"  --etherscan-api-key "" --num-of-optimizations 200 --compiler-version 0.8.21 --constructor-args "contract-arg"
 
+forge verify-contract 0x1eE14D9E455B43449F870A9668889E77A5c36c91  --watch --chain 56  src/accounts/AccountV3.sol:AccountV3  --etherscan-api-key "1VYRT81XHNBY8BC2X88N9ZF4XRBXUJDYKQ"  --num-of-optimizations 200 --compiler-version 0.8.23 --constructor-args `cast abi-encode "constructor(address,address,address,address)" 0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789 0xcA11bde05977b3631167028862bE2a173976CA11 0x0deC1D7E2789f80084bB0d516381Cf80B0E7c5f7 0xb50D9B55b3F994ce5F881c4FAeA374cF69dBA3b1`
+
 Note
 1. there are some scan/explorers that don't accept the tx parameters as contruction-arg, there is a script call abi.encode.js support encode/decode manually.
 2. 0.8.21 is the version that work for verify contract.
