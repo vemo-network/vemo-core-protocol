@@ -5,7 +5,7 @@ Vemo is a DeFi protocol designed to tokenize locked positions into dynamic asset
 
 ### Overview
 Smart Voucher overview
-![smart-voucher-overview.png](https://i.postimg.cc/J0z7YP9p/Vemo-Voucher-Factory-drawio.png)
+![smart-voucher-overview.png](https://i.postimg.cc/yxwS9MbM/Vemo-Voucher-Factory-drawio-1.png)
 
 Vemo Wallet overview
 ![vemo-wallet-overview.png](https://i.postimg.cc/4dZxVJwk/Lauchpad-integration-Vemo-Wallet-drawio.png)
