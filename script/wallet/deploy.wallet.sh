@@ -97,10 +97,10 @@ CONTRACT_ADDRESS=$(echo "$DEPLOY_OUTPUT" | awk '/Contract Address:/ {print $3}')
 echo "Contract Address: $CONTRACT_ADDRESS"
 
 # # Verify the contract using the captured contract address
-# forge verify-contract $CONTRACT_ADDRESS \
-#     --watch \
-#     --chain $CHAIN_ID \
-#     $CONTRACT_SOURCE:$CONTRACT_NAME \
-#     --etherscan-api-key "1VYRT81XHNBY8BC2X88N9ZF4XRBXUJDYKQ" \
-#     --num-of-optimizations 200 \
-#     --compiler-version 0.8.23
+forge verify-contract $CONTRACT_ADDRESS \
+    --watch \
+    --chain $CHAIN_ID \
+    $CONTRACT_SOURCE:$CONTRACT_NAME \
+    --etherscan-api-key "1VYRT81XHNBY8BC2X88N9ZF4XRBXUJDYKQ" \
+    --num-of-optimizations 200 \
+    --compiler-version 0.8.23

@@ -250,6 +250,11 @@ contract WalletFactory is IERC721Receiver, IWalletFactory, UUPSUpgradeable, Acce
         feeReceiver = _receiver;
     }
 
+    function setFee(uint256 _depositFee, uint256 _withdrawalFee) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        depositFeeBps = _depositFee;
+        withdrawalFeeBps = _withdrawalFee;
+    }
+
     function depositTokens(address token, address walletAddress, uint256 amount) external {
         uint256 takenFee;
         if (depositFeeBps > 0) {

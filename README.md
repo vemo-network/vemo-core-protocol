@@ -87,6 +87,7 @@ address owner -->  0x581530Bb07091Fe1f285211C24BA43Da0F005FC9
 | Account Guardian |  0x52ab1c39132338A9af251f7e5c047b435Db51A11|
 | Account Wallet Proxy |  0x69a1A5Dc5dB3b4a0Fdd2d92658C1A6264599761f |
 | Account Wallet V3  | 0x2243357994CE659d96ECeF8b26d1F6215e0052d9|
+| WalletFactory Proxy | 0xAb3a6F5c42FF0efD402a8cd7EcEa18F8759AEE73|
 
 -------------------------------------------------------
 Deployment on bnb testnet
