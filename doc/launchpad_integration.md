@@ -5,10 +5,10 @@ Vemo is a DeFi protocol designed to tokenize locked positions into dynamic asset
 
 ### Overview
 Smart Voucher overview
-![smart-voucher-overview.png](https://i.postimg.cc/Bnvzm00m/Untitled-Diagram-drawio-8.png)
+![smart-voucher-overview.png](https://i.postimg.cc/J0z7YP9p/Vemo-Voucher-Factory-drawio.png)
 
 Vemo Wallet overview
-![vemo-wallet-overview.png](https://i.postimg.cc/RVR1Byck/Untitled-Diagram-drawio-7.png)
+![vemo-wallet-overview.png](https://i.postimg.cc/4dZxVJwk/Lauchpad-integration-Vemo-Wallet-drawio.png)
 
 When a launchpad user purchases an allocation (e.g., $5000 token sale X), they must wait for the TGE (Token Generation Event) or follow a vesting schedule to receive the actual tokens they can sell or exchange. During this waiting period, users cannot liquidate their allocation. Vemo offers launchpads a convenient solution, allowing them to assist their users by integrating in one of two ways:
 
