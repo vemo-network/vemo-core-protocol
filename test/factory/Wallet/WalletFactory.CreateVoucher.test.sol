@@ -8,7 +8,7 @@ import {Upgrades} from "openzeppelin-foundry-upgrades/Upgrades.sol";
 import "./WalletFactory.base.sol";
 import "../../../src/accounts/AccountV3.sol";
 
-contract FactoryCreateTest is Test, WalletFactoryBaseTest {
+contract WalletFactoryCreateTest is Test, WalletFactoryBaseTest {
     address user1 = vm.addr(4);
 
     function testSingleCreate() public {

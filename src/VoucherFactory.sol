@@ -286,7 +286,6 @@ contract VoucherFactory is IERC721Receiver, IVoucherFactory, UUPSUpgradeable, Re
         return (nftAddress, startId, endId);
     }
 
-
     function redeem(address nftAddress, uint256 tokenId, uint256 amount) public nonReentrant returns (bool) {
         address tba = _tbaNftMap[nftAddress][tokenId];
 
@@ -309,7 +308,6 @@ contract VoucherFactory is IERC721Receiver, IVoucherFactory, UUPSUpgradeable, Re
             require(IERC20(fee.feeTokenAddress).approve(address(tba), feeAmount), "Voucher: Approve fee for TBA failed");
         }
 
-        // redeem voucher
         IVoucherAccount(tba).redeem(amount);
 
         emit VoucherRedeem(msg.sender, getTokenAddressFromNftAddress(nftAddress), transferAmount, nftAddress, tokenId);

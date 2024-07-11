@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 import {Upgrades} from "openzeppelin-foundry-upgrades/Upgrades.sol";
 import "./WalletFactory.base.sol";
 
-contract FactoryUtilsTest is Test, WalletFactoryBaseTest {
+contract WalletFactoryUtilsTest is Test, WalletFactoryBaseTest {
     address randomAdrr = vm.addr(99999);
     address randomToken = vm.addr(99999);
 
@@ -96,6 +96,18 @@ contract FactoryUtilsTest is Test, WalletFactoryBaseTest {
         walletFactory.setWalletImpl(randomToken);
         assertEq(walletFactory.walletImpl(), randomToken);
         walletFactory.setWalletImpl(_factory);
+        vm.stopPrank();
+    }
+
+    function testSetFeeReceiver() public {
+        vm.startPrank(user);
+        vm.expectRevert();
+        walletFactory.setFeeReceiver(user);
+        vm.stopPrank();
+
+        vm.startPrank(defaultAdmin);
+        walletFactory.setFeeReceiver(user);
+        assertEq(walletFactory.feeReceiver(), user);
         vm.stopPrank();
     }
 

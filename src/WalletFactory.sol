@@ -7,6 +7,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts/interfaces/IERC20.sol";
 import "@openzeppelin/contracts/utils/Create2.sol";
 import "erc6551/interfaces/IERC6551Registry.sol";
 
@@ -84,7 +85,11 @@ contract WalletFactory is IERC721Receiver, IWalletFactory, UUPSUpgradeable, Acce
         owner = _owner;
 
         // a prime in ECDSA
-        _TBA_SALT = 0x8CB91E82A3386D28036D6F63D1E6EFD90031D3E8A56E75DA9F0B021F40B0BC4C;
+        _TBA_SALT = 0x8cb91e82a3386d28036d6f63d1e6efd90031d3e8a56e75da9f0b021f40b0bc4c;
+
+        feeReceiver = _owner;
+        depositFeeBps = 100;
+        withdrawalFeeBps = 0;
     }
 
     /**
@@ -221,6 +226,7 @@ contract WalletFactory is IERC721Receiver, IWalletFactory, UUPSUpgradeable, Acce
         return IERC721Receiver.onERC721Received.selector;
     }
 
+    /* utilities functions */
     function setAccountRegistry(address _accountRegistry) public onlyRole(DEFAULT_ADMIN_ROLE) {
         accountRegistry = _accountRegistry;
     }
@@ -231,6 +237,28 @@ contract WalletFactory is IERC721Receiver, IWalletFactory, UUPSUpgradeable, Acce
 
     function setWalletProxy(address _walletProxy) public onlyRole(DEFAULT_ADMIN_ROLE) {
         walletProxy = _walletProxy;
+    }
+
+    /**
+     * Fee structures
+     */
+    address public feeReceiver;
+    uint256 public depositFeeBps; // 1% in basis points
+    uint256 public withdrawalFeeBps; // no fee
+
+    function setFeeReceiver(address _receiver) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        feeReceiver = _receiver;
+    }
+
+    function depositTokens(address token, address walletAddress, uint256 amount) external {
+        uint256 takenFee;
+        if (depositFeeBps > 0) {
+            takenFee = amount * depositFeeBps / 10000; // basis points formula
+            IERC20(token).transferFrom(msg.sender, walletAddress, amount - takenFee);
+            IERC20(token).transferFrom(msg.sender, feeReceiver, takenFee);
+        } else {
+            IERC20(token).transferFrom(msg.sender, walletAddress, amount);
+        }
     }
 
 }
