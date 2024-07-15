@@ -30,6 +30,10 @@ interface IWalletFactory {
 
     function createFor(address nftAddress, string memory tokenUri, address receiver) external returns (uint256, address);
 
-    function createTBA(address nftAddress, uint256 tokenId, uint256 chainId) external; 
+    function createTBA(address nftAddress, uint256 tokenId, uint256 chainId) external;
+
+    function depositTokens(address token, address walletAddress, uint256 amount) external;
+    
+    function depositETH(address walletAddress) payable external;
 }
 

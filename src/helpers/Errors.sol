@@ -19,3 +19,4 @@ error InvalidERC6551Params();
 error DeployedCollection();
 error DeployedWallet();
 error IssuedByOtherFactory();
+error InvalidDepositValue();

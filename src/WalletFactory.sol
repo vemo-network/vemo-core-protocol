@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts/interfaces/IERC20.sol";
+import {IERC20, SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/Create2.sol";
 import "erc6551/interfaces/IERC6551Registry.sol";
 
@@ -18,10 +18,12 @@ import "./interfaces/erc6551/IAccountProxy.sol";
 import "./helpers/VemoWalletCollection.sol";
 
 contract WalletFactory is IERC721Receiver, IWalletFactory, UUPSUpgradeable, AccessControlUpgradeable {
+    using SafeERC20 for IERC20;
+
     /*
-    * tokenIdWalletg to create token boud account
-    * vemo strictly follow ERC6551 standard, however to make the tokenIdWallett 
-    * between chains the salt is now fixed - as a prime in ECDSA space
+    * A factor to create token bound account
+    * Vemo strictly follow ERC6551 standard, however to make the token bound address 
+    * cross chains the salt is now fixed - as a prime in ECDSA space
     */
     uint256 private _TBA_SALT;
 
@@ -55,7 +57,7 @@ contract WalletFactory is IERC721Receiver, IWalletFactory, UUPSUpgradeable, Acce
     /**
      * @dev store the wallet address with NFT - tokenID
      */
-    mapping(address => mapping(uint256 => address)) private _tokenIdWallet;
+    mapping(address => mapping(uint256 => address)) private _tokenBoundAccounts;
 
     /**
      * @dev hashkey(name,symbol, dappURI) -> collection address
@@ -74,22 +76,28 @@ contract WalletFactory is IERC721Receiver, IWalletFactory, UUPSUpgradeable, Acce
         if (_accountRegistry == address(0) ||
             _walletProxy == address(0) ||
             _walletImpl == address(0) ) revert InvalidERC6551Params();
+        
+        {
+            __AccessControl_init_unchained();
+            _grantRole(DEFAULT_ADMIN_ROLE, _owner);
+            _grantRole(MINTER_ROLE, _owner);
+        }
 
-        __AccessControl_init_unchained();
-        _grantRole(DEFAULT_ADMIN_ROLE, _owner);
-        _grantRole(MINTER_ROLE, _owner);
+        {
+            accountRegistry = _accountRegistry;
+            walletProxy = _walletProxy;
+            walletImpl = _walletImpl;
+            owner = _owner;
+        }
+        
+        {
+            // a prime in ECDSA
+            _TBA_SALT = 0x8cb91e82a3386d28036d6f63d1e6efd90031d3e8a56e75da9f0b021f40b0bc4c;
 
-        accountRegistry = _accountRegistry;
-        walletProxy = _walletProxy;
-        walletImpl = _walletImpl;
-        owner = _owner;
-
-        // a prime in ECDSA
-        _TBA_SALT = 0x8cb91e82a3386d28036d6f63d1e6efd90031d3e8a56e75da9f0b021f40b0bc4c;
-
-        feeReceiver = _owner;
-        depositFeeBps = 100;
-        withdrawalFeeBps = 0;
+            feeReceiver = _owner;
+            depositFeeBps = 100;
+            withdrawalFeeBps = 0;
+        }
     }
 
     /**
@@ -151,9 +159,9 @@ contract WalletFactory is IERC721Receiver, IWalletFactory, UUPSUpgradeable, Acce
      * @param nftAddress collection managed by factory
      * @param tokenUri tokenURI
      * @return tokenId 
-     * @return tokenIdWallet 
+     * @return tba - token bound account
      */
-    function create(address nftAddress, string memory tokenUri) public returns (uint256 tokenId, address tokenIdWallet){
+    function create(address nftAddress, string memory tokenUri) public returns (uint256 tokenId, address tba){
         return createFor(nftAddress, tokenUri, msg.sender);
     }
 
@@ -163,7 +171,7 @@ contract WalletFactory is IERC721Receiver, IWalletFactory, UUPSUpgradeable, Acce
      * @param tokenUri tokenURI
      * @param receiver receiver
      * @return tokenId 
-     * @return tokenIdWallet 
+     * @return tba - token bound account 
      */
     function createFor(address nftAddress, string memory tokenUri, address receiver) public override returns (uint256, address) {
         if (receiver == address(0)) revert InvalidInput();
@@ -173,7 +181,7 @@ contract WalletFactory is IERC721Receiver, IWalletFactory, UUPSUpgradeable, Acce
 
         if (Ownable(tba).owner() != receiver) revert DeployedWallet();
 
-        _tokenIdWallet[nftAddress][tokenId] = tba;
+        _tokenBoundAccounts[nftAddress][tokenId] = tba;
 
         emit WalletCreated(tba, nftAddress, tokenId, receiver);
         return (tokenId, tba);
@@ -215,7 +223,7 @@ contract WalletFactory is IERC721Receiver, IWalletFactory, UUPSUpgradeable, Acce
     }
 
     function getTokenBoundAccount(address nftAddress, uint256 tokenId) public view returns (address account) {
-        return _tokenIdWallet[nftAddress][tokenId];
+        return _tokenBoundAccounts[nftAddress][tokenId];
     }
 
     function _authorizeUpgrade(address newImplementation) internal onlyRole(DEFAULT_ADMIN_ROLE) virtual override {
@@ -259,11 +267,36 @@ contract WalletFactory is IERC721Receiver, IWalletFactory, UUPSUpgradeable, Acce
         uint256 takenFee;
         if (depositFeeBps > 0) {
             takenFee = amount * depositFeeBps / 10000; // basis points formula
-            IERC20(token).transferFrom(msg.sender, walletAddress, amount - takenFee);
-            IERC20(token).transferFrom(msg.sender, feeReceiver, takenFee);
-        } else {
-            IERC20(token).transferFrom(msg.sender, walletAddress, amount);
+            {
+                IERC20(token).safeTransferFrom(msg.sender, walletAddress, amount - takenFee);
+                IERC20(token).safeTransferFrom(msg.sender, feeReceiver, takenFee);
+            }
+            return;
         }
+        
+        IERC20(token).safeTransferFrom(msg.sender, walletAddress, amount);
+    }
+
+    function depositETH(address walletAddress) payable external {
+        if (msg.value == 0) revert InvalidDepositValue();
+
+        uint256 takenFee;
+        uint256 depositAmount = msg.value;
+        if (depositFeeBps > 0) {
+            takenFee = depositAmount * depositFeeBps / 10000; // basis points formula
+            {
+                _safeTransferETH(walletAddress, depositAmount - takenFee);
+                _safeTransferETH(feeReceiver, takenFee);
+            }
+            return;
+        }
+        
+        _safeTransferETH(walletAddress, depositAmount);
+    }
+
+    function _safeTransferETH(address receiver, uint256 amount) internal {
+        (bool success, ) = receiver.call{value: amount}("");
+        if (!success) revert InvalidDepositValue();
     }
 
 }
