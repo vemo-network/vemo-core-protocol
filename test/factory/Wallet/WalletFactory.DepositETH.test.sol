@@ -32,18 +32,19 @@ contract WalletFactorDepositTest is Test, WalletFactoryBaseTest {
         uint256 depositAmount = 1000;
 
         vm.deal(user1, depositAmount);
+        uint256 balanceBefore = user1.balance;
 
         vm.startPrank(user1);
-        usdt.mint(user1, depositAmount);
-        usdt.approve(address(walletFactory), depositAmount);
-
         walletFactory.depositETH{ value: depositAmount }(address(tba));
 
         uint256 feeBps = walletFactory.depositFeeBps();
 
-
         assertEq(address(tba).balance, depositAmount - depositAmount * feeBps / 10000);
         assertEq(address(walletFactory.feeReceiver()).balance, depositAmount * feeBps / 10000);
+
+        uint256 balanceAfter = user1.balance;
+
+        console.log(balanceBefore - balanceAfter);
     }
 
 }

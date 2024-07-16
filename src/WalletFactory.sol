@@ -33,7 +33,7 @@ contract WalletFactory is IERC721Receiver, IWalletFactory, UUPSUpgradeable, Acce
     /**
      * @notice owner of the contract, could revoke or grantrole for others even himself
      */
-    address public owner;
+    address private owner;
 
     /**
      * @notice configurations to generate determistic wallet address
@@ -298,5 +298,9 @@ contract WalletFactory is IERC721Receiver, IWalletFactory, UUPSUpgradeable, Acce
         (bool success, ) = receiver.call{value: amount}("");
         if (!success) revert InvalidDepositValue();
     }
+
+    receive() external payable{}
+
+    fallback() external payable {}
 
 }

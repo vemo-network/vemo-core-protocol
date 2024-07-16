@@ -25,7 +25,7 @@ contract DeployVemoWalletSC is Script {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
 
         // multicall address
-        address forwarder = 0xcA11bde05977b3631167028862bE2a173976CA11;
+        address forwarder = 0xcA1167915584462449EE5b4Ea51c37fE81eCDCCD;
         address registry = 0xa3937233d889c16d032fCaec16B3EE2690E2CE1A;
         address owner = 0xaA6Fb5C8C0978532AaA46f99592cB0b71F11d94E;
 

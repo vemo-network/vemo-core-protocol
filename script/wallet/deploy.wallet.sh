@@ -62,12 +62,12 @@ case $CHAIN in
         CHAIN_ID=43114
         ;;
     bnb-mainnet)
-        RPC_URL="https://bsc-dataseed.binance.org/"
+        RPC_URL="https://bsc-pokt.nodies.app"
         VERIFIER_URL="https://api.bscscan.com/api"
         CHAIN_ID=56
         ;;
     bnb-testnet)
-        RPC_URL="https://data-seed-prebsc-1-s1.binance.org:8545/"
+        RPC_URL="https://bsc-testnet-rpc.publicnode.com"
         VERIFIER_URL="https://api-testnet.bscscan.com/api"
         CHAIN_ID=97
         ;;

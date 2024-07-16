@@ -60,7 +60,7 @@ contract WalletFactoryBaseTest is Test {
             )
         );
 
-        walletFactory = WalletFactory(proxy);
+        walletFactory = WalletFactory(payable(proxy));
 
         vm.startPrank(defaultAdmin);
 

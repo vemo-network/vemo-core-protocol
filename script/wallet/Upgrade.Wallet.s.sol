@@ -28,10 +28,10 @@ contract DeployVemoWalletSC is Script {
         bytes memory data;
         proxy.upgradeToAndCall(address(implementation), data);
         
-        proxy.setFeeReceiver(address(proxy));
-        proxy.setFee(100, 0);
+        proxy.setFeeReceiver(address(0x79ef006E9069b0c45b6b8DD7b8809AaDffce1881));
+        proxy.setFee(1, 0);
 
-        console.logAddress(address(implementation));
+        // console.logAddress(address(implementation));
         vm.stopBroadcast();
     }
 }
