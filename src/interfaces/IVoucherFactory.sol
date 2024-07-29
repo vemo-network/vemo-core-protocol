@@ -25,6 +25,8 @@ interface IVoucherFactory {
     function getClaimableAndSchedule(address nftAddress, uint256 tokenId, uint256 timestamp, uint256 _amount)
         external
         returns (uint256 claimableAmount, uint8 batchSize, VestingSchedule[] memory);
+    
+    function getTokenBoundAccount(address nftAddress, uint256 tokenId) external view returns (address account);
 
     function create(address tokenAddress, Vesting memory vesting)
         external

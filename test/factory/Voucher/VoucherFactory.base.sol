@@ -17,6 +17,7 @@ import "../../../src/helpers/VemoVestingStruct.sol";
 import "../../../src/interfaces/IVoucherFactory.sol";
 import "../../../src/interfaces/IVoucherAccount.sol";
 import "../../../src/helpers/DataStruct.sol";
+import "../../../src/helpers/NFTDescriptor/NFTDescriptor.sol";
 
 import "../../mock/NFT.sol";
 import "../../mock/USDT.sol";
@@ -48,6 +49,8 @@ contract VoucherFactoryBaseTest is Test {
     USDT usdt = new USDT();
     USDC usdc = new USDC();
 
+    NFTDescriptor globalDescriptor;
+
     function setUp() public {
         nft = new NFT(defaultAdmin);
         dataRegistry = new DataRegistryV2();
@@ -61,6 +64,14 @@ contract VoucherFactoryBaseTest is Test {
                 (defaultAdmin, address(factory), address(dataRegistry), address(accountRegistry), address(accountImpl))
             )
         );
+
+        globalDescriptor = NFTDescriptor(Upgrades.deployUUPSProxy(
+            "NFTDescriptor.sol:NFTDescriptor",
+            abi.encodeCall(
+                NFTDescriptor.initialize,
+                (defaultAdmin)
+            )
+        ));
 
         voucherFactory = VoucherFactory(proxy);
         vm.startPrank(defaultAdmin);

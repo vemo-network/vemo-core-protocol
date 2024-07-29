@@ -20,3 +20,4 @@ error DeployedCollection();
 error DeployedWallet();
 error IssuedByOtherFactory();
 error InvalidDepositValue();
+error InvalidDescriptor();

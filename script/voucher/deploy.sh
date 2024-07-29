@@ -4,7 +4,7 @@
 usage() {
     echo "Usage: $0 [chain] [private_key] [deployment]"
     echo "Chains supported: avax-fuji, avax-mainnet, bnb-mainnet, bnb-testnet"
-    echo "Deployments supported: Deploy, Deploy.Account"
+    echo "Deployments supported: Deploy, Deploy.Account, Upgrade.Voucher"
     exit 1
 }
 
@@ -19,7 +19,7 @@ PRIVATE_KEY=$2
 DEPLOYMENT=$3
 
 # Validate deployment parameter
-if [[ "$DEPLOYMENT" != "Deploy" && "$DEPLOYMENT" != "Deploy.Account" ]]; then
+if [[ "$DEPLOYMENT" != "Deploy" && "$DEPLOYMENT" != "Deploy.Account" && "$DEPLOYMENT" != "Upgrade.Voucher" ]]; then
     echo "Error: Unsupported deployment '$DEPLOYMENT'"
     usage
 fi
@@ -33,6 +33,10 @@ case $DEPLOYMENT in
     Deploy.Account)
         CONTRACT_NAME="VoucherAccount"
         CONTRACT_SOURCE="src/VoucherAccount.sol"
+        ;;
+    Upgrade.Voucher)
+        CONTRACT_NAME="VoucherFactory"
+        CONTRACT_SOURCE="src/VoucherFactory.sol"
         ;;
     *)
         echo "Error: Unsupported deployment '$DEPLOYMENT'"

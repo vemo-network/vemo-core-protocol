@@ -17,6 +17,8 @@ import "./interfaces/IVoucherAccount.sol";
 import "./interfaces/erc6551/IAccountRegistry.sol";
 
 import "./helpers/VemoVestingStruct.sol";
+import "./helpers/Errors.sol";
+import "./helpers/VemoAutoURIVoucherCollection.sol";
 
 contract VoucherFactory is IERC721Receiver, IVoucherFactory, UUPSUpgradeable, ReentrancyGuardUpgradeable {
     // Contract deployer address
@@ -132,6 +134,26 @@ contract VoucherFactory is IERC721Receiver, IVoucherFactory, UUPSUpgradeable, Re
         );
 
         tokenNftMap[token] = nft;
+        _tokens.push(token);
+        _nfts.push(nft);
+
+        return nft;
+    }
+
+    function createAutoURIVoucherCollection(
+        address token,
+        address descriptor
+    ) public nonReentrant returns (address) {
+        if (tokenNftMap[token] != address(0)) return tokenNftMap[token];
+        if (descriptor == address(0)) revert InvalidDescriptor();
+        address nft = address(new VemoAutoURIVoucherCollection(
+            address(this),
+            address(this),
+            descriptor, 
+            token
+        ));
+
+        tokenNftMap[token] = address(nft);
         _tokens.push(token);
         _nfts.push(nft);
 
