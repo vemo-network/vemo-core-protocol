@@ -8,29 +8,26 @@ import '@openzeppelin/contracts/utils/Base64.sol';
 /// @title NFTSVG
 /// @notice Provides a function for generating an SVG associated with a Uniswap NFT
 library NFTSVG {
-    using Strings for uint256;
-
     struct SVGParams {
-        uint256 nftId;
-        uint256 balance;
-        uint256 startTime;
-        uint256 endTime;
-        address voucherToken;
-        address nftAddress;
+        string nftId;
+        string balance;
+        string startTime;
+        string endTime;
+        string voucherToken;
         string collectionName;
-        string color0;
-        string color1;
-        string color2;
-        string color3;
-        string x1;
-        string y1;
-        string x2;
-        string y2;
-        string x3;
-        string y3;
     }
 
     function generateSVG(SVGParams memory params) internal pure returns (string memory svg) {
+        return
+            string(
+                abi.encodePacked(
+                    generateFirstPart(params),
+                    generateSecondPart(params)
+                )
+            );
+    }
+
+    function generateFirstPart(SVGParams memory params) internal pure returns (string memory svg) {
         return
             string(
                 abi.encodePacked(
@@ -39,7 +36,15 @@ library NFTSVG {
                     '</tspan></text><text fill="white" xml:space="preserve" style="white-space: pre" font-family="Urbanist" font-size="28" letter-spacing="0em"><tspan x="60" y="218.8">',
                     params.voucherToken,
                     '</tspan></text><text fill="white" fill-opacity="0.6" xml:space="preserve" style="white-space: pre" font-family="Urbanist" font-size="20" letter-spacing="0.05em"><tspan x="60" y="434">End time: </tspan></text><text fill="white" xml:space="preserve" style="white-space: pre" font-family="Urbanist" font-size="20" letter-spacing="0em"><tspan x="184" y="434">',
-                    params.endTime,
+                    params.endTime
+                )
+            );
+    }
+
+    function generateSecondPart(SVGParams memory params) internal pure returns (string memory svg) {
+        return
+            string(
+                abi.encodePacked(
                     '</tspan></text><text fill="white" xml:space="preserve" style="white-space: pre" font-family="Urbanist" font-size="42" font-weight="500" letter-spacing="0em"><tspan x="60" y="178.2">',
                     params.collectionName,
                     '</tspan></text><text fill="white" xml:space="preserve" style="white-space: pre" font-family="Urbanist" font-size="32" font-weight="500" letter-spacing="0em"><tspan x="60" y="75.2">',

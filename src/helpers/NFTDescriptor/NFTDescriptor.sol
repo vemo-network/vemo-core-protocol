@@ -9,9 +9,10 @@ import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/U
 import './INFTDescriptor.sol';
 import './HexStrings.sol';
 import './NFTSVG.sol';
+import './DateTime.sol';
 
 contract NFTDescriptor is INFTDescriptor, UUPSUpgradeable {
-    using HexStrings for uint256;
+    using Strings for uint256;
 
     address public _owner;
 
@@ -98,16 +99,71 @@ contract NFTDescriptor is INFTDescriptor, UUPSUpgradeable {
                     "This NFT, referred to as a smart voucher, contains ",
                     params.collectionName,
                     " tokens. The holder has the ability to claim these tokens following the on-chain vesting schedule, and can also transfer or sell it on the secondary market. Read more on https://vemo.network/ \\n\\n\n- Token Address: ",
-                    params.voucherToken,
-                    " \\n\n- Vesting schedule: 100% monthly linear release in 6 months starting at 16/04/2024 07:00:00 UTC \\n\\n\n",
+                    addressToString(params.voucherToken),
+                    generateVestingInfoPart(params),
                     unicode"⚠️ DISCLAIMER: warning icon: IMPORTANT: It is essential to exercise due diligence when assessing this voucher. Please ensure the token address in the voucher matches the expected token, as token symbols may be imitated"
                 )
             );
     }
 
-    // function generateVestingPart() {
+    function convertTimestampToUTC(uint256 timestamp) private pure returns (string memory utc) {
+        return  string.concat(
+            uint256(DateTime.getMonth(timestamp)).toString(),
+            "/",
+            uint256(DateTime.getDay(timestamp)).toString(),
+            "/",
+            uint256(DateTime.getYear(timestamp)).toString(),
+            " ",
+            uint256(DateTime.getHour(timestamp)).toString(),
+            ":",
+            uint256(DateTime.getMinute(timestamp)).toString(),
+            ":",
+            uint256(DateTime.getSecond(timestamp)).toString(),
+            " UTC"
+        );
+    }
 
-    // }
+    /**
+     * 
+     * struct VestingSchedule {
+        uint256 amount;
+        uint8 vestingType; // linear: 1 | staged: 2
+        uint8 linearType; // day: 1 | week: 2 | month: 3 | quarter: 4
+        uint256 startTimestamp;
+        uint256 endTimestamp;
+        uint8 isVested; // unvested: 0 | vested : 1 | vesting : 2
+        uint256 remainingAmount;
+        }
+     */
+    function generateVestingInfoPart(ConstructTokenURIParams memory params) private pure returns (string memory) {
+        require(params.schedules.length > 0);
+        string memory vestingType = "staged";
+        string memory linearType = "daily";
+
+        if (params.schedules[0].vestingType == 1) {
+            vestingType = "linear";
+        }
+
+        if (params.schedules[0].linearType == 2) {
+            linearType = "weekly";
+        } else if (params.schedules[0].linearType == 3) {
+            linearType = "monthly";
+        } else if (params.schedules[0].linearType == 2) {
+            linearType = "quarterly";
+        }
+
+        return string.concat(
+            " \\n\n- Vesting schedule: ",
+            linearType,
+            " ",
+            vestingType,
+            " release in ",
+            ((params.schedules[0].endTimestamp - params.schedules[0].startTimestamp) / (24*60*60*7)).toString(),
+            " weeks, starting at ",
+            convertTimestampToUTC(params.schedules[0].startTimestamp),
+            "\\n\\n\n"
+        );
+    }
 
     function generateName(ConstructTokenURIParams memory params)
         private
@@ -119,7 +175,7 @@ contract NFTDescriptor is INFTDescriptor, UUPSUpgradeable {
                 abi.encodePacked(
                     params.collectionName,
                     " #",
-                    params.voucherToken
+                    params.nftId.toString()
                 )
             );
     }
@@ -131,23 +187,12 @@ contract NFTDescriptor is INFTDescriptor, UUPSUpgradeable {
     function generateSVGImage(ConstructTokenURIParams memory params) internal pure returns (string memory svg) {
         NFTSVG.SVGParams memory svgParams =
             NFTSVG.SVGParams({
-                nftId: params.nftId,
-                balance: params.balance,
-                startTime: params.schedules[0].startTimestamp,
-                endTime: params.schedules[params.schedules.length - 1].endTimestamp,
-                voucherToken: params.voucherToken,
-                nftAddress: params.nftAddress,
-                collectionName: params.collectionName,
-                color0: tokenToColorHex(uint256(uint160(params.voucherToken)), 136),
-                color1: tokenToColorHex(uint256(uint160(params.nftAddress)), 136),
-                color2: tokenToColorHex(uint256(uint160(params.voucherToken)), 0),
-                color3: tokenToColorHex(uint256(uint160(params.nftAddress)), 0),
-                x1: scale(getCircleCoord(uint256(uint160(params.voucherToken)), 16, params.nftId), 0, 255, 16, 274),
-                y1: scale(getCircleCoord(uint256(uint160(params.nftAddress)), 16, params.nftId), 0, 255, 100, 484),
-                x2: scale(getCircleCoord(uint256(uint160(params.voucherToken)), 32, params.nftId), 0, 255, 16, 274),
-                y2: scale(getCircleCoord(uint256(uint160(params.nftAddress)), 32, params.nftId), 0, 255, 100, 484),
-                x3: scale(getCircleCoord(uint256(uint160(params.voucherToken)), 48, params.nftId), 0, 255, 16, 274),
-                y3: scale(getCircleCoord(uint256(uint160(params.nftAddress)), 48, params.nftId), 0, 255, 100, 484)
+                nftId: params.nftId.toString(),
+                balance: params.balance.toString(),
+                startTime: params.schedules[0].startTimestamp.toString(),
+                endTime: params.schedules[params.schedules.length - 1].endTimestamp.toString(),
+                voucherToken: addressToString(params.voucherToken),
+                collectionName: params.collectionName
             });
 
         return NFTSVG.generateSVG(svgParams);
@@ -161,10 +206,6 @@ contract NFTDescriptor is INFTDescriptor, UUPSUpgradeable {
         uint256 outMx
     ) private pure returns (string memory) {
         return (n - (inMn)*(outMx - (outMn))/(inMx - (inMn)) + (outMn)).toHexString(20);
-    }
-
-    function tokenToColorHex(uint256 token, uint256 offset) internal pure returns (string memory str) {
-        return string((token >> offset).toHexStringNoPrefix(3));
     }
 
     function getCircleCoord(
