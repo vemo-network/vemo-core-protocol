@@ -12,6 +12,13 @@ interface IVoucherFactory {
         uint256 tokenId
     );
 
+    event AutoURICollectionCreate(
+        address indexed tokenAddress,
+        address indexed nftCollection,
+        string name,
+        string symbol
+    );
+
     event VoucherSplit(address indexed nftCollection, uint256 tokenId, uint256[] percentageBps, uint256[] newTokenIds);
 
     function getTokenAddressFromNftAddress(address nftAddress) external returns (address tokenAddress);

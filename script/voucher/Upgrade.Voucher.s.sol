@@ -30,15 +30,15 @@ contract DeployVemoVoucherFactorySC is Script {
         bytes memory data;
         proxy.upgradeToAndCall(address(implementation), data);
         
-        NFTDescriptor globalDescriptor = NFTDescriptor(Upgrades.deployUUPSProxy(
-            "NFTDescriptor.sol",
-            abi.encodeCall(
-                NFTDescriptor.initialize,
-                (descriptorOwner)
-            )
-        ));
+        // NFTDescriptor globalDescriptor = NFTDescriptor(Upgrades.deployUUPSProxy(
+        //     "NFTDescriptor.sol",
+        //     abi.encodeCall(
+        //         NFTDescriptor.initialize,
+        //         (descriptorOwner)
+        //     )
+        // ));
 
-        console.log("descriptor ", address(globalDescriptor));
+        // console.log("descriptor ", address(globalDescriptor));
         vm.stopBroadcast();
     }
 }

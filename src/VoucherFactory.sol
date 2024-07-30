@@ -157,6 +157,13 @@ contract VoucherFactory is IERC721Receiver, IVoucherFactory, UUPSUpgradeable, Re
         _tokens.push(token);
         _nfts.push(nft);
 
+        emit AutoURICollectionCreate(
+            token,
+            nft,
+            VemoAutoURIVoucherCollection(nft).name(),
+            VemoAutoURIVoucherCollection(nft).symbol()
+        );
+        
         return nft;
     }
 
