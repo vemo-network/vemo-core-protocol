@@ -19,26 +19,15 @@ contract DeployVemoVoucherFactorySC is Script {
 
     function run() public {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
-        address walletFactoryProxy = vm.envAddress("VOUCHER_FACTORY_PROXY");
-        address descriptorOwner = 0xaA6Fb5C8C0978532AaA46f99592cB0b71F11d94E;
-
+        address descriptorProxy = vm.envAddress("DESCRIPTOR_PROXY");
         vm.startBroadcast(deployerPrivateKey);
 
         NFTDescriptor implementation = new NFTDescriptor();
-        NFTDescriptor proxy = NFTDescriptor(payable(0x6ca9bb43548FfE3b2ABE0ca6A9Ba6C5C60bba463));
+        NFTDescriptor proxy = NFTDescriptor(payable(descriptorProxy));
 
         bytes memory data;
         proxy.upgradeToAndCall(address(implementation), data);
         
-        // NFTDescriptor globalDescriptor = NFTDescriptor(Upgrades.deployUUPSProxy(
-        //     "NFTDescriptor.sol",
-        //     abi.encodeCall(
-        //         NFTDescriptor.initialize,
-        //         (descriptorOwner)
-        //     )
-        // ));
-
-        // console.log("descriptor ", address(globalDescriptor));
         vm.stopBroadcast();
     }
 }
