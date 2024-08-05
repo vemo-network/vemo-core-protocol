@@ -96,8 +96,18 @@ contract FactoryCreateForTest is Test, VoucherFactoryBaseTest {
         assertEq(address(autoURICollection), nftAddress);
         assertEq(user, ERC721(autoURICollection).ownerOf(tokenId));
 
-        console.log(ERC721(autoURICollection).tokenURI(tokenId));
+        // console.log(ERC721(autoURICollection).tokenURI(tokenId));
 
+        vm.startPrank(user);
+        lockToken.mint(user, VESTING_BALANCE);
+        lockToken.approve(address(voucherFactory), VESTING_BALANCE);
+        uint256 tokenId1;
+        (, tokenId1) = voucherFactory.create(address(lockToken), vesting);
+        
+        console.log(ERC721(autoURICollection).tokenURI(tokenId1));
+        vm.stopPrank();
+
+        
         // check lockToken balance
         bytes memory remainingValue = dataRegistry.read(nftAddress, tokenId, keccak256(BALANCE_KEY));
         uint256 remaining = abi.decode(remainingValue, (uint256));

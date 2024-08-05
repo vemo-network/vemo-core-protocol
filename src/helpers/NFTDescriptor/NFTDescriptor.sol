@@ -50,7 +50,6 @@ contract NFTDescriptor is INFTDescriptor, UUPSUpgradeable {
         string memory name = generateName(params);
         string memory descriptionPart = generateDescriptionPart(params);
         string memory image = Base64.encode(bytes(generateSVGImage(params)));
-
         return
             string(
                 abi.encodePacked(
@@ -90,6 +89,7 @@ contract NFTDescriptor is INFTDescriptor, UUPSUpgradeable {
     }
 
     function timestampToUTC(uint256 timestamp) public pure returns (string memory utc) {
+        if (timestamp  == 0 ) return "";
         DateTime._DateTime memory dt = DateTime.parseTimestamp(timestamp);
         return DateTime.formatDateTime(dt);
     }
@@ -105,6 +105,10 @@ contract NFTDescriptor is INFTDescriptor, UUPSUpgradeable {
         }
 
         for (uint i = 0; i < params.schedules.length; i++) {
+            if (params.schedules[i].endTimestamp < params.schedules[i].startTimestamp) {
+                params.schedules[i].endTimestamp = params.schedules[i].startTimestamp;
+            }
+
             if (params.schedules[i].startTimestamp == params.schedules[i].endTimestamp) {
                 batchVestingInfo = string.concat(
                     batchVestingInfo,
@@ -140,7 +144,8 @@ contract NFTDescriptor is INFTDescriptor, UUPSUpgradeable {
     function genSingleVestingText(VestingSchedule memory schedule) pure private returns(string memory) {
         string memory vestingType = "staged";
         string memory linearType = "day";
-        uint256 duration = (schedule.endTimestamp - schedule.startTimestamp) / 86400;
+        uint256 timeDiff = schedule.endTimestamp > schedule.startTimestamp ? schedule.endTimestamp - schedule.startTimestamp : 0;
+        uint256 duration = timeDiff / 86400;
 
         if (schedule.vestingType == 1) {
             vestingType = "linear";
@@ -148,13 +153,13 @@ contract NFTDescriptor is INFTDescriptor, UUPSUpgradeable {
 
         if (schedule.linearType == 2) {
             linearType = "week";
-            duration = (schedule.endTimestamp - schedule.startTimestamp) / 86400 / 7;
+            duration = timeDiff / 86400 / 7;
         } else if (schedule.linearType == 3) {
             linearType = "month";
-            duration = (schedule.endTimestamp - schedule.startTimestamp) / 86400 / 30;
+            duration = timeDiff / 86400 / 30;
         } else if (schedule.linearType == 2) {
             linearType = "quarter";
-            duration = (schedule.endTimestamp - schedule.startTimestamp) / 86400 / 120;
+            duration = timeDiff / 86400 / 120;
         }
         
         return string.concat(
@@ -191,12 +196,15 @@ contract NFTDescriptor is INFTDescriptor, UUPSUpgradeable {
         NFTSVG.SVGParams memory svgParams =
             NFTSVG.SVGParams({
                 nftId: params.nftId.toString(),
-                balance: formatTokenBalance(
-                    params.balance,
-                    ILiteERC20(params.voucherToken).decimals()
-                ),
+                // balance: formatTokenBalance(
+                //     params.balance,
+                //     ILiteERC20(params.voucherToken).decimals()
+                // ),
+                balance: "0",
                 startTime: timestampToUTC(params.schedules[0].startTimestamp),
-                endTime: timestampToUTC(params.schedules[params.schedules.length - 1].endTimestamp),
+                endTime: timestampToUTC(
+                    params.schedules[params.schedules.length - 1].endTimestamp == 0 ? params.schedules[params.schedules.length - 1].startTimestamp : params.schedules[params.schedules.length - 1].endTimestamp
+                ),
                 voucherToken: formatAddress(params.voucherToken),
                 collectionName: params.collectionName
             });
@@ -223,23 +231,30 @@ contract NFTDescriptor is INFTDescriptor, UUPSUpgradeable {
         uint256 wholePart = balance / (10 ** decimals);
         uint256 fractionalPart = balance % (10 ** decimals);
         
-        string memory wholePartStr = addCommas(wholePart.toString());
+        string memory wholePartStr = wholePart.toString();
         uint8 fractionDigits = wholePart > 0 ? 2 : 5;
 
+        // Convert the fractional part to string with the required digits
         string memory fractionalPartStr = fractionalPart.toString();
         uint8 fractionalPartLength = uint8(bytes(fractionalPartStr).length);
 
-        if (fractionalPartLength > fractionDigits) {
-            fractionalPartStr = substring(fractionalPartStr, 0, fractionDigits);
+        // Pad the fractional part with leading zeros if necessary
+        uint256 needAddedZero = decimals - fractionalPartLength;
+        if (needAddedZero > 4) {
+            fractionalPartStr = "0";
         } else {
-            while (fractionalPartLength < fractionDigits) {
+            while ( needAddedZero > 0)  {
                 fractionalPartStr = string(abi.encodePacked("0", fractionalPartStr));
+                --needAddedZero;
             }
+
+            fractionalPartStr = substring(fractionalPartStr, 0, fractionDigits);
         }
 
-        return string(abi.encodePacked(wholePartStr, ".", fractionalPartStr));
+        // Combine the whole part and fractional part
+        return string(abi.encodePacked(addCommas(wholePartStr), ".", fractionalPartStr));
     }
-
+   
     // Helper function to add commas to a string representation of a number
     function addCommas(string memory numStr) internal pure returns (string memory) {
         bytes memory numBytes = bytes(numStr);
@@ -250,14 +265,18 @@ contract NFTDescriptor is INFTDescriptor, UUPSUpgradeable {
 
         uint256 commas = (length - 1) / 3;
         bytes memory result = new bytes(length + commas);
-        uint256 j = result.length - 1;
-        uint256 k = length - 1;
+        uint256 j = result.length;
+        uint256 k = length;
 
         for (uint256 i = 0; i < length; i++) {
+            --j;
+            --k;
             if (i > 0 && i % 3 == 0) {
-                result[j--] = ",";
+                result[j] = ",";
+                --j;
             }
-            result[j--] = numBytes[k--];
+            result[j] = numBytes[k];
+
         }
 
         return string(result);
