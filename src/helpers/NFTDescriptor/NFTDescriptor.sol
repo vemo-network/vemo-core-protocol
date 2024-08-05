@@ -14,6 +14,7 @@ import './DateTime.sol';
 interface ILiteERC20 {
     function name() external pure returns (string memory);
     function symbol() external pure returns (string memory);
+    function decimals() external pure returns (uint8);
 }
 contract NFTDescriptor is INFTDescriptor, UUPSUpgradeable {
     using Strings for uint256;
@@ -88,23 +89,11 @@ contract NFTDescriptor is INFTDescriptor, UUPSUpgradeable {
             );
     }
 
-    function convertTimestampToUTC(uint256 timestamp) public pure returns (string memory utc) {
+    function timestampToUTC(uint256 timestamp) public pure returns (string memory utc) {
         DateTime._DateTime memory dt = DateTime.parseTimestamp(timestamp);
         return DateTime.formatDateTime(dt);
     }
 
-    /**
-     * 
-     * struct VestingSchedule {
-        uint256 amount;
-        uint8 vestingType; // linear: 1 | staged: 2
-        uint8 linearType; // day: 1 | week: 2 | month: 3 | quarter: 4
-        uint256 startTimestamp;
-        uint256 endTimestamp;
-        uint8 isVested; // unvested: 0 | vested : 1 | vesting : 2
-        uint256 remainingAmount;
-        }
-     */
     function generateVestingInfoPart(ConstructTokenURIParams memory params) public pure returns (string memory) {
         require(params.schedules.length > 0);
 
@@ -124,7 +113,7 @@ contract NFTDescriptor is INFTDescriptor, UUPSUpgradeable {
                     ": ",
                     ((params.schedules[i].amount * 100) / originalTotalVesting).toString(),
                     "% released at ",
-                    convertTimestampToUTC(params.schedules[i].startTimestamp)
+                    timestampToUTC(params.schedules[i].startTimestamp)
                 );
                 continue;
             }
@@ -138,7 +127,7 @@ contract NFTDescriptor is INFTDescriptor, UUPSUpgradeable {
                 "% ",
                 genSingleVestingText(params.schedules[i]),
                 " starting at ",
-                convertTimestampToUTC(params.schedules[i].startTimestamp)
+                timestampToUTC(params.schedules[i].startTimestamp)
             );
         }
         return string.concat(
@@ -202,14 +191,76 @@ contract NFTDescriptor is INFTDescriptor, UUPSUpgradeable {
         NFTSVG.SVGParams memory svgParams =
             NFTSVG.SVGParams({
                 nftId: params.nftId.toString(),
-                balance: params.balance.toString(),
-                startTime: params.schedules[0].startTimestamp.toString(),
-                endTime: params.schedules[params.schedules.length - 1].endTimestamp.toString(),
-                voucherToken: addressToString(params.voucherToken),
+                balance: formatTokenBalance(
+                    params.balance,
+                    ILiteERC20(params.voucherToken).decimals()
+                ),
+                startTime: timestampToUTC(params.schedules[0].startTimestamp),
+                endTime: timestampToUTC(params.schedules[params.schedules.length - 1].endTimestamp),
+                voucherToken: formatAddress(params.voucherToken),
                 collectionName: params.collectionName
             });
 
         return NFTSVG.generateSVG(svgParams);
+    } 
+
+    function formatAddress(address _address) public pure returns (string memory) {
+        string memory addrStr = addressToString(_address);
+
+        return string(abi.encodePacked(substring(addrStr, 0, 5), "...", substring(addrStr, 38, 42)));
+    }
+
+    function substring(string memory str, uint startIndex, uint endIndex) internal pure returns (string memory) {
+        bytes memory strBytes = bytes(str);
+        bytes memory result = new bytes(endIndex - startIndex);
+        for (uint i = startIndex; i < endIndex; i++) {
+            result[i - startIndex] = strBytes[i];
+        }
+        return string(result);
+    }
+
+    function formatTokenBalance(uint256 balance, uint8 decimals) public pure returns (string memory) {
+        uint256 wholePart = balance / (10 ** decimals);
+        uint256 fractionalPart = balance % (10 ** decimals);
+        
+        string memory wholePartStr = addCommas(wholePart.toString());
+        uint8 fractionDigits = wholePart > 0 ? 2 : 5;
+
+        string memory fractionalPartStr = fractionalPart.toString();
+        uint8 fractionalPartLength = uint8(bytes(fractionalPartStr).length);
+
+        if (fractionalPartLength > fractionDigits) {
+            fractionalPartStr = substring(fractionalPartStr, 0, fractionDigits);
+        } else {
+            while (fractionalPartLength < fractionDigits) {
+                fractionalPartStr = string(abi.encodePacked("0", fractionalPartStr));
+            }
+        }
+
+        return string(abi.encodePacked(wholePartStr, ".", fractionalPartStr));
+    }
+
+    // Helper function to add commas to a string representation of a number
+    function addCommas(string memory numStr) internal pure returns (string memory) {
+        bytes memory numBytes = bytes(numStr);
+        uint256 length = numBytes.length;
+        if (length <= 3) {
+            return numStr; // No commas needed
+        }
+
+        uint256 commas = (length - 1) / 3;
+        bytes memory result = new bytes(length + commas);
+        uint256 j = result.length - 1;
+        uint256 k = length - 1;
+
+        for (uint256 i = 0; i < length; i++) {
+            if (i > 0 && i % 3 == 0) {
+                result[j--] = ",";
+            }
+            result[j--] = numBytes[k--];
+        }
+
+        return string(result);
     }
 
 }
