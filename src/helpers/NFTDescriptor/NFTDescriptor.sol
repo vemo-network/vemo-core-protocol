@@ -196,11 +196,10 @@ contract NFTDescriptor is INFTDescriptor, UUPSUpgradeable {
         NFTSVG.SVGParams memory svgParams =
             NFTSVG.SVGParams({
                 nftId: params.nftId.toString(),
-                // balance: formatTokenBalance(
-                //     params.balance,
-                //     ILiteERC20(params.voucherToken).decimals()
-                // ),
-                balance: "0",
+                balance: formatTokenBalance(
+                    params.balance,
+                    ILiteERC20(params.voucherToken).decimals()
+                ),
                 startTime: timestampToUTC(params.schedules[0].startTimestamp),
                 endTime: timestampToUTC(
                     params.schedules[params.schedules.length - 1].endTimestamp == 0 ? params.schedules[params.schedules.length - 1].startTimestamp : params.schedules[params.schedules.length - 1].endTimestamp
