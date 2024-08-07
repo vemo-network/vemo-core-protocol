@@ -52,7 +52,7 @@ contract DeployVemoWalletSC is Script {
         address forwarder = 0xcA1167915584462449EE5b4Ea51c37fE81eCDCCD;
         address registry = 0x000000006551c19487814612e58FE06813775758;
         address owner = 0x308C6c08735c5cB323FC78b956Dcae19CC008608;
-        address tokenboundLayerZero = 0x0F220412Bf22E05EBcC5070D60fd7136A08aF22C;
+        address tokenboundLayerZero = 0x96f0445246B19Fa098f8bb4dfA907eD38F6155d5;
 
         // entrypoint for ERC4337, if there is no erc4337 protocol, leave it zero
         address entrypointERC4337 = 0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789;
