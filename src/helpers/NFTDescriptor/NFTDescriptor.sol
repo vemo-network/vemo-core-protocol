@@ -233,11 +233,9 @@ contract NFTDescriptor is INFTDescriptor, UUPSUpgradeable {
         string memory wholePartStr = wholePart.toString();
         uint8 fractionDigits = wholePart > 0 ? 2 : 5;
 
-        // Convert the fractional part to string with the required digits
         string memory fractionalPartStr = fractionalPart.toString();
         uint8 fractionalPartLength = uint8(bytes(fractionalPartStr).length);
 
-        // Pad the fractional part with leading zeros if necessary
         uint256 needAddedZero = decimals - fractionalPartLength;
         if (needAddedZero > 4) {
             fractionalPartStr = "0";
@@ -250,11 +248,9 @@ contract NFTDescriptor is INFTDescriptor, UUPSUpgradeable {
             fractionalPartStr = substring(fractionalPartStr, 0, fractionDigits);
         }
 
-        // Combine the whole part and fractional part
         return string(abi.encodePacked(addCommas(wholePartStr), ".", fractionalPartStr));
     }
    
-    // Helper function to add commas to a string representation of a number
     function addCommas(string memory numStr) internal pure returns (string memory) {
         bytes memory numBytes = bytes(numStr);
         uint256 length = numBytes.length;

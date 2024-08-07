@@ -3,7 +3,7 @@
 # Function to display usage instructions
 usage() {
     echo "Usage: $0 [chain] [private_key] [deployment]"
-    echo "Chains supported: avax-fuji, avax-mainnet, bnb-mainnet, bnb-testnet"
+    echo "Chains supported: avax-fuji, avax-mainnet, bnb-mainnet, bnb-testnet, ethereum-mainnet, arbitrum-mainnet"
     echo "Deployments supported: Deploy.Wallet, Deploy.Wallet.Account, Deploy.TF, Upgrade.Wallet"
     exit 1
 }
@@ -48,7 +48,6 @@ case $DEPLOYMENT in
         ;;
 esac
 
-
 # Set the RPC URL and Verifier URL based on the input chain
 case $CHAIN in
     avax-fuji)
@@ -62,7 +61,7 @@ case $CHAIN in
         CHAIN_ID=43114
         ;;
     bnb-mainnet)
-        RPC_URL="https://bsc-pokt.nodies.app"
+        RPC_URL="https://bsc.meowrpc.com"
         VERIFIER_URL="https://api.bscscan.com/api"
         CHAIN_ID=56
         ;;
@@ -71,11 +70,22 @@ case $CHAIN in
         VERIFIER_URL="https://api-testnet.bscscan.com/api"
         CHAIN_ID=97
         ;;
+    ethereum-mainnet)
+        RPC_URL="https://eth.llamarpc.com"
+        VERIFIER_URL="https://api.etherscan.io/api"
+        CHAIN_ID=1
+        ;;
+    arbitrum-mainnet)
+        RPC_URL="https://arb1.arbitrum.io/rpc"
+        VERIFIER_URL="https://api.arbiscan.io/api"
+        CHAIN_ID=42161
+        ;;
     *)
         echo "Error: Unsupported chain '$CHAIN'"
         usage
         ;;
 esac
+
 
 # Deploy the contract using the provided parameters and capture the contract address
 DEPLOY_OUTPUT=$(forge clean && forge build && forge script script/wallet/${DEPLOYMENT}.s.sol \
@@ -89,18 +99,18 @@ DEPLOY_OUTPUT=$(forge clean && forge build && forge script script/wallet/${DEPLO
 # Print deployment output for debugging
 echo "$DEPLOY_OUTPUT"
 
-# Extract the contract address from the deploy output
-# CONTRACT_ADDRESS=$(echo "$DEPLOY_OUTPUT" | grep -oP 'Contract Address: \K0x[a-fA-F0-9]{40}')
-CONTRACT_ADDRESS=$(echo "$DEPLOY_OUTPUT" | awk '/Contract Address:/ {print $3}')
+# # Extract the contract address from the deploy output
+# # CONTRACT_ADDRESS=$(echo "$DEPLOY_OUTPUT" | grep -oP 'Contract Address: \K0x[a-fA-F0-9]{40}')
+# CONTRACT_ADDRESS=$(echo "$DEPLOY_OUTPUT" | awk '/Contract Address:/ {print $3}')
 
-# Print contract address for debugging
-echo "Contract Address: $CONTRACT_ADDRESS"
+# # Print contract address for debugging
+# echo "Contract Address: $CONTRACT_ADDRESS"
 
-# # Verify the contract using the captured contract address
-forge verify-contract $CONTRACT_ADDRESS \
-    --watch \
-    --chain $CHAIN_ID \
-    $CONTRACT_SOURCE:$CONTRACT_NAME \
-    --etherscan-api-key "1VYRT81XHNBY8BC2X88N9ZF4XRBXUJDYKQ" \
-    --num-of-optimizations 200 \
-    --compiler-version 0.8.23
+# # # Verify the contract using the captured contract address
+# forge verify-contract $CONTRACT_ADDRESS \
+#     --watch \
+#     --chain $CHAIN_ID \
+#     $CONTRACT_SOURCE:$CONTRACT_NAME \
+#     --etherscan-api-key "1VYRT81XHNBY8BC2X88N9ZF4XRBXUJDYKQ" \
+#     --num-of-optimizations 200 \
+#     --compiler-version 0.8.23

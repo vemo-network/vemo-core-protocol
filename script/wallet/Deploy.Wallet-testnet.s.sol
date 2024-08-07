@@ -19,26 +19,18 @@ import "multicall-authenticated/Multicall3.sol";
 import {ERC6551Registry} from "erc6551/ERC6551Registry.sol";
 
 import {Upgrades} from "openzeppelin-foundry-upgrades/Upgrades.sol";
-/**
-  walletfactory address: 0x2D675d0C90D39751FA33d7b2498D556142590a36 
-  WalletFactory Proxy address: 0x5A72A673f0621dC3b39B59084a72b95706E75EFd 
 
-  guardian  0xC833002b8179716Ae225B7a2B3DA463C47B14F76
-  account v3  0xA94e04f900eF10670F0D730A49cEA5447fe6fcb8
-  accountProxy  0xE1E5F84F59BB5B55fAdec8b9496B70Ca0A312c73
-  account registry  0x000000006551c19487814612e58FE06813775758
-  wallet factory proxy  0x5A72A673f0621dC3b39B59084a72b95706E75EFd
+// testnet
+// address guardian = 0xb2E8034f7E135A7d45535FA40d204F1FDF158C3C;
+// address accountv3Implementation = 0xF7e78A4f68655db2fa561B3bC0a6216805b0a28a;
+// address accountProxy = 0x3f3EE2F1156f987c1274b1429fc11599b95bE56A;
+// wallet factory : 0x16B73f4EF7A85279dc52f0D3c116E1fc3435Ea00
+// wallet factory implement: 0x2D675d0C90D39751FA33d7b2498D556142590a36
+// address forwarder = 0xcA1167915584462449EE5b4Ea51c37fE81eCDCCD;
+// address registry = 0x000000006551c19487814612e58FE06813775758;
+// address owner = 0xaA6Fb5C8C0978532AaA46f99592cB0b71F11d94E;
+// address tokenboundLayerZero = 0x0F220412Bf22E05EBcC5070D60fd7136A08aF22C;
 
-  ------------
-  walletfactory address: 0x2D675d0C90D39751FA33d7b2498D556142590a36 
-  WalletFactory Proxy address: 0x5A72A673f0621dC3b39B59084a72b95706E75EFd 
-  guardian  0xC833002b8179716Ae225B7a2B3DA463C47B14F76
-  account v3  0xA94e04f900eF10670F0D730A49cEA5447fe6fcb8
-  accountProxy  0xE1E5F84F59BB5B55fAdec8b9496B70Ca0A312c73
-  account registry  0x000000006551c19487814612e58FE06813775758
-  wallet factory proxy  0x5A72A673f0621dC3b39B59084a72b95706E75EFd
-
- */
 contract DeployVemoWalletSC is Script {
     // a Prime
     uint256 salt = 0x8cb91e82a3386d28036d6f63d1e6efd90031d3e8a56e75da9f0b021f40b0bc4c;
@@ -51,7 +43,7 @@ contract DeployVemoWalletSC is Script {
          */
         address forwarder = 0xcA1167915584462449EE5b4Ea51c37fE81eCDCCD;
         address registry = 0x000000006551c19487814612e58FE06813775758;
-        address owner = 0x308C6c08735c5cB323FC78b956Dcae19CC008608;
+        address owner = 0xaA6Fb5C8C0978532AaA46f99592cB0b71F11d94E;
         address tokenboundLayerZero = 0x0F220412Bf22E05EBcC5070D60fd7136A08aF22C;
 
         // entrypoint for ERC4337, if there is no erc4337 protocol, leave it zero
@@ -71,11 +63,12 @@ contract DeployVemoWalletSC is Script {
         AccountProxy accountProxy = new AccountProxy{salt: bytes32(salt)}(
            address(guardian), address(accountv3Implementation)
         );
-
-        // address guardian = 0xC833002b8179716Ae225B7a2B3DA463C47B14F76;
-        // address accountv3Implementation = 0xA94e04f900eF10670F0D730A49cEA5447fe6fcb8;
-        // address accountProxy = 0xE1E5F84F59BB5B55fAdec8b9496B70Ca0A312c73;
         
+        // testnet
+        // address guardian = 0xb2E8034f7E135A7d45535FA40d204F1FDF158C3C;
+        // address accountv3Implementation = 0xF7e78A4f68655db2fa561B3bC0a6216805b0a28a;
+        // address accountProxy = 0x3f3EE2F1156f987c1274b1429fc11599b95bE56A;
+
         (address walletFactoryProxy, address walletFactoryImpl) = deployWalletFactory(
             owner,
             address(registry),
@@ -88,7 +81,6 @@ contract DeployVemoWalletSC is Script {
         console2.log("accountProxy ", address(accountProxy));
         console2.log("account registry ", address(registry));
         console2.log("wallet factory proxy ", walletFactoryProxy);
-
         vm.stopBroadcast();
     }
 
@@ -106,21 +98,7 @@ contract DeployVemoWalletSC is Script {
 
         console2.log("WalletFactory Proxy address:", address(proxyWalletFactory), "\n");
 
-        deployVemoCollection(WalletFactory(payable(proxyWalletFactory)));
-
         return (proxyWalletFactoryAddress, address(factory));
-    }
-
-    function deployVemoCollection(WalletFactory  factory) public {
-        // WalletFactory factory = WalletFactory(payable(0x5A72A673f0621dC3b39B59084a72b95706E75EFd));
-        address collection = factory.createWalletCollection(
-            uint160(salt),
-            "Vemo Smart Wallet",
-            "VSW",
-            "vemowallet"
-        );
-
-        console2.log("collection ", collection);
     }
 
     
