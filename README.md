@@ -9,7 +9,17 @@ The core framework of Vemo in version 1 revolves around three key contracts: Vou
 Moreover, Vemo is designed with scalability in mind. It can accommodate locked positions from diverse sources, such as staking as well as possess the flexibility to adapt to various business logics, with the potential for future expansion planned in version 2.
 
 ## Documentation
-Deployment on Avax
+Deployment Wallet on production BNB, ARB, ETH
+walletfactory address: 0x2D675d0C90D39751FA33d7b2498D556142590a36 
+WalletFactory Proxy address: 0x5A72A673f0621dC3b39B59084a72b95706E75EFd 
+guardian  0xC833002b8179716Ae225B7a2B3DA463C47B14F76
+account v3  0xA94e04f900eF10670F0D730A49cEA5447fe6fcb8
+accountProxy  0xE1E5F84F59BB5B55fAdec8b9496B70Ca0A312c73
+account registry  0x000000006551c19487814612e58FE06813775758
+wallet factory proxy  0x5A72A673f0621dC3b39B59084a72b95706E75EFd
+
+
+Deployment voucher on Avax
 Owner: 0xF42694796976e9Fc2fA7287b4CFAD218516d0BC7
 
 | Contract Name | Address | Commit |
@@ -24,7 +34,7 @@ Owner: 0xF42694796976e9Fc2fA7287b4CFAD218516d0BC7
 | Vemo Vesting Factory Impl | 0xbF907b4ff56E6EF9E648B4831aBF526cF5494896 | |
 
 -----------------------------------
-Deployment on bnb mainnet 
+Deployment voucher on bnb mainnet 
 | Contract Name | Address | Commit |
 | --- | --- | --- |
 | Factory | 0x75fc4ABf45d38176544833164e4E870B1A5E3103 |  |
@@ -51,18 +61,8 @@ MULTISIG OWNER: `0x540e56Fb440f71b788c8Fee2aab5A2ce292D65fC`
 
 - Wallet contracts
 
-BNB wallet contracts
-| Contract Name | Address |
-| --- | --- |
-| WalletFactory | 0x98c0a92798A3A80dB7C3317440086D84B3104A5e |
-| Registry |0xB0F0f594850e4E729796239E737aB8303b9586a4|
-| accImpl | 0x1eE14D9E455B43449F870A9668889E77A5c36c91|
-| accProxy |0x753Ae77F1E23f4CB02B3781bA4f3bAf21f282A49|
-| guardian |0xb37B339a6574Efa34EEFE055Aa2700E782601DBC|
-
-
 -------------------------------------------------------
-Deployment on avax testnet 
+Deployment voucher on avax testnet 
 owner: 0xaA6Fb5C8C0978532AaA46f99592cB0b71F11d94E
 
 ```
@@ -90,7 +90,7 @@ address owner -->  0x581530Bb07091Fe1f285211C24BA43Da0F005FC9
 | WalletFactory Proxy | 0xAb3a6F5c42FF0efD402a8cd7EcEa18F8759AEE73|
 | NFT Descriptor | 0x6ca9bb43548FfE3b2ABE0ca6A9Ba6C5C60bba463|
 -------------------------------------------------------
-Deployment on bnb testnet
+Deployment voucher on bnb testnet
 | Contract Name | Address |
 | --- | --- |
 | Factory | 0x702067e6010E48f0eEf11c1E06f06aaDb04734e2 |
