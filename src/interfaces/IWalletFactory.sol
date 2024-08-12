@@ -8,7 +8,8 @@ interface IWalletFactory {
         address indexed account,
         address indexed nftCollection,
         uint256 tokenId,
-        address receiver
+        address receiver,
+        uint256 chainId
     );
 
     event CollectionCreated(

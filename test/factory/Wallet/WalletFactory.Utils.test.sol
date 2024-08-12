@@ -111,4 +111,24 @@ contract WalletFactoryUtilsTest is Test, WalletFactoryBaseTest {
         vm.stopPrank();
     }
 
+    event WalletCreated(
+        address indexed account,
+        address indexed nftCollection,
+        uint256 tokenId,
+        address receiver,
+        uint256 chainId
+    );
+
+    function testCreateTBA() public {
+        
+        vm.startPrank(user);
+        vm.expectEmit(false, true, true, true);
+
+        // We emit the event we expect to see.
+        emit WalletCreated(address(this), address(usdt), 1, address(0), 1);
+
+        walletFactory.createTBA(address(usdt), 1, 1);
+        vm.stopPrank();
+    }
+
 }

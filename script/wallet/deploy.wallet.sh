@@ -71,7 +71,7 @@ case $CHAIN in
         CHAIN_ID=97
         ;;
     ethereum-mainnet)
-        RPC_URL="https://eth.llamarpc.com"
+        RPC_URL="https://eth-pokt.nodies.app"
         VERIFIER_URL="https://api.etherscan.io/api"
         CHAIN_ID=1
         ;;

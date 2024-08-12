@@ -183,7 +183,7 @@ contract WalletFactory is IERC721Receiver, IWalletFactory, UUPSUpgradeable, Acce
 
         _tokenBoundAccounts[nftAddress][tokenId] = tba;
 
-        emit WalletCreated(tba, nftAddress, tokenId, receiver);
+        emit WalletCreated(tba, nftAddress, tokenId, receiver, block.chainid);
         return (tokenId, tba);
     }
 
@@ -195,7 +195,7 @@ contract WalletFactory is IERC721Receiver, IWalletFactory, UUPSUpgradeable, Acce
      */
     function createTBA(address nftAddress, uint256 tokenId, uint256 chainId) public override  {
         address tba = _createAndInitializeTBA(nftAddress, tokenId, chainId);
-        emit WalletCreated(tba, nftAddress, tokenId, address(0));
+        emit WalletCreated(tba, nftAddress, tokenId, address(0), chainId);
     }
 
     function _createAndInitializeTBA(address nftAddress, uint256 tokenId, uint256 chainId) internal returns (address) {

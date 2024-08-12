@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import "forge-std/console.sol";
-
+import "forge-std/console2.sol";
 import "forge-std/Script.sol";
 import "../../src/AccountRegistry.sol";
 import "../../src/AccountGuardian.sol";
@@ -18,20 +17,17 @@ contract DeployVemoWalletSC is Script {
 
     function run() public {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
-        address walletFactoryProxy = vm.envAddress("WALLET_FACTORY_PROXY");
+        address walletFactoryProxy = 0x5A72A673f0621dC3b39B59084a72b95706E75EFd;
 
         vm.startBroadcast(deployerPrivateKey);
 
         WalletFactory implementation = new WalletFactory();
+
         WalletFactory proxy = WalletFactory(payable(walletFactoryProxy));
 
         bytes memory data;
         proxy.upgradeToAndCall(address(implementation), data);
-        
-        proxy.setFeeReceiver(address(0x79ef006E9069b0c45b6b8DD7b8809AaDffce1881));
-        proxy.setFee(1, 0);
 
-        // console.logAddress(address(implementation));
         vm.stopBroadcast();
     }
 }
