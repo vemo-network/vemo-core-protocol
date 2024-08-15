@@ -10,13 +10,26 @@ Moreover, Vemo is designed with scalability in mind. It can accommodate locked p
 
 ## Documentation
 Deployment Wallet on production BNB, ARB, ETH
-walletfactory address: 0x2D675d0C90D39751FA33d7b2498D556142590a36 
-WalletFactory Proxy address: 0x5A72A673f0621dC3b39B59084a72b95706E75EFd 
-guardian  0xC833002b8179716Ae225B7a2B3DA463C47B14F76
-account v3  0xA94e04f900eF10670F0D730A49cEA5447fe6fcb8
-accountProxy  0xE1E5F84F59BB5B55fAdec8b9496B70Ca0A312c73
-account registry  0x000000006551c19487814612e58FE06813775758
-wallet factory proxy  0x5A72A673f0621dC3b39B59084a72b95706E75EFd
+| Contract Name | Address | Commit |
+| walletfactory |  0x2D675d0C90D39751FA33d7b2498D556142590a36 |
+| WalletFactory Proxy |  0x5A72A673f0621dC3b39B59084a72b95706E75EFd |
+| guardian |  0xC833002b8179716Ae225B7a2B3DA463C47B14F76 |
+| account v3 |   0xA94e04f900eF10670F0D730A49cEA5447fe6fcb8 |
+| accountProxy | 0xE1E5F84F59BB5B55fAdec8b9496B70Ca0A312c73 |
+| account registry | 0x000000006551c19487814612e58FE06813775758 |
+| wallet factory proxy | 0x5A72A673f0621dC3b39B59084a72b95706E75EFd |
+
+Deployment Wallet on ARB, BNB testnet
+| Contract Name | Address | Commit |
+| collection | 0x8199F4C7A378B7CcCD6AF8c3bBcF0C68A353dAeB |
+| guardian | 0xBE67034116BBc44f86b4429D48B1e1FB2BdAd9b7 |
+| account v3 |  0x466a8D7e8ea7140ace60CD63d7D24199EE493238 |
+| accountProxy | 0xF21e3FEde83E30Ab18fe7624C8c2b5DC7E4b0c18 |
+| account registry | 0x000000006551c19487814612e58FE06813775758 |
+| wallet factory proxy | 0xe2eBB6c62469f5afc0134DAbc9dD0e77F16eFba3 |
+| walletfactory | 0xdd29355A71040C1122CfA60A6Dcf42c4C258EDc6 |
+| layerzero OApp | 0x823b6CeA760716F40D6CA720a11f7459Fa361e9e |
+
 
 
 Deployment voucher on Avax
@@ -153,10 +166,4 @@ forge verify-contract "contract-address" --watch --chain 56 "contract_path:contr
 
 forge verify-contract 0x1eE14D9E455B43449F870A9668889E77A5c36c91  --watch --chain 56  src/accounts/AccountV3.sol:AccountV3  --etherscan-api-key "1VYRT81XHNBY8BC2X88N9ZF4XRBXUJDYKQ"  --num-of-optimizations 200 --compiler-version 0.8.23 --constructor-args `cast abi-encode "constructor(address,address,address,address)" 0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789 0xcA11bde05977b3631167028862bE2a173976CA11 0x0deC1D7E2789f80084bB0d516381Cf80B0E7c5f7 0xb50D9B55b3F994ce5F881c4FAeA374cF69dBA3b1`
 
-Note
-1. there are some scan/explorers that don't accept the tx parameters as contruction-arg, there is a script call abi.encode.js support encode/decode manually.
-2. 0.8.21 is the version that work for verify contract.
-
-3. 1967proxy contructor args (bscscan sometimes can't regconize the proxy)
-0000000000000000000000000f3a3ba0f9d0f48a38c48188eddcf5f196a56854000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000a41459457a000000000000000000000000540e56fb440f71b788c8fee2aab5a2ce292d65fc00000000000000000000000075fc4abf45d38176544833164e4e870b1a5e3103000000000000000000000000a64001f7943792372c5b777e49f3b1d0a43282fc0000000000000000000000004d5d103178846f14dc0beed943d5d83f0f706f35000000000000000000000000eb9833ef02c9502436bce90b55ddb9afcaf1aa9900000000000000000000000000000000000000000000000000000000
 

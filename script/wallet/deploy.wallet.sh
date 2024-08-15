@@ -19,7 +19,7 @@ PRIVATE_KEY=$2
 DEPLOYMENT=$3
 
 # Validate deployment parameter
-if [[ "$DEPLOYMENT" != "Deploy.Wallet" && "$DEPLOYMENT" != "Deploy.Wallet.Account" && "$DEPLOYMENT" != "Deploy.TF" && "$DEPLOYMENT" != "Upgrade.Wallet" ]]; then
+if [[ "$DEPLOYMENT" != "Deploy.Wallet" && "$DEPLOYMENT" != "Deploy.Wallet-testnet" && "$DEPLOYMENT" != "Deploy.Wallet.Account" && "$DEPLOYMENT" != "Deploy.TF" && "$DEPLOYMENT" != "Upgrade.Wallet" ]]; then
     echo "Error: Unsupported deployment '$DEPLOYMENT'"
     usage
 fi
@@ -31,6 +31,10 @@ case $DEPLOYMENT in
         CONTRACT_SOURCE="src/WalletFactory.sol"
         ;;
     Deploy.Wallet)
+        CONTRACT_NAME="WalletFactory"
+        CONTRACT_SOURCE="src/WalletFactory.sol"
+        ;;
+    Deploy.Wallet-testnet)
         CONTRACT_NAME="WalletFactory"
         CONTRACT_SOURCE="src/WalletFactory.sol"
         ;;
@@ -79,6 +83,11 @@ case $CHAIN in
         RPC_URL="https://arb1.arbitrum.io/rpc"
         VERIFIER_URL="https://api.arbiscan.io/api"
         CHAIN_ID=42161
+        ;;
+    arbitrum-testnet)
+        RPC_URL="https://sepolia-rollup.arbitrum.io/rpc"
+        VERIFIER_URL="https://api.arbiscan.io/api"
+        CHAIN_ID=421614
         ;;
     *)
         echo "Error: Unsupported chain '$CHAIN'"
