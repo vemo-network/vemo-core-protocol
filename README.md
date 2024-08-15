@@ -1,17 +1,13 @@
 ## Vemo core-protocol
-Vemo is a DeFi protocol designed to tokenize locked positions into dynamic NFTs with on-chain balances and built-in release schedules, known as smart vouchers. Smart voucher holders enjoy the freedom to claim their tokens according to the preset release schedule, all without requiring external authorization. Remarkably, the voucher market operates autonomously from the spot market, ensuring that trading vouchers has no impact on the spot price of the underlying token. This innovative approach fosters a decentralized ecosystem where locked positions are seamlessly transformed into tradable assets. This unlocks new possibilities for liquidity provision and financial flexibility in order to revolutionize the DeFi landscape to the next level.  
+This repository contains the core smart contracts for the Vemo Protocol.
 
-The core framework of Vemo in version 1 revolves around three key contracts: VoucherFactory.sol, VoucherAccount.sol and AccountRegistry.sol
-* VoucherFactory Contract: This contract functions as the manager for both the NFT collection and the associated token-bound accounts. It empowers users to create voucher collections and acts as a gateway for creating VoucherAccount.
-* VoucherAccount Contract: This contract is responsible for holding the token assets. Each (token-bound account) maintains a one-to-one linkage with an ERC721 token (NFT). The contract utilizes mechanisms that allow for claiming rewards over a fixed period or on a linear schedule (hours, days, or months). This implementation enables the trading of vesting positions through ERC721 ownership while upholding the vesting logic.
-* AccountRegistry Contract: functions as a factory for ERC6551Account. This contract allows for the creation and retrieval of token-bound accounts for non-fungible tokens (NFTs) using the CREATE2 opcode. This contract serves as a registry for token-bound accounts associated with NFTs, providing functionalities for their deterministic creation and retrieval.
+## Documentations
+Refer https://docs.vemo.network/ for more information about our main products - Smart Voucher and Vemo Wallet
 
-Moreover, Vemo is designed with scalability in mind. It can accommodate locked positions from diverse sources, such as staking as well as possess the flexibility to adapt to various business logics, with the potential for future expansion planned in version 2.
-
-## Documentation
+## Deployment contracts
 Deployment Wallet on production BNB, ARB, ETH
-| --- | --- | --- |
 | Contract Name | Address | Commit |
+| --- | --- | --- |
 | walletfactory |  0x2D675d0C90D39751FA33d7b2498D556142590a36 |
 | WalletFactory Proxy |  0x5A72A673f0621dC3b39B59084a72b95706E75EFd |
 | guardian |  0xC833002b8179716Ae225B7a2B3DA463C47B14F76 |
