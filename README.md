@@ -10,6 +10,7 @@ Moreover, Vemo is designed with scalability in mind. It can accommodate locked p
 
 ## Documentation
 Deployment Wallet on production BNB, ARB, ETH
+| --- | --- | --- |
 | Contract Name | Address | Commit |
 | walletfactory |  0x2D675d0C90D39751FA33d7b2498D556142590a36 |
 | WalletFactory Proxy |  0x5A72A673f0621dC3b39B59084a72b95706E75EFd |
@@ -21,6 +22,7 @@ Deployment Wallet on production BNB, ARB, ETH
 
 Deployment Wallet on ARB, BNB testnet
 | Contract Name | Address | Commit |
+| --- | --- | --- |
 | collection | 0x8199F4C7A378B7CcCD6AF8c3bBcF0C68A353dAeB |
 | guardian | 0xBE67034116BBc44f86b4429D48B1e1FB2BdAd9b7 |
 | account v3 |  0x466a8D7e8ea7140ace60CD63d7D24199EE493238 |
