@@ -92,6 +92,8 @@ contract AccountRoleTest is Test {
                 )
             )
         ));
+
+        guardian.setTrustedImplementation(address(term), true);
     }
 
     function testMintNFTDelegation() public {
@@ -125,17 +127,21 @@ contract AccountRoleTest is Test {
         vm.deal(_tba, 1 ether);
 
         // check the the owner of derivative nft is valid signer
+        vm.startPrank(user);
+        vm.expectRevert(NotAuthorized.selector);
         VemoWalletV3Upgradable(payable(_tba)).execute(vm.addr(2), 0.1 ether, "", 0);
+
+        VemoWalletV3Upgradable(payable(_tba)).delegateExecute(dlgCollection, vm.addr(2), 0.1 ether, "", 0);
 
         VemoWalletV3Upgradable(payable(_tba)).isValidSigner(user, "");
 
         // check if the owneer of the derivative nft is executable
         assertTrue(
-            VemoWalletV3Upgradable(payable(_tba)).isValidSigner(defaultAdmin, "") != IERC6551Account.isValidSigner.selector
+            VemoWalletV3Upgradable(payable(_tba)).isValidSigner(defaultAdmin, "") == IERC6551Account.isValidSigner.selector
         );
 
         assertTrue(
-            VemoWalletV3Upgradable(payable(_tba)).isValidSigner(user, "") != IERC6551Account.isValidSigner.selector
+            VemoWalletV3Upgradable(payable(_tba)).isValidSigner(user, "") == IERC6551Account.isValidSigner.selector
         );
     }
 }

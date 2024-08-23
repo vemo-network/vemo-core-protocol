@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/interfaces/IERC721.sol";
 import "../interfaces/IDelegationCollection.sol";
 import "../interfaces/IExecutionTerm.sol";
 import "./AccountV3.sol";
+import "../lib/LibExecutor.sol";
 
 contract VemoWalletV3Upgradable is AccountV3, UUPSUpgradeable {
     address delegationCollection;
@@ -46,18 +47,12 @@ contract VemoWalletV3Upgradable is AccountV3, UUPSUpgradeable {
 
         if (!canExecute) revert InvalidImplementation();
         
-        return this.execute(to, value, data, operation);
+        return LibExecutor._execute(to, value, data, operation);
     }
 
     function setDelegate(address _delegationCollection) external onlyOwner {
         delegationCollection = _delegationCollection;
     }
-
-    // function hasPermission(address caller, address owner) internal view override virtual returns (bool) {
-    //     // check if the caller own the same NFT id
-    //     (, , uint256 tokenId) = ERC6551AccountLib.token();
-    //     return IERC721(delegationCollection).ownerOf(tokenId) == caller;
-    // }
 
     function isValidSigner(address signer, bytes calldata data)
         external
@@ -68,7 +63,7 @@ contract VemoWalletV3Upgradable is AccountV3, UUPSUpgradeable {
             return IERC6551Account.isValidSigner.selector;
         }
 
-        (, , uint256 tokenId) = ERC6551AccountLib.token();
+        (,, uint256 tokenId) = ERC6551AccountLib.token();
         if (IERC721(delegationCollection).ownerOf(tokenId) == signer) {
             return IERC6551Account.isValidSigner.selector;
         }
