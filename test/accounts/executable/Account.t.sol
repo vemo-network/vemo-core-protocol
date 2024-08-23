@@ -224,9 +224,6 @@ contract AccountTest is Test {
         (bool success, bytes memory result) =
             accountAddress.call(abi.encodeWithSignature("customFunction()"));
 
-        console.log(success);
-        console.logBytes(result);
-
         // setOverrides calls should revert if account is locked
         {
             bytes4[] memory selectors = new bytes4[](1);

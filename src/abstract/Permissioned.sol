@@ -54,7 +54,7 @@ abstract contract Permissioned {
      * @param caller Address to query permissions for
      * @param owner Root owner address for which to query permissions
      */
-    function hasPermission(address caller, address owner) internal view returns (bool) {
+    function hasPermission(address caller, address owner) internal view virtual returns (bool) {
         return permissions[owner][caller];
     }
 

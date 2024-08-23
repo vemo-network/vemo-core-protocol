@@ -16,6 +16,7 @@ import "./interfaces/IWalletFactory.sol";
 import "./interfaces/darenft/ICollection.sol";
 import "./interfaces/erc6551/IAccountProxy.sol";
 import "./helpers/VemoWalletCollection.sol";
+import "./helpers/VemoDelegationCollection.sol";
 
 contract WalletFactory is IERC721Receiver, IWalletFactory, UUPSUpgradeable, AccessControlUpgradeable {
     using SafeERC20 for IERC20;
@@ -66,6 +67,9 @@ contract WalletFactory is IERC721Receiver, IWalletFactory, UUPSUpgradeable, Acce
 
     // dappURI for categorizing collections by project
     mapping (string uri => address[] collections) private dappURIs;
+
+    // delegate collection 
+    address delegateCollection;
 
     function initialize(
         address _owner,
@@ -152,6 +156,42 @@ contract WalletFactory is IERC721Receiver, IWalletFactory, UUPSUpgradeable, Acce
 
         _collectionRegistries[hashKey] = nftAddress;
         emit CollectionCreated(nftAddress, salt, name, symbol, dappURI);
+    }
+
+    // TODO add an array to store list collection
+    function createDelegateCollection(
+        string memory _name,
+        string memory _symbol,
+        address _descriptor, 
+        address _term
+    ) public returns (address) {
+        if (_descriptor == address(0)) revert InvalidDescriptor();
+        delegateCollection = address(new VemoDelegationCollection(
+            _name,
+            _symbol,
+            address(this),
+            address(this),
+            _descriptor, 
+            _term
+        ));
+
+        return delegateCollection;
+    }
+
+    function delegate(address nftAddress, uint256 tokenId, address receiver) public {
+        address tba = getTokenBoundAccount(nftAddress, tokenId);
+        require(Ownable(tba).owner() == msg.sender);
+
+        // check if the NFT delegation exist
+        try IERC721(delegateCollection).ownerOf(tokenId) returns (address) {
+            return;
+        } catch {
+            VemoDelegationCollection(delegateCollection).safeMint(tokenId, receiver);
+            // // (bool success,) = tba.call(
+            // //     abi.encodeWithSignature("setDelegate(address)", delegateCollection)
+            // // );
+            // require(success == true);
+        }
     }
 
     /**

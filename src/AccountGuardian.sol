@@ -40,4 +40,5 @@ contract AccountGuardian is Ownable {
         isTrustedExecutor[executor] = trusted;
         emit TrustedExecutorUpdated(executor, trusted);
     }
+
 }

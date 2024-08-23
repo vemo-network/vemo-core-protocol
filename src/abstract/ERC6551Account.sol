@@ -24,6 +24,7 @@ abstract contract ERC6551Account is IERC6551Account, ERC165, Signatory {
     function isValidSigner(address signer, bytes calldata data)
         external
         view
+        virtual
         returns (bytes4 magicValue)
     {
         if (_isValidSigner(signer, data)) {

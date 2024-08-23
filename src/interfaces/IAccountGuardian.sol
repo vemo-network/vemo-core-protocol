@@ -11,4 +11,6 @@ interface IAccountGuardian {
     function isTrustedImplementation(address implementation) external view returns (bool);
 
     function isTrustedExecutor(address implementation) external view returns (bool);
+
+    function isTrustedTerm(address term) external view returns (bool);
 }

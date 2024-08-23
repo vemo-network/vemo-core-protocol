@@ -18,7 +18,7 @@ contract MockExecutor is MockReverter {
         pure
         returns (bytes4)
     {
-        return bytes4("");
+        return bytes4(0x12345678);
     }
 
     function onERC1155Received(address, address, uint256, uint256, bytes memory)
@@ -26,7 +26,7 @@ contract MockExecutor is MockReverter {
         pure
         returns (bytes4)
     {
-        return bytes4("");
+        return bytes4(0x12345678);
     }
 
     function onERC1155BatchReceived(
@@ -36,6 +36,6 @@ contract MockExecutor is MockReverter {
         uint256[] memory,
         bytes memory
     ) public pure returns (bytes4) {
-        return bytes4("");
+        return bytes4(0x12345678);
     }
 }
