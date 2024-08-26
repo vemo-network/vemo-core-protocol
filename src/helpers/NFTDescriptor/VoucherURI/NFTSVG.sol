@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 import '@openzeppelin/contracts/utils/Strings.sol';
-import './BitMath.sol';
+import '../BitMath.sol';
 import '@openzeppelin/contracts/utils/Base64.sol';
 
 /// @title NFTSVG

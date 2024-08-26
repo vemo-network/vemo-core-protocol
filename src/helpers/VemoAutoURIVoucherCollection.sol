@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/interfaces/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-import './NFTDescriptor/INFTDescriptor.sol';
+import './NFTDescriptor/VoucherURI/INFTDescriptor.sol';
 import "../interfaces/IVoucherFactory.sol";
 import "../interfaces/IVoucherAccount.sol";
 

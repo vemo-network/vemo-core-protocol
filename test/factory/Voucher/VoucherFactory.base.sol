@@ -17,7 +17,7 @@ import "../../../src/helpers/VemoVestingStruct.sol";
 import "../../../src/interfaces/IVoucherFactory.sol";
 import "../../../src/interfaces/IVoucherAccount.sol";
 import "../../../src/helpers/DataStruct.sol";
-import "../../../src/helpers/NFTDescriptor/NFTDescriptor.sol";
+import "../../../src/helpers/NFTDescriptor/VoucherURI/NFTDescriptor.sol";
 
 import "../../mock/NFT.sol";
 import "../../mock/USDT.sol";

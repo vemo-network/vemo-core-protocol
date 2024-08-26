@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/interfaces/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-import './NFTDescriptor/INFTDescriptor.sol';
+import './NFTDescriptor/DelegationURI/INFTDelegationDescriptor.sol';
 import "../interfaces/IWalletFactory.sol";
 import "../interfaces/IDelegationCollection.sol";
 
@@ -18,10 +18,11 @@ import "../interfaces/IDelegationCollection.sol";
  */
 contract VemoDelegationCollection is ERC721, Ownable, IDelegationCollection  {
     uint256 private _nextTokenId;
-    INFTDescriptor public descriptor;
+    INFTDelegationDescriptor public descriptor;
     IWalletFactory public walletFactory;
     
-    address private _term;
+    address public term;
+    address public issuer;
 
     constructor(
         string memory _name,
@@ -29,11 +30,13 @@ contract VemoDelegationCollection is ERC721, Ownable, IDelegationCollection  {
         address _owner,
         address _walletFactory,
         address _descriptor, 
-        address _term_
+        address _term,
+        address _issuer
     ) ERC721(_name, _symbol) Ownable(_owner) {
         walletFactory = IWalletFactory(_walletFactory);
-        descriptor = INFTDescriptor(_descriptor);
-        _term = _term_;
+        descriptor = INFTDelegationDescriptor(_descriptor);
+        term = _term;
+        issuer = _issuer;
     }
 
     function safeMint(uint256 tokenId, address to) public onlyOwner returns (uint256){
@@ -42,18 +45,24 @@ contract VemoDelegationCollection is ERC721, Ownable, IDelegationCollection  {
     }
 
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
-        return "";
+
+        return
+            descriptor.constructTokenURI(
+                INFTDelegationDescriptor.ConstructTokenURIParams({
+                    nftId: tokenId,
+                    nftAddress: address(this),
+                    collectionName: name(),
+                    tba: IWalletFactory(walletFactory).getTokenBoundAccount(address(this), tokenId)
+                })
+            );
     }
 
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
 
-    function term() external view returns (address) {
-        return _term;
-    }
-
     function burn(uint256 tokenId) public virtual {
         _update(address(0), tokenId, _msgSender());
     }
+
 }

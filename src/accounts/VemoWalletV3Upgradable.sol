@@ -54,6 +54,10 @@ contract VemoWalletV3Upgradable is AccountV3, UUPSUpgradeable {
         delegationCollection = _delegationCollection;
     }
 
+    function getDelegate() external view returns(address) {
+        return delegationCollection;
+    }
+
     function isValidSigner(address signer, bytes calldata data)
         external
         view override

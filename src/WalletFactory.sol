@@ -69,7 +69,9 @@ contract WalletFactory is IERC721Receiver, IWalletFactory, UUPSUpgradeable, Acce
     mapping (string uri => address[] collections) private dappURIs;
 
     // delegate collection 
-    address delegateCollection;
+    address _unUsedStorage;
+
+    address[] public delegations;
 
     function initialize(
         address _owner,
@@ -163,34 +165,45 @@ contract WalletFactory is IERC721Receiver, IWalletFactory, UUPSUpgradeable, Acce
         string memory _name,
         string memory _symbol,
         address _descriptor, 
-        address _term
+        address _term,
+        address _issuer
     ) public returns (address) {
         if (_descriptor == address(0)) revert InvalidDescriptor();
-        delegateCollection = address(new VemoDelegationCollection(
+        address delegateCollection  = address(new VemoDelegationCollection(
             _name,
             _symbol,
             address(this),
             address(this),
             _descriptor, 
-            _term
+            _term,
+            _issuer
         ));
+
+        delegations.push(delegateCollection);
 
         return delegateCollection;
     }
 
-    function delegate(address nftAddress, uint256 tokenId, address receiver) public {
+    // TODO check and fix    
+    function existsDelegation(address _address) public view returns (bool) {
+        for (uint i = 0; i < delegations.length; i++) {
+            if (delegations[i] == _address) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function delegate(address nftAddress, address dlgAddress, uint256 tokenId, address receiver) public {
         address tba = getTokenBoundAccount(nftAddress, tokenId);
         require(Ownable(tba).owner() == msg.sender);
+        require(existsDelegation(dlgAddress) == true);
 
         // check if the NFT delegation exist
-        try IERC721(delegateCollection).ownerOf(tokenId) returns (address) {
+        try IERC721(dlgAddress).ownerOf(tokenId) returns (address) {
             return;
         } catch {
-            VemoDelegationCollection(delegateCollection).safeMint(tokenId, receiver);
-            // // (bool success,) = tba.call(
-            // //     abi.encodeWithSignature("setDelegate(address)", delegateCollection)
-            // // );
-            // require(success == true);
+            VemoDelegationCollection(dlgAddress).safeMint(tokenId, receiver);
         }
     }
 

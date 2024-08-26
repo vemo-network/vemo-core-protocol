@@ -27,7 +27,7 @@ import "./mocks/MockSandboxExecutor.sol";
 import "./mocks/MockReverter.sol";
 import "./mocks/MockAccountUpgradable.sol";
 import {WalletFactory} from "../../../src/WalletFactory.sol";
-import {NFTDescriptor} from "../../../src/helpers/NFTDescriptor/NFTDescriptor.sol";
+import {NFTDelegationDescriptor} from "../../../src/helpers/NFTDescriptor/DelegationURI/NFTDelegationDescriptor.sol";
 import {VePendleTerm} from "../../../src/terms/VePendleTerm.sol";
 
 contract AccountRoleTest is Test {
@@ -46,7 +46,7 @@ contract AccountRoleTest is Test {
     address user = vm.addr(userPrivateKey);
     address userReceiver = vm.addr(userPrivateKey+99);
     address feeReceiver = vm.addr(feeReceiverPrivateKey);
-    NFTDescriptor descriptor;
+    NFTDelegationDescriptor descriptor;
     VePendleTerm term;
 
     USDT usdt = new USDT();
@@ -74,10 +74,10 @@ contract AccountRoleTest is Test {
 
         walletFactory = WalletFactory(payable(walletProxy));
 
-        descriptor = NFTDescriptor(Upgrades.deployUUPSProxy(
-            "NFTDescriptor.sol:NFTDescriptor",
+        descriptor = NFTDelegationDescriptor(Upgrades.deployUUPSProxy(
+            "NFTDelegationDescriptor.sol:NFTDelegationDescriptor",
             abi.encodeCall(
-                NFTDescriptor.initialize,
+                NFTDelegationDescriptor.initialize,
                 (address(this))
             )
         ));
@@ -112,11 +112,12 @@ contract AccountRoleTest is Test {
             "A",
             "A",
             address(descriptor), 
-            address(term)
+            address(term),
+            nftAddress
         );
 
         // mint a derivative nft of that TBA
-        walletFactory.delegate(nftAddress,tokenId, defaultAdmin);
+        walletFactory.delegate(nftAddress, dlgCollection, tokenId, defaultAdmin);
         VemoWalletV3Upgradable(payable(_tba)).setDelegate(dlgCollection);
 
         assertEq(defaultAdmin, MockERC721(dlgCollection).ownerOf(tokenId));

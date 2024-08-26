@@ -5,7 +5,7 @@ import {Test, console2} from "forge-std/Test.sol";
 import "forge-std/console.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {Upgrades} from "openzeppelin-foundry-upgrades/Upgrades.sol";
-import "../../../src/helpers/NFTDescriptor/NFTDescriptor.sol";
+import "../../../src/helpers/NFTDescriptor/VoucherURI/NFTDescriptor.sol";
 import "../../mock/USDT.sol";
 
 contract NFTDescriptorTest is Test {

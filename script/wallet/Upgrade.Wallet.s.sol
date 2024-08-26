@@ -11,7 +11,7 @@ import "../../src/accounts/AccountProxy.sol";
 import "../../src/WalletFactory.sol";
 import "multicall-authenticated/Multicall3.sol";
 import {ERC6551Registry} from "erc6551/ERC6551Registry.sol";
-import "../../src/helpers/NFTDescriptor/NFTDescriptor.sol";
+import "../../src/helpers/NFTDescriptor/DelegationURI/NFTDelegationDescriptor.sol";
 import "../../src/terms/VePendleTerm.sol";
 import {Upgrades} from "openzeppelin-foundry-upgrades/Upgrades.sol";
 
@@ -27,25 +27,29 @@ contract DeployVemoWalletSC is Script {
         address guardian = 0xBE67034116BBc44f86b4429D48B1e1FB2BdAd9b7;
         address entrypointERC4337 = 0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789;
 
-
         // specific
-        address term = 0x59800003Ee3D4dd0b668eA117579037E1efE58B5;
+        // address term = 0x59800003Ee3D4dd0b668eA117579037E1efE58B5;
         vm.startBroadcast(deployerPrivateKey);
 
-        // deploy new vemo wallet type
-        VemoWalletV3Upgradable accountUpgradableImplementation = new VemoWalletV3Upgradable(
-            address(entrypointERC4337), address(forwarder), address(registry), address(guardian)
-        );
+        // // deploy new vemo wallet type
+        // VemoWalletV3Upgradable accountUpgradableImplementation = new VemoWalletV3Upgradable(
+        //     address(entrypointERC4337), address(forwarder), address(registry), address(guardian)
+        // );
 
-        // upgrade new walelt factory
-        // WalletFactory implementation = new WalletFactory();
+        // // upgrade new walelt factory
+        WalletFactory implementation = new WalletFactory();
+
         WalletFactory proxy = WalletFactory(payable(walletFactoryProxy));
-        // bytes memory data;
-        // proxy.upgradeToAndCall(address(implementation), data);
+        bytes memory data;
+        proxy.upgradeToAndCall(address(implementation), data);
+
+        // proxy.setWalletImpl(address(accountUpgradableImplementation));
+
+        // AccountGuardian(guardian).setTrustedImplementation(address(proxy.walletImpl()), true);
+
+        // proxy.create(0x8199F4C7A378B7CcCD6AF8c3bBcF0C68A353dAeB, "");
 
         // set new wallet implementation 
-        proxy.setWalletImpl(address(accountUpgradableImplementation));
-        AccountGuardian(guardian).setTrustedImplementation(address(term), true);
 
         // // deploy a new descriptor
         // address descriptor = Upgrades.deployUUPSProxy(
@@ -69,14 +73,31 @@ contract DeployVemoWalletSC is Script {
         //     )
         // );
 
-        // address nftAddress = proxy.createDelegateCollection(
+        // AccountGuardian(guardian).setTrustedImplementation(term, true);
+
+        /**
+         * term  0xEA8909794F435ee03528cfA8CE8e0cCa8D7535Ae
+          descriptor  0x03b2C4c788ECca804100F706C0646e831CB5227f
+          delegation 0x7F4282181243069B55379312196be53566a5FE03
+         */
+        // address nftDlgAddress = proxy.createDelegateCollection(
         //     "Vemo Delegation Wallet",
         //     "VDW",
-        //     descriptor, 
-        //     term
+        //     0x03b2C4c788ECca804100F706C0646e831CB5227f, 
+        //     0xEA8909794F435ee03528cfA8CE8e0cCa8D7535Ae,
+        //     0x8199F4C7A378B7CcCD6AF8c3bBcF0C68A353dAeB
         // );
-        // console.log("nftAddress ", nftAddress);
-        console.log("term ", term);
+        // console.log("nftDlgAddress ", nftDlgAddress);
+        // console.log("term ", term);
+        // console.log("descriptor ", descriptor);
+
+        // proxy.delegate(
+        //     "Vemo Delegation Wallet",
+        //     "VDW",
+        //     0x03b2C4c788ECca804100F706C0646e831CB5227f, 
+        //     0xEA8909794F435ee03528cfA8CE8e0cCa8D7535Ae,
+        //     0x8199F4C7A378B7CcCD6AF8c3bBcF0C68A353dAeB
+        // );
         vm.stopBroadcast();
     }
 }

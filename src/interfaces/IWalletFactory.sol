@@ -36,5 +36,7 @@ interface IWalletFactory {
     function depositTokens(address token, address walletAddress, uint256 amount) external;
     
     function depositETH(address walletAddress) payable external;
+
+    function getTokenBoundAccount(address nftAddress, uint256 tokenId) external view returns (address account);
 }
 

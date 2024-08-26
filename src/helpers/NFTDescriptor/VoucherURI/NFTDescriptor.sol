@@ -7,9 +7,9 @@ import '@openzeppelin/contracts/utils/math/Math.sol';
 import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 import './INFTDescriptor.sol';
-import './HexStrings.sol';
+import '../HexStrings.sol';
 import './NFTSVG.sol';
-import './DateTime.sol';
+import '../DateTime.sol';
 
 interface ILiteERC20 {
     function name() external pure returns (string memory);

@@ -9,7 +9,7 @@ import "../../src/AccountGuardian.sol";
 import "../../src/accounts/AccountV3.sol";
 import "../../src/accounts/AccountProxy.sol";
 import "../../src/VoucherFactory.sol";
-import "../../src/helpers/NFTDescriptor/NFTDescriptor.sol";
+import "../../src/helpers/NFTDescriptor/VoucherURI/NFTDescriptor.sol";
 import "multicall-authenticated/Multicall3.sol";
 import {ERC6551Registry} from "erc6551/ERC6551Registry.sol";
 
