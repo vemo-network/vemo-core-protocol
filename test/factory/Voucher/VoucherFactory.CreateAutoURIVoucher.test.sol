@@ -104,7 +104,7 @@ contract FactoryCreateForTest is Test, VoucherFactoryBaseTest {
         uint256 tokenId1;
         (, tokenId1) = voucherFactory.create(address(lockToken), vesting);
         
-        console.log(ERC721(autoURICollection).tokenURI(tokenId1));
+        // console.log(ERC721(autoURICollection).tokenURI(tokenId1));
         vm.stopPrank();
 
         

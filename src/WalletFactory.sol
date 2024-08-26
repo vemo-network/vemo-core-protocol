@@ -160,7 +160,6 @@ contract WalletFactory is IERC721Receiver, IWalletFactory, UUPSUpgradeable, Acce
         emit CollectionCreated(nftAddress, salt, name, symbol, dappURI);
     }
 
-    // TODO add an array to store list collection
     function createDelegateCollection(
         string memory _name,
         string memory _symbol,
@@ -184,7 +183,6 @@ contract WalletFactory is IERC721Receiver, IWalletFactory, UUPSUpgradeable, Acce
         return delegateCollection;
     }
 
-    // TODO check and fix    
     function existsDelegation(address _address) public view returns (bool) {
         for (uint i = 0; i < delegations.length; i++) {
             if (delegations[i] == _address) {

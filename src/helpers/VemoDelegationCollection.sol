@@ -45,7 +45,6 @@ contract VemoDelegationCollection is ERC721, Ownable, IDelegationCollection  {
     }
 
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
-
         return
             descriptor.constructTokenURI(
                 INFTDelegationDescriptor.ConstructTokenURIParams({
