@@ -8,6 +8,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import './NFTDescriptor/DelegationURI/INFTDelegationDescriptor.sol';
 import "../interfaces/IWalletFactory.sol";
 import "../interfaces/IDelegationCollection.sol";
+import "../interfaces/ICollectionRegistry.sol";
 
 /**
  * VemoDelegateCollection 
@@ -18,25 +19,26 @@ import "../interfaces/IDelegationCollection.sol";
  */
 contract VemoDelegationCollection is ERC721, Ownable, IDelegationCollection  {
     uint256 private _nextTokenId;
-    INFTDelegationDescriptor public descriptor;
-    IWalletFactory public walletFactory;
+    address public descriptor;
+    address public walletFactory;
     
     address public term;
     address public issuer;
 
     constructor(
-        string memory _name,
-        string memory _symbol,
-        address _owner,
-        address _walletFactory,
-        address _descriptor, 
-        address _term,
-        address _issuer
-    ) ERC721(_name, _symbol) Ownable(_owner) {
-        walletFactory = IWalletFactory(_walletFactory);
-        descriptor = INFTDelegationDescriptor(_descriptor);
-        term = _term;
-        issuer = _issuer;
+    ) ERC721(_ERC721Params(0), _ERC721Params(1)) Ownable(_ownerParam()) {
+        (,,,walletFactory, descriptor, term,issuer) = ICollectionRegistry(msg.sender).parameters();
+    }
+
+    function _ERC721Params(uint8 index) private view returns (string memory) {
+        (string memory name, string memory symbol,,,,,) = ICollectionRegistry(msg.sender).parameters();
+
+        if (index == 0) return name;
+        if (index == 1) return symbol;
+    }
+
+    function _ownerParam() private view returns (address owner) {
+        (,,owner,,,,) = ICollectionRegistry(msg.sender).parameters();
     }
 
     function safeMint(uint256 tokenId, address to) public onlyOwner returns (uint256){
@@ -46,7 +48,7 @@ contract VemoDelegationCollection is ERC721, Ownable, IDelegationCollection  {
 
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
         return
-            descriptor.constructTokenURI(
+            INFTDelegationDescriptor(descriptor).constructTokenURI(
                 INFTDelegationDescriptor.ConstructTokenURIParams({
                     nftId: tokenId,
                     nftAddress: address(this),

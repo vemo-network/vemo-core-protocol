@@ -19,6 +19,9 @@ import "multicall-authenticated/Multicall3.sol";
 import "../../../src/accounts/VemoWalletV3Upgradable.sol";
 import "../../../src/AccountGuardian.sol";
 import "../../../src/accounts/AccountProxy.sol";
+import "../../../src/CollectionRegistry.sol";
+import "../../../src/helpers/VemoDelegationCollection.sol";
+
 import "../../mock/USDT.sol";
 import "./mocks/MockERC721.sol";
 import "./mocks/MockSigner.sol";
@@ -49,6 +52,7 @@ contract AccountRoleTest is Test {
     NFTDelegationDescriptor descriptor;
     VePendleTerm term;
 
+    CollectionRegistry collectionRegistry;
     USDT usdt = new USDT();
 
     function setUp() public {
@@ -94,6 +98,11 @@ contract AccountRoleTest is Test {
         ));
 
         guardian.setTrustedImplementation(address(term), true);
+
+        collectionRegistry = new CollectionRegistry();
+
+        vm.startPrank(defaultAdmin);
+        walletFactory.setCollectionRegistry(address(collectionRegistry));
     }
 
     function testMintNFTDelegation() public {
@@ -110,6 +119,35 @@ contract AccountRoleTest is Test {
         // create delegate collection
         address dlgCollection = walletFactory.createDelegateCollection(
             "A",
+            "A1",
+            address(descriptor), 
+            address(term),
+            nftAddress
+        );
+
+        assertEq(
+            MockERC721(dlgCollection).name(),
+            "A"
+        );
+
+        assertEq(
+            MockERC721(dlgCollection).symbol(),
+            "A1"
+        );
+
+        assertEq(
+            VemoDelegationCollection(dlgCollection).term(),
+            address(term)
+        );
+
+       assertEq(
+            VemoDelegationCollection(dlgCollection).issuer(),
+            address(nftAddress)
+        );
+
+        vm.expectRevert();
+        walletFactory.createDelegateCollection(
+            "A",
             "A",
             address(descriptor), 
             address(term),
@@ -118,7 +156,15 @@ contract AccountRoleTest is Test {
 
         // mint a derivative nft of that TBA
         walletFactory.delegate(nftAddress, dlgCollection, tokenId, defaultAdmin);
+
+        vm.expectRevert();
+        walletFactory.delegate(nftAddress, dlgCollection, tokenId, defaultAdmin);
         VemoWalletV3Upgradable(payable(_tba)).setDelegate(dlgCollection);
+
+        assertEq(
+            VemoWalletV3Upgradable(payable(_tba)).getDelegate(),
+            dlgCollection
+        );
 
         assertEq(defaultAdmin, MockERC721(dlgCollection).ownerOf(tokenId));
 

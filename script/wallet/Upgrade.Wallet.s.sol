@@ -32,22 +32,22 @@ contract DeployVemoWalletSC is Script {
         vm.startBroadcast(deployerPrivateKey);
 
         // // deploy new vemo wallet type
-        // VemoWalletV3Upgradable accountUpgradableImplementation = new VemoWalletV3Upgradable(
+        // VemoWalletV3Upgradable implementation = new VemoWalletV3Upgradable(
         //     address(entrypointERC4337), address(forwarder), address(registry), address(guardian)
         // );
+        // AccountGuardian(guardian).setTrustedImplementation(address(implementation), true);
 
-        // // upgrade new walelt factory
-        WalletFactory implementation = new WalletFactory();
+        // upgrade new walelt factory
+        // WalletFactory implementation = new WalletFactory();
 
         WalletFactory proxy = WalletFactory(payable(walletFactoryProxy));
-        bytes memory data;
-        proxy.upgradeToAndCall(address(implementation), data);
+        // bytes memory data;
+        // proxy.upgradeToAndCall(address(implementation), data);
 
-        // proxy.setWalletImpl(address(accountUpgradableImplementation));
+        // proxy.setWalletImpl(address(implementation));
 
-        // AccountGuardian(guardian).setTrustedImplementation(address(proxy.walletImpl()), true);
-
-        // proxy.create(0x8199F4C7A378B7CcCD6AF8c3bBcF0C68A353dAeB, "");
+        (uint256 tokenId, address tba) = proxy.create(0x8199F4C7A378B7CcCD6AF8c3bBcF0C68A353dAeB, "");
+        console.log(tokenId, tba);
 
         // set new wallet implementation 
 
@@ -91,13 +91,13 @@ contract DeployVemoWalletSC is Script {
         // console.log("term ", term);
         // console.log("descriptor ", descriptor);
 
-        // proxy.delegate(
-        //     "Vemo Delegation Wallet",
-        //     "VDW",
-        //     0x03b2C4c788ECca804100F706C0646e831CB5227f, 
-        //     0xEA8909794F435ee03528cfA8CE8e0cCa8D7535Ae,
-        //     0x8199F4C7A378B7CcCD6AF8c3bBcF0C68A353dAeB
-        // );
+        proxy.delegate(
+            0x8199F4C7A378B7CcCD6AF8c3bBcF0C68A353dAeB,
+            0x7F4282181243069B55379312196be53566a5FE03,
+            tokenId,
+            owner
+        );
+
         vm.stopBroadcast();
     }
 }

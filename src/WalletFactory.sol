@@ -13,10 +13,11 @@ import "erc6551/interfaces/IERC6551Registry.sol";
 
 import "./helpers/Errors.sol";
 import "./interfaces/IWalletFactory.sol";
+import "./interfaces/IDelegationCollection.sol";
 import "./interfaces/darenft/ICollection.sol";
 import "./interfaces/erc6551/IAccountProxy.sol";
 import "./helpers/VemoWalletCollection.sol";
-import "./helpers/VemoDelegationCollection.sol";
+import "./CollectionRegistry.sol";
 
 contract WalletFactory is IERC721Receiver, IWalletFactory, UUPSUpgradeable, AccessControlUpgradeable {
     using SafeERC20 for IERC20;
@@ -69,7 +70,7 @@ contract WalletFactory is IERC721Receiver, IWalletFactory, UUPSUpgradeable, Acce
     mapping (string uri => address[] collections) private dappURIs;
 
     // delegate collection 
-    address _unUsedStorage;
+    address public collectionRegistry;
 
     address[] public delegations;
 
@@ -168,19 +169,20 @@ contract WalletFactory is IERC721Receiver, IWalletFactory, UUPSUpgradeable, Acce
         address _issuer
     ) public returns (address) {
         if (_descriptor == address(0)) revert InvalidDescriptor();
-        address delegateCollection  = address(new VemoDelegationCollection(
+        address collection = CollectionRegistry(collectionRegistry).createDelegateCollection(
             _name,
             _symbol,
-            address(this),
-            address(this),
             _descriptor, 
             _term,
-            _issuer
-        ));
+            _issuer,
+            address(this)
+        );
 
-        delegations.push(delegateCollection);
+        if (Ownable(collection).owner() != address(this)) revert IssuedByOtherFactory();
 
-        return delegateCollection;
+        delegations.push(collection);
+
+        return collection;
     }
 
     function existsDelegation(address _address) public view returns (bool) {
@@ -197,12 +199,12 @@ contract WalletFactory is IERC721Receiver, IWalletFactory, UUPSUpgradeable, Acce
         require(Ownable(tba).owner() == msg.sender);
         require(existsDelegation(dlgAddress) == true);
 
-        // check if the NFT delegation exist
-        try IERC721(dlgAddress).ownerOf(tokenId) returns (address) {
-            return;
-        } catch {
-            VemoDelegationCollection(dlgAddress).safeMint(tokenId, receiver);
-        }
+        (bool success,) = dlgAddress.call(
+            abi.encodeWithSignature("ownerOf(uint256)", tokenId)
+        );
+        require(success == false);
+
+        IDelegationCollection(dlgAddress).safeMint(tokenId, receiver);
     }
 
     /**
@@ -262,6 +264,10 @@ contract WalletFactory is IERC721Receiver, IWalletFactory, UUPSUpgradeable, Acce
 
         walletCollections[collectionIndex] = _nft;
         dappURIs[dappURI].push(_nft);
+    }
+
+    function setCollectionRegistry(address _registry) public onlyRole(MINTER_ROLE) {
+        collectionRegistry = _registry;
     }
 
     function getAllTokensNftsByDappURI(string calldata dappURI) public view returns (address[] memory nfts) {

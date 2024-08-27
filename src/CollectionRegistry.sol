@@ -4,54 +4,47 @@ pragma solidity ^0.8.21;
 import "@openzeppelin/contracts/utils/Create2.sol";
 
 import "./interfaces/ICollectionRegistry.sol";
+import "./helpers/VemoDelegationCollection.sol";
+import "./helpers/Errors.sol";
 
 contract CollectionRegistry is ICollectionRegistry {
-    function getCreationCode(
-        address implementation,
-        uint256 collectionIndex,
-        string calldata name,
-        string calldata symbol
-    ) internal pure returns (bytes memory) {
-        return abi.encodePacked(
-            hex"3d60ad80600a3d3981f3363d3d373d3d3d363d73", // ERC-1167 constructor + header
-            implementation,
-            hex"5af43d82803e903d91602b57fd5bf3", // ERC-1167 footer
-            abi.encode(uint256(collectionIndex), name, symbol)
-        );
+    struct DelegateCollectionParameters {
+        string  name;
+        string  symbol;
+        address owner;
+        address walletFactory;
+        address descriptor; 
+        address term;
+        address issuer;
     }
 
-    function createCollection(
-        address implementation,
-        uint256 collectionIndex,
-        string calldata name,
-        string calldata symbol,
-        bytes calldata initData
-    ) external returns (address) {
-        bytes memory code = getCreationCode(implementation, collectionIndex, name, symbol);
+    DelegateCollectionParameters public parameters;
 
-        address _collection = Create2.computeAddress(bytes32(collectionIndex), keccak256(code));
+    function createDelegateCollection(
+        string memory name,
+        string memory symbol,
+        address descriptor, 
+        address term,
+        address issuer,
+        address walletFactory
+    ) public returns (address collection) {
+        if (descriptor == address(0)) revert InvalidDescriptor();
+        parameters = DelegateCollectionParameters({
+            name: name,
+            symbol: symbol,
+            owner: walletFactory,
+            walletFactory: walletFactory,
+            descriptor: descriptor , 
+            term: term,
+            issuer: issuer
+        });
 
-        if (_collection.code.length != 0) return _collection;
+        collection = address(new VemoDelegationCollection{salt: keccak256(abi.encode(term, issuer))}());
 
-        emit CollectionCreated(_collection, implementation, collectionIndex, name, symbol);
+        delete parameters;
 
-        _collection = Create2.deploy(0, bytes32(collectionIndex), code);
-
-        if (initData.length != 0) {
-            (bool success,) = _collection.call(initData);
-            if (!success) revert CollectionCreationFailed();
-        }
-
-        return _collection;
+        return collection;
     }
 
-    function collection(address implementation, uint256 collectionIndex, string calldata name, string calldata symbol)
-        external
-        view
-        returns (address)
-    {
-        bytes32 bytecodeHash = keccak256(getCreationCode(implementation, collectionIndex, name, symbol));
 
-        return Create2.computeAddress(bytes32(collectionIndex), bytecodeHash);
-    }
 }
