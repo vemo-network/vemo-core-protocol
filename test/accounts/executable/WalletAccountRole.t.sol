@@ -19,7 +19,7 @@ import "multicall-authenticated/Multicall3.sol";
 import "../../../src/accounts/VemoWalletV3Upgradable.sol";
 import "../../../src/AccountGuardian.sol";
 import "../../../src/accounts/AccountProxy.sol";
-import "../../../src/CollectionRegistry.sol";
+import "../../../src/CollectionDeployer.sol";
 import "../../../src/helpers/VemoDelegationCollection.sol";
 
 import "../../mock/USDT.sol";
@@ -52,7 +52,7 @@ contract AccountRoleTest is Test {
     NFTDelegationDescriptor descriptor;
     VePendleTerm term;
 
-    CollectionRegistry collectionRegistry;
+    CollectionDeployer collectionDeployer;
     USDT usdt = new USDT();
 
     function setUp() public {
@@ -99,10 +99,10 @@ contract AccountRoleTest is Test {
 
         guardian.setTrustedImplementation(address(term), true);
 
-        collectionRegistry = new CollectionRegistry();
+        collectionDeployer = new CollectionDeployer(walletProxy);
 
         vm.startPrank(defaultAdmin);
-        walletFactory.setCollectionRegistry(address(collectionRegistry));
+        walletFactory.setCollectionDeployer(address(collectionDeployer));
     }
 
     function testMintNFTDelegation() public {

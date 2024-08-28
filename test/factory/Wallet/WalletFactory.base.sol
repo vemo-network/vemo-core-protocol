@@ -22,6 +22,7 @@ import "../../mock/NFT.sol";
 import "../../mock/USDT.sol";
 import "../../mock/USDC.sol";
 import "../../mock/Factory.sol";
+import "../../../src/CollectionDeployer.sol";
 
 contract WalletFactoryBaseTest is Test {
     Multicall3 forwarder  = new Multicall3();
@@ -50,6 +51,8 @@ contract WalletFactoryBaseTest is Test {
     USDT usdt = new USDT();
     USDC usdc = new USDC();
 
+    CollectionDeployer collectionDeployer;
+
     function setUp() public {
         guardian.setTrustedImplementation(address(accountImpl), true);
         address proxy = Upgrades.deployUUPSProxy(
@@ -64,6 +67,11 @@ contract WalletFactoryBaseTest is Test {
 
         vm.startPrank(defaultAdmin);
 
+        collectionDeployer = new CollectionDeployer(proxy);
+
+        walletFactory.setCollectionDeployer(address(collectionDeployer));
+
+
         address nftAddress = walletFactory.createWalletCollection(
             uint160(address(usdt)),
             "walletfactory",
@@ -75,7 +83,7 @@ contract WalletFactoryBaseTest is Test {
             walletFactory.walletCollections(uint160(address(usdt))),
             nftAddress
         );
-
+        
         vm.stopPrank();
     }
 }

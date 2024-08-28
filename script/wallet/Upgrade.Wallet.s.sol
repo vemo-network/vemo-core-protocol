@@ -9,6 +9,7 @@ import "../../src/accounts/AccountV3.sol";
 import {VemoWalletV3Upgradable} from "../../src/accounts/VemoWalletV3Upgradable.sol";
 import "../../src/accounts/AccountProxy.sol";
 import "../../src/WalletFactory.sol";
+import "../../src/CollectionDeployer.sol";
 import "multicall-authenticated/Multicall3.sol";
 import {ERC6551Registry} from "erc6551/ERC6551Registry.sol";
 import "../../src/helpers/NFTDescriptor/DelegationURI/NFTDelegationDescriptor.sol";
@@ -38,27 +39,31 @@ contract DeployVemoWalletSC is Script {
         // AccountGuardian(guardian).setTrustedImplementation(address(implementation), true);
 
         // upgrade new walelt factory
-        // WalletFactory implementation = new WalletFactory();
+        WalletFactory implementation = new WalletFactory();
 
         WalletFactory proxy = WalletFactory(payable(walletFactoryProxy));
-        // bytes memory data;
-        // proxy.upgradeToAndCall(address(implementation), data);
+        bytes memory data;
+        proxy.upgradeToAndCall(address(implementation), data);
 
+        // create collection registry
+        CollectionDeployer collectionRegistry = new CollectionDeployer(walletFactoryProxy);
+        proxy.setCollectionDeployer(address(collectionRegistry));
+        
         // proxy.setWalletImpl(address(implementation));
 
-        (uint256 tokenId, address tba) = proxy.create(0x8199F4C7A378B7CcCD6AF8c3bBcF0C68A353dAeB, "");
-        console.log(tokenId, tba);
+        // (uint256 tokenId, address tba) = proxy.create(0x8199F4C7A378B7CcCD6AF8c3bBcF0C68A353dAeB, "");
+        // console.log(tokenId, tba);
 
         // set new wallet implementation 
 
         // // deploy a new descriptor
-        // address descriptor = Upgrades.deployUUPSProxy(
-        //     "NFTDescriptor.sol:NFTDescriptor",
-        //     abi.encodeCall(
-        //         NFTDescriptor.initialize,
-        //         owner
-        //     )
-        // );
+        address descriptor = Upgrades.deployUUPSProxy(
+            "NFTDelegationDescriptor.sol:NFTDelegationDescriptor",
+            abi.encodeCall(
+                NFTDelegationDescriptor.initialize,
+                owner
+            )
+        );
 
         // // deploy a new term
         // address term = Upgrades.deployUUPSProxy(
@@ -77,26 +82,28 @@ contract DeployVemoWalletSC is Script {
 
         /**
          * term  0xEA8909794F435ee03528cfA8CE8e0cCa8D7535Ae
-          descriptor  0x03b2C4c788ECca804100F706C0646e831CB5227f
+          descriptor  
           delegation 0x7F4282181243069B55379312196be53566a5FE03
          */
-        // address nftDlgAddress = proxy.createDelegateCollection(
-        //     "Vemo Delegation Wallet",
-        //     "VDW",
-        //     0x03b2C4c788ECca804100F706C0646e831CB5227f, 
-        //     0xEA8909794F435ee03528cfA8CE8e0cCa8D7535Ae,
-        //     0x8199F4C7A378B7CcCD6AF8c3bBcF0C68A353dAeB
-        // );
-        // console.log("nftDlgAddress ", nftDlgAddress);
-        // console.log("term ", term);
-        // console.log("descriptor ", descriptor);
-
-        proxy.delegate(
-            0x8199F4C7A378B7CcCD6AF8c3bBcF0C68A353dAeB,
-            0x7F4282181243069B55379312196be53566a5FE03,
-            tokenId,
-            owner
+        address nftDlgAddress = proxy.createDelegateCollection(
+            "Vemo Delegation Wallet",
+            "VDW",
+            0x03b2C4c788ECca804100F706C0646e831CB5227f, 
+            descriptor,
+            0x8199F4C7A378B7CcCD6AF8c3bBcF0C68A353dAeB
         );
+
+        console.log("nftDlgAddress ", nftDlgAddress);
+        // console.log("term ", term);
+        console.log("descriptor ", descriptor);
+        console.log("collectionRegistry ", address(collectionRegistry));
+
+        // proxy.delegate(
+        //     0x8199F4C7A378B7CcCD6AF8c3bBcF0C68A353dAeB,
+        //     0x7F4282181243069B55379312196be53566a5FE03,
+        //     tokenId,
+        //     owner
+        // );
 
         vm.stopBroadcast();
     }

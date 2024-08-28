@@ -85,7 +85,7 @@ case $CHAIN in
         CHAIN_ID=42161
         ;;
     arbitrum-testnet)
-        RPC_URL="https://sepolia-rollup.arbitrum.io/rpc"
+        RPC_URL="https://sepolia-rollup-sequencer.arbitrum.io/rpc"
         VERIFIER_URL="https://api.arbiscan.io/api"
         CHAIN_ID=421614
         ;;
@@ -97,6 +97,7 @@ esac
 
 
 # Deploy the contract using the provided parameters and capture the contract address
+# DEPLOY_OUTPUT=$(forge clean && forge build && forge script script/wallet/${DEPLOYMENT}.s.sol --with-gas-price 100000000 \
 DEPLOY_OUTPUT=$(forge clean && forge build && forge script script/wallet/${DEPLOYMENT}.s.sol \
     --rpc-url $RPC_URL \
     --verifier-url $VERIFIER_URL \

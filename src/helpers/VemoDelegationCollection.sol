@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import './NFTDescriptor/DelegationURI/INFTDelegationDescriptor.sol';
 import "../interfaces/IWalletFactory.sol";
 import "../interfaces/IDelegationCollection.sol";
-import "../interfaces/ICollectionRegistry.sol";
+import "../interfaces/ICollectionDeployer.sol";
 
 /**
  * VemoDelegateCollection 
@@ -27,18 +27,18 @@ contract VemoDelegationCollection is ERC721, Ownable, IDelegationCollection  {
 
     constructor(
     ) ERC721(_ERC721Params(0), _ERC721Params(1)) Ownable(_ownerParam()) {
-        (,,,walletFactory, descriptor, term,issuer) = ICollectionRegistry(msg.sender).parameters();
+        (,,,walletFactory, descriptor, term,issuer) = ICollectionDeployer(msg.sender).parameters();
     }
 
     function _ERC721Params(uint8 index) private view returns (string memory) {
-        (string memory name, string memory symbol,,,,,) = ICollectionRegistry(msg.sender).parameters();
+        (string memory name, string memory symbol,,,,,) = ICollectionDeployer(msg.sender).parameters();
 
         if (index == 0) return name;
         if (index == 1) return symbol;
     }
 
     function _ownerParam() private view returns (address owner) {
-        (,,owner,,,,) = ICollectionRegistry(msg.sender).parameters();
+        (,,owner,,,,) = ICollectionDeployer(msg.sender).parameters();
     }
 
     function safeMint(uint256 tokenId, address to) public onlyOwner returns (uint256){
