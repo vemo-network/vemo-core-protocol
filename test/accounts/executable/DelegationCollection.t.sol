@@ -33,7 +33,7 @@ import {WalletFactory} from "../../../src/WalletFactory.sol";
 import {NFTDelegationDescriptor} from "../../../src/helpers/NFTDescriptor/DelegationURI/NFTDelegationDescriptor.sol";
 import {VePendleTerm} from "../../../src/terms/VePendleTerm.sol";
 
-contract AccountRoleTest is Test {
+contract DelegationCollectionTest is Test {
     Multicall3 forwarder;
     VemoWalletV3Upgradable upgradableImplementation;
     AccountProxy proxy;
@@ -47,6 +47,7 @@ contract AccountRoleTest is Test {
     uint256 feeReceiverPrivateKey = 3;
     address defaultAdmin = vm.addr(defaultAdminPrivateKey);
     address user = vm.addr(userPrivateKey);
+    address user1 = vm.addr(userPrivateKey+1);
     address userReceiver = vm.addr(userPrivateKey+99);
     address feeReceiver = vm.addr(feeReceiverPrivateKey);
     NFTDelegationDescriptor descriptor;
@@ -56,6 +57,9 @@ contract AccountRoleTest is Test {
     USDT usdt = new USDT();
 
     function setUp() public {
+        vm.deal(user, 1 ether);
+        vm.deal(user1, 1 ether);
+
         registry = new ERC6551Registry();
 
         forwarder = new Multicall3();
@@ -105,7 +109,7 @@ contract AccountRoleTest is Test {
         walletFactory.setCollectionDeployer(address(collectionDeployer));
     }
 
-    function testMintNFTDelegation() public {
+    function testSimpleDelegate() public {
         vm.startPrank(defaultAdmin);
         address nftAddress = walletFactory.createWalletCollection(
             uint160(address(usdt)),
@@ -125,6 +129,25 @@ contract AccountRoleTest is Test {
             nftAddress
         );
 
+        assertEq(
+            MockERC721(dlgCollection).name(),
+            "A"
+        );
+
+        assertEq(
+            MockERC721(dlgCollection).symbol(),
+            "A1"
+        );
+
+        assertEq(
+            VemoDelegationCollection(dlgCollection).term(),
+            address(term)
+        );
+
+       assertEq(
+            VemoDelegationCollection(dlgCollection).issuer(),
+            address(nftAddress)
+        );
 
         vm.expectRevert();
         walletFactory.createDelegateCollection(
@@ -135,41 +158,75 @@ contract AccountRoleTest is Test {
             nftAddress
         );
 
-        // // mint a derivative nft of that TBA
+        // mint a derivative nft of that TBA
         VemoDelegationCollection(dlgCollection).delegate(tokenId, defaultAdmin);
 
         vm.expectRevert();
         VemoDelegationCollection(dlgCollection).delegate(tokenId, defaultAdmin);
-        VemoWalletV3Upgradable(payable(_tba)).setDelegate(dlgCollection);
-
-        assertEq(
-            VemoWalletV3Upgradable(payable(_tba)).getDelegate(),
-            dlgCollection
-        );
-
         assertEq(defaultAdmin, MockERC721(dlgCollection).ownerOf(tokenId));
+    }
 
-        // transfer the derivative nft
-        MockERC721(dlgCollection).transferFrom(defaultAdmin, user, tokenId);
+    function testDelegateFail() public {
+        vm.startPrank(defaultAdmin);
+        address nftAddress = walletFactory.createWalletCollection(
+            uint160(address(usdt)),
+            "walletfactory",
+            "walletfactory",
+            "walletfactory"
+        );
+        
+        (uint256 tokenId, address _tba) = walletFactory.create(nftAddress, "");
 
-        vm.deal(_tba, 1 ether);
+        // create delegate collection
+        address dlgCollection = walletFactory.createDelegateCollection(
+            "A",
+            "A1",
+            address(descriptor), 
+            address(term),
+            nftAddress
+        );
 
-        // check the the owner of derivative nft is valid signer
+        // mint a derivative nft of that TBA
+        VemoDelegationCollection(dlgCollection).delegate(tokenId, user);
+        assertEq(user, MockERC721(dlgCollection).ownerOf(tokenId));
+
         vm.startPrank(user);
-        vm.expectRevert(NotAuthorized.selector);
-        VemoWalletV3Upgradable(payable(_tba)).execute(vm.addr(2), 0.1 ether, "", 0);
+        // allow tranfer if there is no revoking
+        MockERC721(dlgCollection).transferFrom(user, user1, tokenId);
 
-        VemoWalletV3Upgradable(payable(_tba)).delegateExecute(dlgCollection, vm.addr(2), 0.1 ether, "", 0);
+        vm.startPrank(user1);
+        MockERC721(dlgCollection).transferFrom(user1, user, tokenId);
 
-        VemoWalletV3Upgradable(payable(_tba)).isValidSigner(user, "");
-
-        // check if the owneer of the derivative nft is executable
-        assertTrue(
-            VemoWalletV3Upgradable(payable(_tba)).isValidSigner(defaultAdmin, "") == IERC6551Account.isValidSigner.selector
+        //revoke only trigger by the TBA owner
+        vm.startPrank(defaultAdmin);
+        VemoDelegationCollection(dlgCollection).revoke(tokenId);
+        console.log(
+            VemoDelegationCollection(dlgCollection).revokingRoles(tokenId)
         );
+        console.log("block.timestamp ", block.timestamp);
+        skip(100);
+        console.log("block.timestamp 1", block.timestamp);
 
-        assertTrue(
-            VemoWalletV3Upgradable(payable(_tba)).isValidSigner(user, "") == IERC6551Account.isValidSigner.selector
-        );
+        // revert in duration time
+        vm.startPrank(user);
+        vm.expectRevert();
+        MockERC721(dlgCollection).transferFrom(user, user1, tokenId);
+        
+        vm.startPrank(defaultAdmin);
+        vm.expectRevert();
+        VemoDelegationCollection(dlgCollection).burn(tokenId);
+
+        skip(9999999);
+
+        vm.startPrank(user);
+        vm.expectRevert();
+        MockERC721(dlgCollection).transferFrom(user, user1, tokenId);
+
+        vm.startPrank(defaultAdmin);
+        VemoDelegationCollection(dlgCollection).burn(tokenId);
+
+        // no longer exist
+        vm.expectRevert();
+        MockERC721(dlgCollection).ownerOf(tokenId);
     }
 }

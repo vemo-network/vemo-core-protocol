@@ -9,4 +9,6 @@ interface IExecutionTerm {
             bool,
             uint8
         );
+    
+    function revokeTimeout() external returns(uint32);
 }

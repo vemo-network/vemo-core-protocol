@@ -54,4 +54,8 @@ contract VePendleTerm is IExecutionTerm, UUPSUpgradeable, OwnableUpgradeable {
     function _authorizeUpgrade(address newImplementation) internal onlyOwner virtual override {
         (newImplementation);
     }
+
+    function revokeTimeout() public pure returns(uint32) {
+        return 2592000; // 30 days
+    }
 }

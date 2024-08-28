@@ -7,6 +7,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 import './NFTDescriptor/DelegationURI/INFTDelegationDescriptor.sol';
 import "../interfaces/IWalletFactory.sol";
+import "../interfaces/IExecutionTerm.sol";
 import "../interfaces/IDelegationCollection.sol";
 import "../interfaces/ICollectionDeployer.sol";
 
@@ -25,6 +26,11 @@ contract VemoDelegationCollection is ERC721, Ownable, IDelegationCollection  {
     address public term;
     address public issuer;
 
+    // tokenId => start_revoking_time
+    mapping(uint256 => uint256) public  revokingRoles;
+
+    error InRevokingPeriod(uint256);
+
     constructor(
     ) ERC721(_ERC721Params(0), _ERC721Params(1)) Ownable(_ownerParam()) {
         (,,,walletFactory, descriptor, term,issuer) = ICollectionDeployer(msg.sender).parameters();
@@ -40,6 +46,17 @@ contract VemoDelegationCollection is ERC721, Ownable, IDelegationCollection  {
     function _ownerParam() private view returns (address owner) {
         (,,owner,,,,) = ICollectionDeployer(msg.sender).parameters();
     }
+
+    modifier onlyTBAOwner(uint256 tokenId) {
+        _checkRole(tokenId);
+        _;
+    }
+
+    function _checkRole(uint256 tokenId) internal view virtual {
+        address _tba = IWalletFactory(walletFactory).getTokenBoundAccount(issuer, tokenId);
+        require(Ownable(_tba).owner() == _msgSender());
+    }
+
 
     function safeMint(uint256 tokenId, address to) public onlyOwner returns (uint256){
         _safeMint(to, tokenId);
@@ -62,8 +79,54 @@ contract VemoDelegationCollection is ERC721, Ownable, IDelegationCollection  {
         return super.supportsInterface(interfaceId);
     }
 
-    function burn(uint256 tokenId) public virtual {
-        _update(address(0), tokenId, _msgSender());
+    function burn(uint256 tokenId) public virtual onlyTBAOwner(tokenId) {
+        require(revokingRoles[tokenId] == 0 || revokingRoles[tokenId] < block.timestamp);
+        _rmDelegate(tokenId);
+    }
+
+    function delegate(uint256 tokenId, address receiver) public onlyTBAOwner(tokenId) {
+        address _owner = _ownerOf(tokenId);
+        
+        require(_owner == address(0));
+        
+        _safeMint(receiver, tokenId);
+    }
+
+    function revoke(uint256 tokenId) public onlyTBAOwner(tokenId) {
+        address _owner = _ownerOf(tokenId);
+        if (_owner == address(0)) {
+            revert ERC721NonexistentToken(tokenId);
+        }
+        
+        if (revokingRoles[tokenId] == 0) {
+            revokingRoles[tokenId] = block.timestamp + IExecutionTerm(term).revokeTimeout();
+        } else if (revokingRoles[tokenId] < block.timestamp) {
+            _rmDelegate(tokenId);
+        } else {
+            revert InRevokingPeriod(tokenId);
+        }
+    }
+
+    function _rmDelegate(uint256 tokenId) private {
+        _update(address(0), tokenId, _ownerOf(tokenId));
+        revokingRoles[tokenId] = 0;
+    }
+
+    function tba(uint256 tokenId) external view returns(address) {
+        return IWalletFactory(walletFactory).getTokenBoundAccount(issuer, tokenId);
+    }
+
+    function transferFrom(address from, address to, uint256 tokenId) public override virtual {
+        require(revokingRoles[tokenId] == 0);
+
+        if (to == address(0)) {
+            revert ERC721InvalidReceiver(address(0));
+        }
+
+        address previousOwner = _update(to, tokenId, _msgSender());
+        if (previousOwner != from) {
+            revert ERC721IncorrectOwner(from, tokenId, previousOwner);
+        }
     }
 
 }

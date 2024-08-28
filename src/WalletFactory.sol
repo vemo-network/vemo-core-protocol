@@ -102,7 +102,7 @@ contract WalletFactory is IERC721Receiver, IWalletFactory, UUPSUpgradeable, Acce
             _TBA_SALT = 0x8cb91e82a3386d28036d6f63d1e6efd90031d3e8a56e75da9f0b021f40b0bc4c;
 
             feeReceiver = _owner;
-            depositFeeBps = 100;
+            depositFeeBps = 0;
             withdrawalFeeBps = 0;
         }
     }
@@ -173,28 +173,6 @@ contract WalletFactory is IERC721Receiver, IWalletFactory, UUPSUpgradeable, Acce
         delegations.push(collection);
 
         return collection;
-    }
-
-    function existsDelegation(address _address) public view returns (bool) {
-        for (uint i = 0; i < delegations.length; i++) {
-            if (delegations[i] == _address) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    function delegate(address nftAddress, address dlgAddress, uint256 tokenId, address receiver) public {
-        address tba = getTokenBoundAccount(nftAddress, tokenId);
-        require(Ownable(tba).owner() == msg.sender);
-        require(existsDelegation(dlgAddress) == true);
-
-        (bool success,) = dlgAddress.call(
-            abi.encodeWithSignature("ownerOf(uint256)", tokenId)
-        );
-        require(success == false);
-
-        IDelegationCollection(dlgAddress).safeMint(tokenId, receiver);
     }
 
     /**
