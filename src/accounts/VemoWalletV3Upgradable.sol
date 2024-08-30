@@ -74,17 +74,10 @@ contract VemoWalletV3Upgradable is AccountV3, UUPSUpgradeable {
         override(AccountV3)
         returns (bool)
     {
-        // smart contract signature
-        if (uint8(signature[64]) == 0) {
-            return super._isValidSignature(hash, signature);
-        }
-
         // non-delegate signature
-        if (signature.length == 65) {
+        if (signature.length != 65+20+32+32) {
             return super._isValidSignature(hash, signature);
         }
-
-        require(signature.length == 65+20+32+32, "invalid delegation signature length");
 
         // extract delegation signature
         address collection = BytesLib.toAddress(signature, 20);
