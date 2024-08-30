@@ -58,4 +58,22 @@ contract VePendleTerm is IExecutionTerm, UUPSUpgradeable, OwnableUpgradeable {
     function revokeTimeout() public pure returns(uint32) {
         return 2592000; // 30 days
     }
+
+    function _isValidSignature(bytes32 hash, bytes calldata signature)
+        internal
+        view
+        virtual
+        override(ERC4337Account, Signatory)
+        returns (bool)
+    {
+        require(signature.length == 65+20+32+32, "invalid delegation signature length");
+
+        // extract delegation signature
+        bytes32 domain = BytesLib.toBytes32(signature, 65+20);
+        bytes32 typeHash = BytesLib.toBytes32(signature, 65+65+20);
+
+        // TODO: verify the domain and typeHash
+
+        return true;
+    }
 }
