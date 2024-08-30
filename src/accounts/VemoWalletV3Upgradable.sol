@@ -41,6 +41,8 @@ contract VemoWalletV3Upgradable is AccountV3, UUPSUpgradeable {
         address term = IDelegationCollection(collection).term();
         (uint256 chainId, address tokenContract, uint256 tokenId) = ERC6551AccountLib.token();
 
+        // TODO: verify the collection is CREATE2-ed from tokenContract and term
+
         if (!guardian.isTrustedImplementation(term)) revert InvalidImplementation();
 
         (bool canExecute, uint8 errorCode) =  IExecutionTerm(term).canExecute(tokenContract, to, value, data);
