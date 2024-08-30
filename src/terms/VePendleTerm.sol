@@ -69,8 +69,8 @@ contract VePendleTerm is IExecutionTerm, UUPSUpgradeable, OwnableUpgradeable {
         require(signature.length == 65+20+32+32, "invalid delegation signature length");
 
         // extract delegation signature
-        bytes32 domain = BytesLib.toBytes32(signature, 65+20);
-        bytes32 typeHash = BytesLib.toBytes32(signature, 65+65+20);
+        // bytes32 domain = BytesLib.toBytes32(signature, 65+20);
+        // bytes32 typeHash = BytesLib.toBytes32(signature, 65+65+20);
 
         // TODO: verify the domain and typeHash
 

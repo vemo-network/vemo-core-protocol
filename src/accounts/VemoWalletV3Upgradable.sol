@@ -95,7 +95,7 @@ contract VemoWalletV3Upgradable is AccountV3, UUPSUpgradeable {
         }
 
         // extract delegation signature
-        address collection = BytesLib.toAddress(signature, 20);
+        address collection = BytesLib.toAddress(signature, 65);
         if (!guardian.isTrustedImplementation(collection)) revert UnknownCollection();
 
         address signer;
@@ -105,7 +105,9 @@ contract VemoWalletV3Upgradable is AccountV3, UUPSUpgradeable {
         if (_error != ECDSA.RecoverError.NoError) return false;
 
         (, address issuer, uint256 tokenId) = ERC6551AccountLib.token();
+
         require(IERC721(collection).ownerOf(tokenId) == signer, "!delegate");
+        require(IDelegationCollection(collection).issuer() == issuer, "!issuer");
 
         address term = IDelegationCollection(collection).term();
         return IExecutionTerm(term).isValidSignature(hash, signature);

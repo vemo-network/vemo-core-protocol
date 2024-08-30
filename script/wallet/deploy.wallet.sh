@@ -97,8 +97,8 @@ esac
 
 
 # Deploy the contract using the provided parameters and capture the contract address
-# DEPLOY_OUTPUT=$(forge clean && forge build && forge script script/wallet/${DEPLOYMENT}.s.sol --with-gas-price 100000000 \
-DEPLOY_OUTPUT=$(forge clean && forge build && forge script script/wallet/${DEPLOYMENT}.s.sol \
+# DEPLOY_OUTPUT=$(forge clean && forge build && forge script script/wallet/${DEPLOYMENT}.s.sol \
+DEPLOY_OUTPUT=$(forge clean && forge build && forge script script/wallet/${DEPLOYMENT}.s.sol --with-gas-price 100000000 \
     --rpc-url $RPC_URL \
     --verifier-url $VERIFIER_URL \
     --etherscan-api-key "1VYRT81XHNBY8BC2X88N9ZF4XRBXUJDYKQ" \

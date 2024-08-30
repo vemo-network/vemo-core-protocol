@@ -47,6 +47,7 @@ contract AccountRoleTest is Test {
     uint256 feeReceiverPrivateKey = 3;
     address defaultAdmin = vm.addr(defaultAdminPrivateKey);
     address user = vm.addr(userPrivateKey);
+    address user1 = vm.addr(userPrivateKey + 1);
     address userReceiver = vm.addr(userPrivateKey+99);
     address feeReceiver = vm.addr(feeReceiverPrivateKey);
     NFTDelegationDescriptor descriptor;
@@ -124,8 +125,12 @@ contract AccountRoleTest is Test {
             address(term),
             nftAddress
         );
+        
+        vm.stopPrank();
 
+        guardian.setTrustedImplementation(address(dlgCollection), true);
 
+        vm.startPrank(defaultAdmin);
         vm.expectRevert();
         walletFactory.createDelegateCollection(
             "A",
@@ -171,5 +176,27 @@ contract AccountRoleTest is Test {
         assertTrue(
             VemoWalletV3Upgradable(payable(_tba)).isValidSigner(user, "") == IERC6551Account.isValidSigner.selector
         );
+
+        vm.startPrank(user);
+        bytes32 hash = keccak256("This is a signed message");
+        (uint8 v1, bytes32 r1, bytes32 s1) = vm.sign(2, hash);
+
+        // ECDSA signature
+        bytes memory signature1 = abi.encodePacked(r1, s1, v1, dlgCollection, new bytes(64));
+
+        console.log("signature1.length ", signature1.length);
+        bytes4 returnValue = VemoWalletV3Upgradable(payable(_tba)).isValidSignature(hash, signature1);
+        assertEq(returnValue, IERC1271.isValidSignature.selector);
+        vm.stopPrank();
+
+        // vm.startPrank(user1);
+        // hash = keccak256("This is a signed message 111");
+        // ( v1, r1, s1) = vm.sign(3, hash);
+
+        // // ECDSA signature
+        // bytes memory signature2 = abi.encodePacked(r1, s1, v1);
+        // returnValue = VemoWalletV3Upgradable(payable(_tba)).isValidSignature(hash, signature2);
+        // assertEq(returnValue != IERC1271.isValidSignature.selector, true);
+
     }
 }
