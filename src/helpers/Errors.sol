@@ -10,6 +10,7 @@ error AccountLocked();
 error InvalidAccountProof();
 error InvalidGuardian();
 error InvalidImplementation();
+error UnknownCollection();
 error AlreadyInitialized();
 error InvalidEntryPoint();
 error InvalidMulticallForwarder();
