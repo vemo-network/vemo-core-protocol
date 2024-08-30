@@ -7,7 +7,7 @@ import "../interfaces/IDelegationCollection.sol";
 import "../interfaces/IExecutionTerm.sol";
 import "./AccountV3.sol";
 import "../lib/LibExecutor.sol";
-import "BytesLib.sol";
+import "@solidity-bytes-utils/BytesLib.sol";
 
 contract VemoWalletV3Upgradable is AccountV3, UUPSUpgradeable {
     address delegationCollection;

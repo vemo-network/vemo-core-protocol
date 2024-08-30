@@ -7,3 +7,4 @@ openzeppelin-foundry-upgrades/=lib/openzeppelin-foundry-upgrades/src/
 erc6551/=lib/erc6551/src/
 multicall-authenticated/=lib/multicall-authenticated/src/
 @account-abstraction=lib/account-abstraction
+@solidity-bytes-utils/=lib/solidity-bytes-utils/contracts/
