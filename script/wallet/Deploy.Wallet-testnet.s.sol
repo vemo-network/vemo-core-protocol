@@ -11,14 +11,17 @@ import "forge-std/console.sol";
 import "forge-std/Script.sol";
 import "../../src/AccountRegistry.sol";
 import "../../src/AccountGuardian.sol";
-import "../../src/accounts/AccountV3.sol";
+import {VemoWalletV3Upgradable} from "../../src/accounts/VemoWalletV3Upgradable.sol";
 import "../../src/accounts/AccountProxy.sol";
 import "../../src/WalletFactory.sol";
 import "./UUPSProxy.sol";
 import "multicall-authenticated/Multicall3.sol";
 import {ERC6551Registry} from "erc6551/ERC6551Registry.sol";
-
+import "../../src/CollectionDeployer.sol";
 import {Upgrades} from "openzeppelin-foundry-upgrades/Upgrades.sol";
+import "../../src/helpers/NFTDescriptor/DelegationURI/NFTDelegationDescriptor.sol";
+import "../../src/terms/VePendleTerm.sol";
+
 /**
 collection  0x8199F4C7A378B7CcCD6AF8c3bBcF0C68A353dAeB
 guardian  0xBE67034116BBc44f86b4429D48B1e1FB2BdAd9b7
@@ -51,7 +54,7 @@ contract DeployVemoWalletSC is Script {
          * uncomment if want to deploy from the scratch 
          */
         AccountGuardian guardian = new AccountGuardian {salt: bytes32(salt)} (owner);
-        AccountV3 accountv3Implementation = new AccountV3{salt: bytes32(salt)}(
+        VemoWalletV3Upgradable accountv3Implementation = new VemoWalletV3Upgradable{salt: bytes32(salt)}(
             entrypointERC4337, address(forwarder), address(registry), address(guardian));
 
         guardian.setTrustedImplementation(address(accountv3Implementation), true);
@@ -65,7 +68,7 @@ contract DeployVemoWalletSC is Script {
         // address accountv3Implementation = 0xA94e04f900eF10670F0D730A49cEA5447fe6fcb8;
         // address accountProxy = 0xE1E5F84F59BB5B55fAdec8b9496B70Ca0A312c73;
         
-        (address walletFactoryProxy, address walletFactoryImpl) = deployWalletFactory(
+        (address walletFactoryProxy, address walletFactoryImpl, address NFTCollection) = deployWalletFactory(
             owner,
             address(registry),
             address(accountProxy),
@@ -77,11 +80,17 @@ contract DeployVemoWalletSC is Script {
         console2.log("accountProxy ", address(accountProxy));
         console2.log("account registry ", address(registry));
         console2.log("wallet factory proxy ", walletFactoryProxy);
+        console2.log("NFTCollection ", NFTCollection);
 
+
+        /****
+         * Deploy NFT Delegation, term, deployer
+         */
+        deployDelegationContracts(owner, address(guardian), walletFactoryProxy, NFTCollection);
         vm.stopBroadcast();
     }
 
-    function deployWalletFactory(address owner, address registry, address accountProxy, address implementation) private returns (address, address) {
+    function deployWalletFactory(address owner, address registry, address accountProxy, address implementation) private returns (address, address, address) {
         WalletFactory factory = new WalletFactory{salt: bytes32(salt)}();
 
         console2.log("walletfactory address:", address(factory), "\n");
@@ -95,12 +104,16 @@ contract DeployVemoWalletSC is Script {
 
         console2.log("WalletFactory Proxy address:", address(proxyWalletFactory), "\n");
 
-        deployVemoCollection(WalletFactory(payable(proxyWalletFactory)));
+        // deploy collection deployer
+        CollectionDeployer collectionRegistry = new CollectionDeployer(proxyWalletFactoryAddress);
+        WalletFactory(payable(proxyWalletFactory)).setCollectionDeployer(address(collectionRegistry));
 
-        return (proxyWalletFactoryAddress, address(factory));
+        address collection = deployVemoCollection(WalletFactory(payable(proxyWalletFactory)));
+
+        return (proxyWalletFactoryAddress, address(factory), collection);
     }
 
-    function deployVemoCollection(WalletFactory  factory) public {
+    function deployVemoCollection(WalletFactory  factory) public returns(address){
         // WalletFactory factory = WalletFactory(payable(0x5A72A673f0621dC3b39B59084a72b95706E75EFd));
         address collection = factory.createWalletCollection(
             uint160(salt),
@@ -109,8 +122,52 @@ contract DeployVemoWalletSC is Script {
             "vemowallet"
         );
 
-        console2.log("collection ", collection);
+        console2.log("NFT collection ", collection);
+        return collection;
     }
 
+    function deployDelegationContracts(address owner, address guardian, address walletFactory, address nftCollection) public {
+        address descriptor = Upgrades.deployUUPSProxy(
+            "NFTDelegationDescriptor.sol:NFTDelegationDescriptor",
+            abi.encodeCall(
+                NFTDelegationDescriptor.initialize,
+                owner
+            )
+        );
+        console.log("Descriptor ", descriptor);
+
+        // deploy a new term
+        address term = Upgrades.deployUUPSProxy(
+            "VePendleTerm.sol:VePendleTerm",
+            abi.encodeCall(
+                VePendleTerm.initialize,
+                (
+                    owner,
+                    walletFactory,
+                    guardian
+                )
+            )
+        );
+        console.log("term ", term);
+        
+        AccountGuardian(guardian).setTrustedImplementation(term, true);
+        
+        /**
+         * term  0xEA8909794F435ee03528cfA8CE8e0cCa8D7535Ae
+          descriptor  
+          delegation 0x7F4282181243069B55379312196be53566a5FE03
+         */
+        address nftDlgAddress = WalletFactory(payable(walletFactory)).createDelegateCollection(
+            "Vemo Delegation Wallet",
+            "VDW", 
+            descriptor,
+            term,
+            nftCollection
+        );
+
+        console.log("nftDlgAddress ", nftDlgAddress);
+
+        AccountGuardian(guardian).setTrustedImplementation(nftDlgAddress, true);
+    }
     
 }
