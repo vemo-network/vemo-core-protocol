@@ -62,6 +62,23 @@ contract VemoWalletV3Upgradable is AccountV3, UUPSUpgradeable {
         return delegationCollection;
     }
 
+    function isValidSigner(address signer, bytes calldata data)
+        external
+        view override
+        returns (bytes4 magicValue)
+    {
+        if (_isValidSigner(signer, data)) {
+            return IERC6551Account.isValidSigner.selector;
+        }
+
+        (,, uint256 tokenId) = ERC6551AccountLib.token();
+        if (IERC721(delegationCollection).ownerOf(tokenId) == signer) {
+            return IERC6551Account.isValidSigner.selector;
+        }
+
+        return bytes4(0);
+    }
+
     /**
      * Determines if a given hash and signature are valid for this account
      * @param hash Hash of signed data
