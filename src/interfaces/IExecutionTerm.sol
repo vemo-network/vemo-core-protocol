@@ -6,8 +6,8 @@ interface IExecutionTerm {
         external
         view
         returns (bool);
-
-    function canExecute(address token, address to, uint256 value, bytes calldata data)
+    
+    function canExecute(address to, uint256 value, bytes calldata data)
         external
         view
         returns (
@@ -15,5 +15,32 @@ interface IExecutionTerm {
             uint8
         );
     
+    function isHarvesting(address to, uint256 value, bytes calldata data)
+        external
+        view
+        returns (
+            bool
+        );
+    
+    function split(
+        address payable _owner,
+        address payable _farmer,
+        uint256[] memory rewards
+    ) external;
+
     function revokeTimeout() external returns(uint32);
+
+    function rewardAssets() external returns(address[] memory);
+
+    function setSplitRatio(uint16 _splitRatio) external;
+    function splitRatio() external returns(uint16 _splitRatio);
+
+    function setTermProperties(
+        address _nftCollectionAddress,
+        bytes4[] memory _selectors,
+        bytes4[] memory _harvestSelectors,
+        address[] memory _whitelist,
+        address[] memory _rewardAssets_
+    ) external;
+    
 }

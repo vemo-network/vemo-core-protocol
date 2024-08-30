@@ -19,8 +19,8 @@ import "multicall-authenticated/Multicall3.sol";
 import "../../../src/accounts/VemoWalletV3Upgradable.sol";
 import "../../../src/AccountGuardian.sol";
 import "../../../src/accounts/AccountProxy.sol";
-import "../../../src/CollectionDeployer.sol";
-import "../../../src/helpers/VemoDelegationCollection.sol";
+import {CollectionDeployer} from "../../../src/CollectionDeployer.sol";
+import {VemoDelegationCollection} from "../../../src/helpers/VemoDelegationCollection.sol";
 
 import "../../mock/USDT.sol";
 import "./mocks/MockERC721.sol";
@@ -89,7 +89,7 @@ contract DelegationCollectionTest is Test {
                 (address(this))
             )
         ));
-        term = VePendleTerm(Upgrades.deployUUPSProxy(
+        term = VePendleTerm(payable(Upgrades.deployUUPSProxy(
             "VePendleTerm.sol:VePendleTerm",
             abi.encodeCall(
                 VePendleTerm.initialize,
@@ -99,7 +99,7 @@ contract DelegationCollectionTest is Test {
                     address(guardian)
                 )
             )
-        ));
+        )));
 
         guardian.setTrustedImplementation(address(term), true);
 
@@ -203,9 +203,7 @@ contract DelegationCollectionTest is Test {
         console.log(
             VemoDelegationCollection(dlgCollection).revokingRoles(tokenId)
         );
-        console.log("block.timestamp ", block.timestamp);
         skip(100);
-        console.log("block.timestamp 1", block.timestamp);
 
         // revert in duration time
         vm.startPrank(user);

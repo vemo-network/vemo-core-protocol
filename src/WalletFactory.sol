@@ -6,7 +6,6 @@ import "@openzeppelin/contracts/interfaces/IERC721Receiver.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {IERC20, SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/Create2.sol";
 import "erc6551/interfaces/IERC6551Registry.sol";
@@ -16,7 +15,6 @@ import "./interfaces/IWalletFactory.sol";
 import "./interfaces/IDelegationCollection.sol";
 import "./interfaces/darenft/ICollection.sol";
 import "./interfaces/erc6551/IAccountProxy.sol";
-import "./helpers/VemoWalletCollection.sol";
 import "./interfaces/ICollectionDeployer.sol";
 
 contract WalletFactory is IERC721Receiver, IWalletFactory, UUPSUpgradeable, AccessControlUpgradeable {

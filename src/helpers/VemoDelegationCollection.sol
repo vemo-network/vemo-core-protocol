@@ -10,6 +10,7 @@ import "../interfaces/IWalletFactory.sol";
 import "../interfaces/IExecutionTerm.sol";
 import "../interfaces/IDelegationCollection.sol";
 import "../interfaces/ICollectionDeployer.sol";
+import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 /**
  * VemoDelegateCollection 
@@ -18,7 +19,7 @@ import "../interfaces/ICollectionDeployer.sol";
  * - customizable NFTDescriptor
  * - link with a specific term - which determines a transaction from delegate owner executable
  */
-contract VemoDelegationCollection is ERC721, Ownable, IDelegationCollection  {
+contract VemoDelegationCollection is ERC721, Ownable, IDelegationCollection, UUPSUpgradeable  {
     uint256 private _nextTokenId;
     address public descriptor;
     address public walletFactory;
@@ -29,8 +30,10 @@ contract VemoDelegationCollection is ERC721, Ownable, IDelegationCollection  {
     // tokenId => start_revoking_time
     mapping(uint256 => uint256) public  revokingRoles;
 
+    event Delegate(address indexed owner, address indexed delegated, uint256 indexed tokenId);
     error InRevokingPeriod(uint256);
-
+    error Unburnable(uint256);
+    
     constructor(
     ) ERC721(_ERC721Params(0), _ERC721Params(1)) Ownable(_ownerParam()) {
         (,,,walletFactory, descriptor, term,issuer) = ICollectionDeployer(msg.sender).parameters();
@@ -57,7 +60,6 @@ contract VemoDelegationCollection is ERC721, Ownable, IDelegationCollection  {
         require(Ownable(_tba).owner() == _msgSender());
     }
 
-
     function safeMint(uint256 tokenId, address to) public onlyOwner returns (uint256){
         _safeMint(to, tokenId);
         return tokenId;
@@ -79,9 +81,20 @@ contract VemoDelegationCollection is ERC721, Ownable, IDelegationCollection  {
         return super.supportsInterface(interfaceId);
     }
 
-    function burn(uint256 tokenId) public virtual onlyTBAOwner(tokenId) {
-        require(revokingRoles[tokenId] == 0 || revokingRoles[tokenId] < block.timestamp);
-        _rmDelegate(tokenId);
+    function burn(uint256 tokenId) public virtual  {
+        address _owner = _ownerOf(tokenId);
+        address _tba = IWalletFactory(walletFactory).getTokenBoundAccount(issuer, tokenId);
+
+        if (_owner == _msgSender() || 
+            (
+                Ownable(_tba).owner() == _msgSender() &&
+                revokingRoles[tokenId] > 0 && revokingRoles[tokenId] < block.timestamp
+            )
+        ) {
+            _rmDelegate(tokenId);
+        } else {
+            revert Unburnable(tokenId);
+        }
     }
 
     function delegate(uint256 tokenId, address receiver) public onlyTBAOwner(tokenId) {
@@ -127,6 +140,10 @@ contract VemoDelegationCollection is ERC721, Ownable, IDelegationCollection  {
         if (previousOwner != from) {
             revert ERC721IncorrectOwner(from, tokenId, previousOwner);
         }
+    }
+    
+    function _authorizeUpgrade(address newImplementation) internal onlyOwner virtual override {
+        (newImplementation);
     }
 
 }

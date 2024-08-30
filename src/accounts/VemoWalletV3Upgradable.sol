@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
-
 import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts/interfaces/IERC721.sol";
+import "@openzeppelin/contracts/interfaces/IERC20.sol";
 import "../interfaces/IDelegationCollection.sol";
 import "../interfaces/IExecutionTerm.sol";
 import "./AccountV3.sol";
@@ -10,9 +10,6 @@ import "../lib/LibExecutor.sol";
 import "@solidity-bytes-utils/BytesLib.sol";
 
 contract VemoWalletV3Upgradable is AccountV3, UUPSUpgradeable {
-     // TODO: remove or re-used this storage slot
-    address delegationCollection;
-
     constructor(
         address entryPoint_,
         address multicallForwarder,
@@ -34,47 +31,61 @@ contract VemoWalletV3Upgradable is AccountV3, UUPSUpgradeable {
         require(msg.sender == owner());
     }
 
-    function delegateExecute(address collection, address to, uint256 value, bytes calldata data, uint8 operation)
+    function delegateExecute(address delegateCollection, address to, uint256 value, bytes calldata executeData, bytes calldata termData)
         external
         payable
         virtual
         returns (bytes memory)
     {
-        if (!guardian.isTrustedImplementation(collection)) revert UnknownCollection();
+        if (!guardian.isTrustedImplementation(delegateCollection)) revert UnknownCollection();
 
-        address term = IDelegationCollection(collection).term();
-        (uint256 chainId, address tokenContract, uint256 tokenId) = ERC6551AccountLib.token();
+        address term = IDelegationCollection(delegateCollection).term();
+        (, address tokenContract, uint256 tokenId) = ERC6551AccountLib.token();
 
-        (bool canExecute, uint8 errorCode) =  IExecutionTerm(term).canExecute(tokenContract, to, value, data);
+        if (!guardian.isTrustedImplementation(term)) revert InvalidImplementation();
+
+        if (IERC721(delegateCollection).ownerOf(tokenId) != _msgSender()) revert InvalidImplementation();
+
+        (bool canExecute, uint8 errorCode) =  IExecutionTerm(term).canExecute(to, value, executeData);
 
         if (!canExecute) revert InvalidImplementation();
         
-        return LibExecutor._execute(to, value, data, operation);
-    }
-
-    function setDelegate(address _delegationCollection) external onlyOwner {
-        delegationCollection = _delegationCollection;
-    }
-
-    function getDelegate() external view returns(address) {
-        return delegationCollection;
-    }
-
-    function isValidSigner(address signer, bytes calldata data)
-        external
-        view override
-        returns (bytes4 magicValue)
-    {
-        if (_isValidSigner(signer, data)) {
-            return IERC6551Account.isValidSigner.selector;
+        if (IExecutionTerm(term).isHarvesting(to, value, executeData)) {
+            return _harvestAndDistributeReward(term, delegateCollection, to, value, executeData);
         }
+
+        return LibExecutor._execute(to, value, executeData, LibExecutor.OP_CALL);
+    }
+
+    function _harvestAndDistributeReward(address term, address delegationCollection, address to, uint256 value, bytes calldata executeData) internal returns (bytes memory) {
+        address[] memory rewardTokens = IExecutionTerm(term).rewardAssets();
+        uint256[] memory rewards = new uint256[](rewardTokens.length);
 
         (,, uint256 tokenId) = ERC6551AccountLib.token();
-        if (IERC721(delegationCollection).ownerOf(tokenId) == signer) {
-            return IERC6551Account.isValidSigner.selector;
+        for (uint i = 0; i < rewardTokens.length; i++) {
+            rewards[i] = _balanceOf(rewardTokens[i]);
         }
 
-        return bytes4(0);
+        LibExecutor._execute(to, value, executeData, LibExecutor.OP_CALL);
+
+        for (uint i = 0; i < rewardTokens.length; i++) {
+            rewards[i] = _balanceOf(rewardTokens[i]) - rewards[i];
+            if (rewardTokens[i] == address(0)) {
+                term.call{value: rewards[i]}("");
+            } else {
+                IERC20(rewardTokens[i]).transfer(term, rewards[i]);
+            }
+        }
+
+        IExecutionTerm(term).split(
+            payable(owner()),
+            payable(
+                IERC721(delegationCollection).ownerOf(tokenId)
+            ),
+            rewards
+        );
+
+        return new bytes(4);
     }
 
     /**
@@ -111,5 +122,13 @@ contract VemoWalletV3Upgradable is AccountV3, UUPSUpgradeable {
 
         address term = IDelegationCollection(collection).term();
         return IExecutionTerm(term).isValidSignature(hash, signature);
+    }
+
+    function _balanceOf(address _token) private view returns (uint256) {
+        if (_token == address(0)) {
+            return address(this).balance;
+        }
+        
+        return IERC20(_token).balanceOf(address(this));
     }
 }
