@@ -10,6 +10,7 @@ import "../lib/LibExecutor.sol";
 import "@solidity-bytes-utils/BytesLib.sol";
 
 contract VemoWalletV3Upgradable is AccountV3, UUPSUpgradeable {
+     // TODO: remove or re-used this storage slot
     address delegationCollection;
 
     constructor(
@@ -70,7 +71,7 @@ contract VemoWalletV3Upgradable is AccountV3, UUPSUpgradeable {
         internal
         view
         virtual
-        override(ERC4337Account, Signatory)
+        override(AccountV3)
         returns (bool)
     {
         // smart contract signature
@@ -86,20 +87,19 @@ contract VemoWalletV3Upgradable is AccountV3, UUPSUpgradeable {
         require(signature.length == 65+20+32+32, "invalid delegation signature length");
 
         // extract delegation signature
-        address delegationCollection = BytesLib.toAddress(signature, 20);
-        signature = BytesLib.slice(signature, 0, 65);
+        address collection = BytesLib.toAddress(signature, 20);
 
         address signer;
         ECDSA.RecoverError _error;
-        (signer, _error,) = ECDSA.tryRecover(hash, signature);
+        (signer, _error,) = ECDSA.tryRecover(hash, BytesLib.slice(signature, 0, 65));
 
         if (_error != ECDSA.RecoverError.NoError) return false;
 
-        (address issuer,, uint256 tokenId) = ERC6551AccountLib.token();
-        require(IERC721(delegationCollection).ownerOf(tokenId) == signer, "!delegate");
+        (, address issuer, uint256 tokenId) = ERC6551AccountLib.token();
+        require(IERC721(collection).ownerOf(tokenId) == signer, "!delegate");
 
-        address term = delegationCollection.term();
-        // TODO: verify delegationCollection = CREATE2(issuer, term);
-        return term.isValidSignature(hash, signature);
+        address term = IDelegationCollection(collection).term();
+        // TODO: verify collection = CREATE2(issuer, term);
+        return IExecutionTerm(term).isValidSignature(hash, signature);
     }
 }

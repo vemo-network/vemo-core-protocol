@@ -5,6 +5,7 @@ import {IExecutionTerm} from "../interfaces/IExecutionTerm.sol";
 import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "../interfaces/IAccountGuardian.sol";
+import "@solidity-bytes-utils/BytesLib.sol";
 
 /**
  * @title VePendleTerm
@@ -59,11 +60,10 @@ contract VePendleTerm is IExecutionTerm, UUPSUpgradeable, OwnableUpgradeable {
         return 2592000; // 30 days
     }
 
-    function _isValidSignature(bytes32 hash, bytes calldata signature)
-        internal
+    function isValidSignature(bytes32 hash, bytes calldata signature)
+        external
         view
         virtual
-        override(ERC4337Account, Signatory)
         returns (bool)
     {
         require(signature.length == 65+20+32+32, "invalid delegation signature length");
