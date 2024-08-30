@@ -33,23 +33,23 @@ contract DeployVemoWalletSC is Script {
         vm.startBroadcast(deployerPrivateKey);
 
         // // deploy new vemo wallet type
-        // VemoWalletV3Upgradable implementation = new VemoWalletV3Upgradable(
-        //     address(entrypointERC4337), address(forwarder), address(registry), address(guardian)
-        // );
-        // AccountGuardian(guardian).setTrustedImplementation(address(implementation), true);
+        VemoWalletV3Upgradable implementation = new VemoWalletV3Upgradable(
+            address(entrypointERC4337), address(forwarder), address(registry), address(guardian)
+        );
+        AccountGuardian(guardian).setTrustedImplementation(address(implementation), true);
 
         // upgrade new walelt factory
-        WalletFactory implementation = new WalletFactory();
+        // WalletFactory walletImplementation = new WalletFactory();
 
         WalletFactory proxy = WalletFactory(payable(walletFactoryProxy));
-        bytes memory data;
-        proxy.upgradeToAndCall(address(implementation), data);
+        // bytes memory data;
+        // proxy.upgradeToAndCall(address(implementation), data);
 
         // create collection registry
-        CollectionDeployer collectionRegistry = new CollectionDeployer(walletFactoryProxy);
-        proxy.setCollectionDeployer(address(collectionRegistry));
+        // CollectionDeployer collectionRegistry = new CollectionDeployer(walletFactoryProxy);
+        // proxy.setCollectionDeployer(address(collectionRegistry));
         
-        // proxy.setWalletImpl(address(implementation));
+        proxy.setWalletImpl(address(implementation));
 
         // (uint256 tokenId, address tba) = proxy.create(0x8199F4C7A378B7CcCD6AF8c3bBcF0C68A353dAeB, "");
         // console.log(tokenId, tba);
@@ -57,13 +57,13 @@ contract DeployVemoWalletSC is Script {
         // set new wallet implementation 
 
         // // deploy a new descriptor
-        address descriptor = Upgrades.deployUUPSProxy(
-            "NFTDelegationDescriptor.sol:NFTDelegationDescriptor",
-            abi.encodeCall(
-                NFTDelegationDescriptor.initialize,
-                owner
-            )
-        );
+        // address descriptor = Upgrades.deployUUPSProxy(
+        //     "NFTDelegationDescriptor.sol:NFTDelegationDescriptor",
+        //     abi.encodeCall(
+        //         NFTDelegationDescriptor.initialize,
+        //         owner
+        //     )
+        // );
 
         // // deploy a new term
         // address term = Upgrades.deployUUPSProxy(
@@ -78,25 +78,31 @@ contract DeployVemoWalletSC is Script {
         //     )
         // );
 
-        // AccountGuardian(guardian).setTrustedImplementation(term, true);
+        VePendleTerm termImplementation = new VePendleTerm();
+
+        VePendleTerm termProxy = VePendleTerm(payable(walletFactoryProxy));
+        bytes memory data;
+        termProxy.upgradeToAndCall(address(termImplementation), data);
+
+        AccountGuardian(guardian).setTrustedImplementation(0x2C3E236EAE4e8E0a5901a088ABD2bddC33F7D014, true);
 
         /**
          * term  0xEA8909794F435ee03528cfA8CE8e0cCa8D7535Ae
           descriptor  
           delegation 0x7F4282181243069B55379312196be53566a5FE03
          */
-        address nftDlgAddress = proxy.createDelegateCollection(
-            "Vemo Delegation Wallet",
-            "VDW",
-            0x03b2C4c788ECca804100F706C0646e831CB5227f, 
-            descriptor,
-            0x8199F4C7A378B7CcCD6AF8c3bBcF0C68A353dAeB
-        );
+        // address nftDlgAddress = proxy.createDelegateCollection(
+        //     "Vemo Delegation Wallet",
+        //     "VDW",
+        //     0x03b2C4c788ECca804100F706C0646e831CB5227f, 
+        //     descriptor,
+        //     0x8199F4C7A378B7CcCD6AF8c3bBcF0C68A353dAeB
+        // );
 
-        console.log("nftDlgAddress ", nftDlgAddress);
-        // console.log("term ", term);
-        console.log("descriptor ", descriptor);
-        console.log("collectionRegistry ", address(collectionRegistry));
+        // console.log("nftDlgAddress ", nftDlgAddress);
+        // // console.log("term ", term);
+        // console.log("descriptor ", descriptor);
+        // console.log("collectionRegistry ", address(collectionRegistry));
 
         // proxy.delegate(
         //     0x8199F4C7A378B7CcCD6AF8c3bBcF0C68A353dAeB,

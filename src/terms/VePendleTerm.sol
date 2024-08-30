@@ -5,6 +5,7 @@ import {IExecutionTerm} from "../interfaces/IExecutionTerm.sol";
 import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "../interfaces/IAccountGuardian.sol";
+import "@solidity-bytes-utils/BytesLib.sol";
 
 /**
  * @title VePendleTerm
@@ -57,5 +58,22 @@ contract VePendleTerm is IExecutionTerm, UUPSUpgradeable, OwnableUpgradeable {
 
     function revokeTimeout() public pure returns(uint32) {
         return 2592000; // 30 days
+    }
+
+    function isValidSignature(bytes32 hash, bytes calldata signature)
+        external
+        view
+        virtual
+        returns (bool)
+    {
+        require(signature.length == 65+20+32+32, "invalid delegation signature length");
+
+        // extract delegation signature
+        // bytes32 domain = BytesLib.toBytes32(signature, 65+20);
+        // bytes32 typeHash = BytesLib.toBytes32(signature, 65+65+20);
+
+        // TODO: verify the domain and typeHash
+
+        return true;
     }
 }

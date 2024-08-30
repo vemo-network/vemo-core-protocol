@@ -7,8 +7,10 @@ import "../interfaces/IDelegationCollection.sol";
 import "../interfaces/IExecutionTerm.sol";
 import "./AccountV3.sol";
 import "../lib/LibExecutor.sol";
+import "@solidity-bytes-utils/BytesLib.sol";
 
 contract VemoWalletV3Upgradable is AccountV3, UUPSUpgradeable {
+     // TODO: remove or re-used this storage slot
     address delegationCollection;
 
     constructor(
@@ -38,10 +40,10 @@ contract VemoWalletV3Upgradable is AccountV3, UUPSUpgradeable {
         virtual
         returns (bytes memory)
     {
+        if (!guardian.isTrustedImplementation(collection)) revert UnknownCollection();
+
         address term = IDelegationCollection(collection).term();
         (uint256 chainId, address tokenContract, uint256 tokenId) = ERC6551AccountLib.token();
-
-        if (!guardian.isTrustedImplementation(term)) revert InvalidImplementation();
 
         (bool canExecute, uint8 errorCode) =  IExecutionTerm(term).canExecute(tokenContract, to, value, data);
 
@@ -73,5 +75,41 @@ contract VemoWalletV3Upgradable is AccountV3, UUPSUpgradeable {
         }
 
         return bytes4(0);
+    }
+
+    /**
+     * Determines if a given hash and signature are valid for this account
+     * @param hash Hash of signed data
+     * @param signature ECDSA signature or encoded contract signature (v=0)
+     */
+    function _isValidSignature(bytes32 hash, bytes calldata signature)
+        internal
+        view
+        virtual
+        override(AccountV3)
+        returns (bool)
+    {
+        // non-delegate signature
+        if (signature.length != 65+20+32+32) {
+            return super._isValidSignature(hash, signature);
+        }
+
+        // extract delegation signature
+        address collection = BytesLib.toAddress(signature, 65);
+        if (!guardian.isTrustedImplementation(collection)) revert UnknownCollection();
+
+        address signer;
+        ECDSA.RecoverError _error;
+        (signer, _error,) = ECDSA.tryRecover(hash, BytesLib.slice(signature, 0, 65));
+
+        if (_error != ECDSA.RecoverError.NoError) return false;
+
+        (, address issuer, uint256 tokenId) = ERC6551AccountLib.token();
+
+        require(IERC721(collection).ownerOf(tokenId) == signer, "!delegate");
+        require(IDelegationCollection(collection).issuer() == issuer, "!issuer");
+
+        address term = IDelegationCollection(collection).term();
+        return IExecutionTerm(term).isValidSignature(hash, signature);
     }
 }
