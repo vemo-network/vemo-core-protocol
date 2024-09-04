@@ -19,6 +19,7 @@ import "multicall-authenticated/Multicall3.sol";
 import {ERC6551Registry} from "erc6551/ERC6551Registry.sol";
 
 import {Upgrades} from "openzeppelin-foundry-upgrades/Upgrades.sol";
+
 /**
   walletfactory address: 0x2D675d0C90D39751FA33d7b2498D556142590a36 
   WalletFactory Proxy address: 0x5A72A673f0621dC3b39B59084a72b95706E75EFd 
@@ -37,8 +38,8 @@ import {Upgrades} from "openzeppelin-foundry-upgrades/Upgrades.sol";
   accountProxy  0xE1E5F84F59BB5B55fAdec8b9496B70Ca0A312c73
   account registry  0x000000006551c19487814612e58FE06813775758
   wallet factory proxy  0x5A72A673f0621dC3b39B59084a72b95706E75EFd
-
  */
+
 contract DeployVemoWalletSC is Script {
     // a Prime
     uint256 salt = 0x8cb91e82a3386d28036d6f63d1e6efd90031d3e8a56e75da9f0b021f40b0bc4c;
