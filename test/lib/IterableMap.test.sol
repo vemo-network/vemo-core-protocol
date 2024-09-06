@@ -3,7 +3,7 @@ pragma solidity ^0.8.21;
 
 import "forge-std/Test.sol";
 
-import "./IterableMap.sol";
+import "../../src/lib/IterableMap.sol";
 
 contract IterableMapTest is Test {
     Store store;
