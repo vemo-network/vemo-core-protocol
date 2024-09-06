@@ -41,6 +41,13 @@ contract IterableMapTest is Test {
         assertEq(values.length, 2, "values length");
     }
 
+    function testGet() public {
+        uint gas = gasleft();
+        assertEq(store.get(0x0000000000000000000000000000000000000002), 20);
+        assertLe(gas - gasleft(), 2400);
+        assertEq(store.get(0x0000000000000000000000000000000000000613), 0);
+    }
+
     function testSet() public {
         (address[] memory keys, uint96[] memory values) = store.entries();
         uint gas = gasleft();
@@ -120,7 +127,9 @@ contract IterableMapTest is Test {
         uint gas = gasleft();
         store.remove(0x0000000000000000000000000000000000000013);
         assertLe(gas - gasleft(), 3000);
+        assertEq(store.get(0x0000000000000000000000000000000000000003), 30);
         store.remove(0x0000000000000000000000000000000000000003);
+        assertEq(store.get(0x0000000000000000000000000000000000000003), 0);
         (address[] memory keysA, uint96[] memory valuesA) = store.entries();
         assertEq(keys.length-1, keysA.length, "keys length");
         assertEq(values.length-1, valuesA.length, "values length");
