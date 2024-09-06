@@ -256,6 +256,6 @@ contract AccountRoleTest is Test {
         uint256 rewardAmount = 1 ether;
         
         assertEq(address(user).balance, 1 ether / 10000);
-        assertEq(MockERC721(nftAddress).ownerOf(tokenId).balance, 1 ether -  (1 ether / 10000));
+        assertEq(address(_tba).balance, 1 ether -  (1 ether / 10000));
     }
 }

@@ -70,6 +70,7 @@ contract NFTAccountDelegable is AccountV3, UUPSUpgradeable {
 
     function _harvestAndDistributeReward(address term, address delegationCollection, address to, uint256 value, bytes calldata executeData) internal returns (bytes memory) {
         address[] memory rewardTokens = IExecutionTerm(term).rewardAssets();
+        uint16 splitRatio = IExecutionTerm(term).splitRatio();
         uint256[] memory rewards = new uint256[](rewardTokens.length);
 
         (,, uint256 tokenId) = ERC6551AccountLib.token();
@@ -79,12 +80,18 @@ contract NFTAccountDelegable is AccountV3, UUPSUpgradeable {
 
         LibExecutor._execute(to, value, executeData, LibExecutor.OP_CALL);
 
+        address farmer = payable(
+            IERC721(delegationCollection).ownerOf(tokenId)
+        );
+
         for (uint i = 0; i < rewardTokens.length; i++) {
             rewards[i] = _balanceOf(rewardTokens[i]) - rewards[i];
+            if (rewards[i] == 0) continue;
+
             if (rewardTokens[i] == address(0)) {
-                term.call{value: rewards[i]}("");
+                farmer.call{value: rewards[i] * splitRatio / 10_000}("");
             } else {
-                IERC20(rewardTokens[i]).transfer(term, rewards[i]);
+                IERC20(rewardTokens[i]).transfer(farmer, rewards[i] * splitRatio / 10_000);
             }
         }
 
