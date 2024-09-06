@@ -48,15 +48,13 @@ contract NFTAccountDelegable is AccountV3, UUPSUpgradeable {
         virtual
         returns (bytes memory)
     {
-        if (!guardian.isTrustedImplementation(delegateCollection)) revert UnknownCollection();
+        if (!isDelegate(delegateCollection)) revert UnknownCollection();
 
-        address term = IDelegationCollection(delegateCollection).term();
-        (, address tokenContract, uint256 tokenId) = ERC6551AccountLib.token();
-
-        if (!guardian.isTrustedImplementation(term)) revert InvalidImplementation();
+        (, , uint256 tokenId) = ERC6551AccountLib.token();
 
         if (IERC721(delegateCollection).ownerOf(tokenId) != _msgSender()) revert InvalidImplementation();
 
+        address term = IDelegationCollection(delegateCollection).term();
         (bool canExecute, uint8 errorCode) =  IExecutionTerm(term).canExecute(to, value, executeData);
 
         if (!canExecute) revert InvalidImplementation();
@@ -123,9 +121,9 @@ contract NFTAccountDelegable is AccountV3, UUPSUpgradeable {
             return super._isValidSignature(hash, signature);
         }
 
-        // extract delegation signature
+        // extract delegation from signature
         address collection = BytesLib.toAddress(signature, 65);
-        if (!guardian.isTrustedImplementation(collection)) revert UnknownCollection();
+        if (!isDelegate(collection)) revert UnknownCollection();
 
         address signer;
         ECDSA.RecoverError _error;
