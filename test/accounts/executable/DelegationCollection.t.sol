@@ -158,11 +158,19 @@ contract DelegationCollectionTest is Test {
             nftAddress
         );
 
+        vm.startPrank(user);
+        vm.expectRevert();
+        NFTAccountDelegable(payable(_tba)).delegate(dlgCollection, user);
+
+        vm.startPrank(defaultAdmin);
         // mint a derivative nft of that TBA
-        VemoDelegationCollection(dlgCollection).delegate(tokenId, defaultAdmin);
+        NFTAccountDelegable(payable(_tba)).delegate(dlgCollection, defaultAdmin);
+        // VemoDelegationCollection(dlgCollection).delegate(tokenId, defaultAdmin);
 
         vm.expectRevert();
-        VemoDelegationCollection(dlgCollection).delegate(tokenId, defaultAdmin);
+        NFTAccountDelegable(payable(_tba)).delegate(dlgCollection, defaultAdmin);
+        // VemoDelegationCollection(dlgCollection).delegate(tokenId, defaultAdmin);
+
         assertEq(defaultAdmin, MockERC721(dlgCollection).ownerOf(tokenId));
     }
 
@@ -187,7 +195,7 @@ contract DelegationCollectionTest is Test {
         );
 
         // mint a derivative nft of that TBA
-        VemoDelegationCollection(dlgCollection).delegate(tokenId, user);
+        NFTAccountDelegable(payable(_tba)).delegate(dlgCollection, user);
         assertEq(user, MockERC721(dlgCollection).ownerOf(tokenId));
 
         vm.startPrank(user);
@@ -199,7 +207,8 @@ contract DelegationCollectionTest is Test {
 
         //revoke only trigger by the TBA owner
         vm.startPrank(defaultAdmin);
-        VemoDelegationCollection(dlgCollection).revoke(tokenId);
+        NFTAccountDelegable(payable(_tba)).revoke(dlgCollection);
+        // VemoDelegationCollection(dlgCollection).revoke(tokenId);
         console.log(
             VemoDelegationCollection(dlgCollection).revokingRoles(tokenId)
         );
@@ -212,7 +221,8 @@ contract DelegationCollectionTest is Test {
         
         vm.startPrank(defaultAdmin);
         vm.expectRevert();
-        VemoDelegationCollection(dlgCollection).burn(tokenId);
+        NFTAccountDelegable(payable(_tba)).burn(dlgCollection);
+        // VemoDelegationCollection(dlgCollection).burn(tokenId);
 
         skip(9999999);
 
@@ -221,7 +231,8 @@ contract DelegationCollectionTest is Test {
         MockERC721(dlgCollection).transferFrom(user, user1, tokenId);
 
         vm.startPrank(defaultAdmin);
-        VemoDelegationCollection(dlgCollection).burn(tokenId);
+        NFTAccountDelegable(payable(_tba)).burn(dlgCollection);
+        // VemoDelegationCollection(dlgCollection).burn(tokenId);
 
         // no longer exist
         vm.expectRevert();

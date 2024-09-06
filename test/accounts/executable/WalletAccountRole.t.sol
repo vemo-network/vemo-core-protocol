@@ -164,10 +164,10 @@ contract AccountRoleTest is Test {
         );
 
         // // mint a derivative nft of that TBA
-        VemoDelegationCollection(dlgCollection).delegate(tokenId, defaultAdmin);
+        NFTAccountDelegable(payable(_tba)).delegate(dlgCollection, defaultAdmin);
 
         vm.expectRevert();
-        VemoDelegationCollection(dlgCollection).delegate(tokenId, defaultAdmin);
+        NFTAccountDelegable(payable(_tba)).delegate(dlgCollection, defaultAdmin);
 
         assertEq(defaultAdmin, MockERC721(dlgCollection).ownerOf(tokenId));
 
@@ -228,10 +228,12 @@ contract AccountRoleTest is Test {
         );
 
         // // mint a derivative nft of that TBA
-        VemoDelegationCollection(dlgCollection).delegate(tokenId, defaultAdmin);
+        NFTAccountDelegable(payable(_tba)).delegate(dlgCollection, defaultAdmin);
+        // VemoDelegationCollection(dlgCollection).delegate(tokenId, defaultAdmin);
 
         vm.expectRevert();
-        VemoDelegationCollection(dlgCollection).delegate(tokenId, defaultAdmin);
+        NFTAccountDelegable(payable(_tba)).delegate(dlgCollection, defaultAdmin);
+        // VemoDelegationCollection(dlgCollection).delegate(tokenId, defaultAdmin);
 
         assertEq(defaultAdmin, MockERC721(dlgCollection).ownerOf(tokenId));
 

@@ -50,20 +50,20 @@ contract VemoDelegationCollection is ERC721, Ownable, IDelegationCollection, UUP
         (,,owner,,,,) = ICollectionDeployer(msg.sender).parameters();
     }
 
-    modifier onlyTBAOwner(uint256 tokenId) {
+    modifier onlyTBA(uint256 tokenId) {
         _checkRole(tokenId);
         _;
     }
 
     function _checkRole(uint256 tokenId) internal view virtual {
         address _tba = IWalletFactory(walletFactory).getTokenBoundAccount(issuer, tokenId);
-        require(Ownable(_tba).owner() == _msgSender());
+        require(_tba == _msgSender());
     }
 
-    function safeMint(uint256 tokenId, address to) public onlyOwner returns (uint256){
-        _safeMint(to, tokenId);
-        return tokenId;
-    }
+    // function safeMint(uint256 tokenId, address to) public onlyOwner returns (uint256){
+    //     _safeMint(to, tokenId);
+    //     return tokenId;
+    // }
 
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
         return
@@ -85,9 +85,9 @@ contract VemoDelegationCollection is ERC721, Ownable, IDelegationCollection, UUP
         address _owner = _ownerOf(tokenId);
         address _tba = IWalletFactory(walletFactory).getTokenBoundAccount(issuer, tokenId);
 
-        if (_owner == _msgSender() || 
+        if (_owner == tx.origin || 
             (
-                Ownable(_tba).owner() == _msgSender() &&
+                _tba == _msgSender() &&
                 revokingRoles[tokenId] > 0 && revokingRoles[tokenId] < block.timestamp
             )
         ) {
@@ -97,7 +97,7 @@ contract VemoDelegationCollection is ERC721, Ownable, IDelegationCollection, UUP
         }
     }
 
-    function delegate(uint256 tokenId, address receiver) public onlyTBAOwner(tokenId) {
+    function delegate(uint256 tokenId, address receiver) public onlyTBA(tokenId) {
         address _owner = _ownerOf(tokenId);
         
         require(_owner == address(0));
@@ -105,7 +105,7 @@ contract VemoDelegationCollection is ERC721, Ownable, IDelegationCollection, UUP
         _safeMint(receiver, tokenId);
     }
 
-    function revoke(uint256 tokenId) public onlyTBAOwner(tokenId) {
+    function revoke(uint256 tokenId) public onlyTBA(tokenId) {
         address _owner = _ownerOf(tokenId);
         if (_owner == address(0)) {
             revert ERC721NonexistentToken(tokenId);

@@ -7,9 +7,20 @@ import "../interfaces/IDelegationCollection.sol";
 import "../interfaces/IExecutionTerm.sol";
 import "./AccountV3.sol";
 import "../lib/LibExecutor.sol";
+import "../lib/IterableMap.sol";
 import "@solidity-bytes-utils/BytesLib.sol";
 
 contract NFTAccountDelegable is AccountV3, UUPSUpgradeable {
+    Store NFTRoles;
+    using IterableMap for Store;
+
+    error InvalidExecutor();
+
+    event Delegate(
+        address indexed delegateCollection,
+        address receiver
+    );
+
     constructor(
         address entryPoint_,
         address multicallForwarder,
@@ -22,13 +33,13 @@ contract NFTAccountDelegable is AccountV3, UUPSUpgradeable {
         if (!_isValidExecutor(_msgSender())) revert NotAuthorized();
     }
 
-    modifier onlyOwner() {
-        _checkRole();
+    modifier onlyValidExecutor() {
+        _checkExecutorRole();
         _;
     }
 
-    function _checkRole() internal view virtual {
-        require(msg.sender == owner());
+    function _checkExecutorRole() internal view virtual {
+        require(_isValidExecutor(_msgSender()));
     }
 
     function delegateExecute(address delegateCollection, address to, uint256 value, bytes calldata executeData, bytes calldata termData)
@@ -130,5 +141,32 @@ contract NFTAccountDelegable is AccountV3, UUPSUpgradeable {
         }
         
         return IERC20(_token).balanceOf(address(this));
+    }
+
+    /// role management
+    function delegate(address delegation, address receiver) public onlyValidExecutor {
+        (,,uint256 tokenId) = ERC6551AccountLib.token();
+
+        IDelegationCollection(delegation).delegate(tokenId, receiver);
+        NFTRoles.set(delegation, 1);
+
+        emit Delegate(delegation, receiver);
+    }
+
+    function revoke(address delegation) public onlyValidExecutor {
+        (,,uint256 tokenId) = ERC6551AccountLib.token();
+
+        IDelegationCollection(delegation).revoke(tokenId);
+    }
+
+    function burn(address delegation) public onlyValidExecutor {
+        (,,uint256 tokenId) = ERC6551AccountLib.token();
+
+        IDelegationCollection(delegation).burn(tokenId);
+        NFTRoles.remove(delegation);
+    }
+
+    function delegates() public view returns(address[] memory keys, uint96[] memory values) {
+        (keys, values) = NFTRoles.entries();
     }
 }
