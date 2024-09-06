@@ -17,9 +17,9 @@ import "../interfaces/IVoucherAccount.sol";
  */
 contract VemoAutoURIVoucherCollection is ERC721, Ownable {
     uint256 private _nextTokenId;
-    INFTDescriptor public descriptor;
-    IVoucherFactory public voucherFactory;
-    address voucherToken;
+    INFTDescriptor immutable public descriptor;
+    IVoucherFactory immutable public voucherFactory;
+    address immutable voucherToken;
 
     constructor(
         address owner,

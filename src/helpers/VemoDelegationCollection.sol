@@ -21,11 +21,11 @@ import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/U
  */
 contract VemoDelegationCollection is ERC721, Ownable, IDelegationCollection, UUPSUpgradeable  {
     uint256 private _nextTokenId;
-    address public descriptor;
-    address public walletFactory;
+    address immutable public descriptor;
+    address immutable public walletFactory;
     
-    address public term;
-    address public issuer;
+    address immutable public term;
+    address immutable public issuer;
 
     // tokenId => start_revoking_time
     mapping(uint256 => uint256) public  revokingRoles;
