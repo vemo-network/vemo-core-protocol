@@ -16,7 +16,7 @@ import "erc6551/interfaces/IERC6551Executable.sol";
 
 import "multicall-authenticated/Multicall3.sol";
 
-import "../../../src/accounts/VemoWalletV3Upgradable.sol";
+import "../../../src/accounts/NFTAccountDelegable.sol";
 import "../../../src/AccountGuardian.sol";
 import "../../../src/accounts/AccountProxy.sol";
 import {CollectionDeployer} from "../../../src/CollectionDeployer.sol";
@@ -36,7 +36,7 @@ import {VePendleTerm} from "../../../src/terms/VePendleTerm.sol";
 
 contract AccountRoleTest is Test {
     Multicall3 forwarder;
-    VemoWalletV3Upgradable upgradableImplementation;
+    NFTAccountDelegable upgradableImplementation;
     AccountProxy proxy;
     ERC6551Registry public registry;
     AccountGuardian public guardian;
@@ -63,7 +63,7 @@ contract AccountRoleTest is Test {
 
         forwarder = new Multicall3();
         guardian = new AccountGuardian(address(this));
-        upgradableImplementation = new VemoWalletV3Upgradable(
+        upgradableImplementation = new NFTAccountDelegable(
             address(1), address(forwarder), address(registry), address(guardian)
         );
         proxy = new AccountProxy(address(guardian), address(upgradableImplementation));
@@ -179,9 +179,9 @@ contract AccountRoleTest is Test {
         // check the the owner of derivative nft is valid signer
         vm.startPrank(user);
         vm.expectRevert(NotAuthorized.selector);
-        VemoWalletV3Upgradable(payable(_tba)).execute(vm.addr(2), 0.1 ether, "", 0);
+        NFTAccountDelegable(payable(_tba)).execute(vm.addr(2), 0.1 ether, "", 0);
 
-        VemoWalletV3Upgradable(payable(_tba)).delegateExecute(dlgCollection, vm.addr(2), 0.1 ether, "", "");
+        NFTAccountDelegable(payable(_tba)).delegateExecute(dlgCollection, vm.addr(2), 0.1 ether, "", "");
 
         vm.startPrank(user);
         bytes32 hash = keccak256("This is a signed message");
@@ -189,7 +189,7 @@ contract AccountRoleTest is Test {
 
         // ECDSA signature
         bytes memory signature1 = abi.encodePacked(r1, s1, v1, dlgCollection, new bytes(64));
-        bytes4 returnValue = VemoWalletV3Upgradable(payable(_tba)).isValidSignature(hash, signature1);
+        bytes4 returnValue = NFTAccountDelegable(payable(_tba)).isValidSignature(hash, signature1);
 
         vm.stopPrank();
     }
@@ -240,7 +240,7 @@ contract AccountRoleTest is Test {
 
         vm.startPrank(user);
         
-        VemoWalletV3Upgradable(payable(_tba)).delegateExecute(
+        NFTAccountDelegable(payable(_tba)).delegateExecute(
             dlgCollection,
             address(pendle),
             0,

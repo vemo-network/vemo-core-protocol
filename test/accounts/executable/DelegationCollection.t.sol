@@ -16,7 +16,7 @@ import "erc6551/interfaces/IERC6551Executable.sol";
 
 import "multicall-authenticated/Multicall3.sol";
 
-import "../../../src/accounts/VemoWalletV3Upgradable.sol";
+import "../../../src/accounts/NFTAccountDelegable.sol";
 import "../../../src/AccountGuardian.sol";
 import "../../../src/accounts/AccountProxy.sol";
 import {CollectionDeployer} from "../../../src/CollectionDeployer.sol";
@@ -35,7 +35,7 @@ import {VePendleTerm} from "../../../src/terms/VePendleTerm.sol";
 
 contract DelegationCollectionTest is Test {
     Multicall3 forwarder;
-    VemoWalletV3Upgradable upgradableImplementation;
+    NFTAccountDelegable upgradableImplementation;
     AccountProxy proxy;
     ERC6551Registry public registry;
     AccountGuardian public guardian;
@@ -64,7 +64,7 @@ contract DelegationCollectionTest is Test {
 
         forwarder = new Multicall3();
         guardian = new AccountGuardian(address(this));
-        upgradableImplementation = new VemoWalletV3Upgradable(
+        upgradableImplementation = new NFTAccountDelegable(
             address(1), address(forwarder), address(registry), address(guardian)
         );
         proxy = new AccountProxy(address(guardian), address(upgradableImplementation));

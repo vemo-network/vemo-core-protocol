@@ -11,7 +11,7 @@ import "forge-std/console.sol";
 import "forge-std/Script.sol";
 import "../../src/AccountRegistry.sol";
 import "../../src/AccountGuardian.sol";
-import "../../src/accounts/VemoWalletV3Upgradable.sol";
+import "../../src/accounts/NFTAccountDelegable.sol";
 import "../../src/accounts/AccountProxy.sol";
 import {WalletFactory} from "../../src/WalletFactory.sol";
 import "./UUPSProxy.sol";
@@ -74,7 +74,7 @@ contract DeployVemoWalletSC is Script {
          * Deploy new VemoWallet implementation
          */
         AccountGuardian guardian = AccountGuardian(guardianAddress);
-        VemoWalletV3Upgradable accountv3Implementation = new VemoWalletV3Upgradable(
+        NFTAccountDelegable accountv3Implementation = new NFTAccountDelegable(
             address(entrypointERC4337), address(forwarder), address(registry), address(guardian)
         );
 

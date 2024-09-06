@@ -6,7 +6,7 @@ import "forge-std/Script.sol";
 import "../../src/AccountRegistry.sol";
 import "../../src/AccountGuardian.sol";
 import "../../src/accounts/AccountV3.sol";
-import {VemoWalletV3Upgradable} from "../../src/accounts/VemoWalletV3Upgradable.sol";
+import {NFTAccountDelegable} from "../../src/accounts/NFTAccountDelegable.sol";
 import "../../src/accounts/AccountProxy.sol";
 import "../../src/WalletFactory.sol";
 import "../../src/CollectionDeployer.sol";
@@ -42,7 +42,7 @@ contract UpgradeVemoWalletTestnetSC is Script {
         vm.startBroadcast(deployerPrivateKey);
 
         // // deploy new vemo wallet type
-        // VemoWalletV3Upgradable implementation = new VemoWalletV3Upgradable(
+        // NFTAccountDelegable implementation = new NFTAccountDelegable(
         //     address(entrypointERC4337), address(forwarder), address(registry), address(guardian)
         // );
         // AccountGuardian(guardian).setTrustedImplementation(address(implementation), true);

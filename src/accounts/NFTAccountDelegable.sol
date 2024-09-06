@@ -9,7 +9,7 @@ import "./AccountV3.sol";
 import "../lib/LibExecutor.sol";
 import "@solidity-bytes-utils/BytesLib.sol";
 
-contract VemoWalletV3Upgradable is AccountV3, UUPSUpgradeable {
+contract NFTAccountDelegable is AccountV3, UUPSUpgradeable {
     constructor(
         address entryPoint_,
         address multicallForwarder,
