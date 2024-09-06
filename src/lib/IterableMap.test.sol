@@ -10,8 +10,12 @@ contract IterableMapTest is Test {
     using IterableMap for Store;
 
     function setUp() public {
+        uint gas = gasleft();
         store.set(0x0000000000000000000000000000000000000001, 10);
+        assertLe(gas - gasleft(), 50000);
+        gas = gasleft();
         store.set(0x0000000000000000000000000000000000000002, 20);
+        assertLe(gas - gasleft(), 25000);
         store.set(0x0000000000000000000000000000000000000003, 30);
         store.set(0x0000000000000000000000000000000000000004, 40);
         store.set(0x0000000000000000000000000000000000000005, 50);
@@ -39,7 +43,9 @@ contract IterableMapTest is Test {
 
     function testSet() public {
         (address[] memory keys, uint96[] memory values) = store.entries();
+        uint gas = gasleft();
         store.set(0x0000000000000000000000000000000000000002, 13);
+        assertLe(gas - gasleft(), 5000);
         (address[] memory keysA, uint96[] memory valuesA) = store.entries();
         assertEq(keys.length, keysA.length, "keys length");
         assertEq(values.length, valuesA.length, "values length");
@@ -90,7 +96,9 @@ contract IterableMapTest is Test {
 
     function testInsert() public {
         (address[] memory keys, uint96[] memory values) = store.entries();
+        uint gas = gasleft();
         store.set(0x0000000000000000000000000000000000000006, 60);
+        assertLe(gas - gasleft(), 30000);
         (address[] memory keysA, uint96[] memory valuesA) = store.entries();
         assertEq(keys.length+1, keysA.length, "keys length");
         assertEq(values.length+1, valuesA.length, "values length");
@@ -109,7 +117,9 @@ contract IterableMapTest is Test {
 
     function testDelete() public {
         (address[] memory keys, uint96[] memory values) = store.entries();
+        uint gas = gasleft();
         store.remove(0x0000000000000000000000000000000000000013);
+        assertLe(gas - gasleft(), 3000);
         store.remove(0x0000000000000000000000000000000000000003);
         (address[] memory keysA, uint96[] memory valuesA) = store.entries();
         assertEq(keys.length-1, keysA.length, "keys length");
