@@ -17,7 +17,7 @@ import "../../src/WalletFactory.sol";
 import "./UUPSProxy.sol";
 import "multicall-authenticated/Multicall3.sol";
 import {ERC6551Registry} from "erc6551/ERC6551Registry.sol";
-
+import {NFTAccountDescriptor} from "../../src/helpers/NFTDescriptor/NFTAccount/NFTAccountDescriptor.sol";
 import {Upgrades} from "openzeppelin-foundry-upgrades/Upgrades.sol";
 
 /**
@@ -44,16 +44,16 @@ contract DeployVemoWalletSC is Script {
     // a Prime
     uint256 salt = 0x8cb91e82a3386d28036d6f63d1e6efd90031d3e8a56e75da9f0b021f40b0bc4c;
 
+    /**
+     * prod configuration
+     */
+    address forwarder = 0xcA1167915584462449EE5b4Ea51c37fE81eCDCCD;
+    address registry = 0x000000006551c19487814612e58FE06813775758;
+    address owner = 0x308C6c08735c5cB323FC78b956Dcae19CC008608;
+    address tokenboundLayerZero = 0x96f0445246B19Fa098f8bb4dfA907eD38F6155d5;
+
     function run() public {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
-
-        /**
-         * prod configuration
-         */
-        address forwarder = 0xcA1167915584462449EE5b4Ea51c37fE81eCDCCD;
-        address registry = 0x000000006551c19487814612e58FE06813775758;
-        address owner = 0x308C6c08735c5cB323FC78b956Dcae19CC008608;
-        address tokenboundLayerZero = 0x96f0445246B19Fa098f8bb4dfA907eD38F6155d5;
 
         // entrypoint for ERC4337, if there is no erc4337 protocol, leave it zero
         address entrypointERC4337 = 0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789;
@@ -114,11 +114,19 @@ contract DeployVemoWalletSC is Script {
 
     function deployVemoCollection(WalletFactory  factory) public {
         // WalletFactory factory = WalletFactory(payable(0x5A72A673f0621dC3b39B59084a72b95706E75EFd));
+        address vemoNFTdescriptor = Upgrades.deployUUPSProxy(
+            "NFTAccountDescriptor.sol:NFTAccountDescriptor",
+            abi.encodeCall(
+                NFTAccountDescriptor.initialize,
+                owner
+            )
+        );
+
         address collection = factory.createWalletCollection(
             uint160(salt),
             "Vemo Smart Wallet",
             "VSW",
-            "vemowallet"
+            vemoNFTdescriptor
         );
 
         console2.log("collection ", collection);

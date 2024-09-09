@@ -6,9 +6,9 @@ import '@openzeppelin/contracts/utils/Base64.sol';
 import '@openzeppelin/contracts/utils/math/Math.sol';
 import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
-import './INFTDelegationDescriptor.sol';
+import './INFTAccountDescriptor.sol';
 import '../HexStrings.sol';
-import './NFTDelegationSVG.sol';
+import './NFTAccountSVG.sol';
 import '../DateTime.sol';
 
 interface ILiteERC20 {
@@ -16,7 +16,7 @@ interface ILiteERC20 {
     function symbol() external pure returns (string memory);
     function decimals() external pure returns (uint8);
 }
-contract NFTDelegationDescriptor is INFTDelegationDescriptor, UUPSUpgradeable {
+contract NFTAccountDescriptor is INFTAccountDescriptor, UUPSUpgradeable {
     using Strings for uint256;
 
     address public _owner;
@@ -78,20 +78,13 @@ contract NFTDelegationDescriptor is INFTDelegationDescriptor, UUPSUpgradeable {
         return
             string(
                 abi.encodePacked(
-                    "Owning this NFT grants the holder the authority to cast votes and harvest rewards from Pendle Finance on behalf of vePENDLE owner for a specified duration, up to the expiration date. However, the holder's actions are strictly limited to vePendle-related activities. Specifically, the holder is prohibited from: \\n\\n- Renew the lock on Pendle Finance.\\n- Transferring or burning assets from Vemo NFT Account\\n- Signing EIP-721 signatures\\n- Approving token transactions\\n- Interacting with smart contracts unaffiliated with Pendle Finance\\n\\nVemo NFT Account address holding vePENDLE is: ",
+                    "This NFT signifies the ownership of an account containing crypto assets or off-chain points, known as a Vemo NFT Account following the ERC-6551 standard. Only NFT holder has complete control over the assets in the account. Additionally, they can transfer the account to others by transferring or selling NFT on the secondary market.\\n\\n Vemo Account address linked to this NFT: ",
                     addressToString(params.tba),
-                    "\\n\\nFor more details, please visit https://vemo.network/ \\n",
-                    unicode"⚠️ DISCLAIMER: It is highly recommended to verify the assets and expiration date of vePENDLE Voter in Vemo NFT Account on Vemo Network website before making any decisions."
+                    "\\n\\nFor more details, please visit https://vemo.network/\\n\\n",
+                    unicode"⚠️ DISCLAIMER: It is highly recommended to verify the assets in the NFT Account on Vemo Network website before making any decisions."
                 )
             );
     }
-
-    function timestampToUTC(uint256 timestamp) public pure returns (string memory utc) {
-        if (timestamp  == 0 ) return "";
-        DateTime._DateTime memory dt = DateTime.parseTimestamp(timestamp);
-        return DateTime.formatDateTime(dt);
-    }
-
 
     function generateName(ConstructTokenURIParams memory params)
         public
@@ -113,14 +106,14 @@ contract NFTDelegationDescriptor is INFTDelegationDescriptor, UUPSUpgradeable {
     }
 
     function generateSVGImage(ConstructTokenURIParams memory params) internal pure returns (string memory svg) {
-         NFTDelegationSVG.SVGParams memory svgParams =
-            NFTDelegationSVG.SVGParams({
+         NFTAccountSVG.SVGParams memory svgParams =
+            NFTAccountSVG.SVGParams({
                 nftId: params.nftId.toString(),
                 tba: formatAddress(params.tba),
                 collectionName: params.collectionName
             });
 
-        return NFTDelegationSVG.generateSVG(svgParams);
+        return NFTAccountSVG.generateSVG(svgParams);
     } 
 
     function formatAddress(address _address) public pure returns (string memory) {

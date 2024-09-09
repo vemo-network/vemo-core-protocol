@@ -23,6 +23,7 @@ import "../../mock/USDT.sol";
 import "../../mock/USDC.sol";
 import "../../mock/Factory.sol";
 import "../../../src/CollectionDeployer.sol";
+import {NFTAccountDescriptor} from "../../../src/helpers/NFTDescriptor/NFTAccount/NFTAccountDescriptor.sol";
 
 contract WalletFactoryBaseTest is Test {
     Multicall3 forwarder  = new Multicall3();
@@ -50,7 +51,7 @@ contract WalletFactoryBaseTest is Test {
     address account;
     USDT usdt = new USDT();
     USDC usdc = new USDC();
-
+    NFTAccountDescriptor vemoCollectionDescriptor;
     CollectionDeployer collectionDeployer;
 
     function setUp() public {
@@ -71,12 +72,19 @@ contract WalletFactoryBaseTest is Test {
 
         walletFactory.setCollectionDeployer(address(collectionDeployer));
 
-
+        vemoCollectionDescriptor = NFTAccountDescriptor(Upgrades.deployUUPSProxy(
+            "NFTAccountDescriptor.sol:NFTAccountDescriptor",
+            abi.encodeCall(
+                NFTAccountDescriptor.initialize,
+                (address(this))
+            )
+        ));
+        
         address nftAddress = walletFactory.createWalletCollection(
             uint160(address(usdt)),
             "walletfactory",
             "walletfactory",
-            "walletfactory"
+            address(vemoCollectionDescriptor)
         );
         nft = VemoWalletCollection(nftAddress);
         assertEq(

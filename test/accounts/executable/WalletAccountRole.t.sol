@@ -32,6 +32,7 @@ import "./mocks/MockVePendle.sol";
 import "./mocks/MockAccountUpgradable.sol";
 import {WalletFactory} from "../../../src/WalletFactory.sol";
 import {NFTDelegationDescriptor} from "../../../src/helpers/NFTDescriptor/DelegationURI/NFTDelegationDescriptor.sol";
+import {NFTAccountDescriptor} from "../../../src/helpers/NFTDescriptor/NFTAccount/NFTAccountDescriptor.sol";
 import {VePendleTerm} from "../../../src/terms/VePendleTerm.sol";
 
 contract AccountRoleTest is Test {
@@ -52,6 +53,7 @@ contract AccountRoleTest is Test {
     address userReceiver = vm.addr(userPrivateKey+99);
     address feeReceiver = vm.addr(feeReceiverPrivateKey);
     NFTDelegationDescriptor descriptor;
+    NFTAccountDescriptor vemoCollectionDescriptor;
     VePendleTerm term;
 
     CollectionDeployer collectionDeployer;
@@ -85,6 +87,14 @@ contract AccountRoleTest is Test {
             "NFTDelegationDescriptor.sol:NFTDelegationDescriptor",
             abi.encodeCall(
                 NFTDelegationDescriptor.initialize,
+                (address(this))
+            )
+        ));
+
+        vemoCollectionDescriptor = NFTAccountDescriptor(Upgrades.deployUUPSProxy(
+            "NFTAccountDescriptor.sol:NFTAccountDescriptor",
+            abi.encodeCall(
+                NFTAccountDescriptor.initialize,
                 (address(this))
             )
         ));
@@ -135,7 +145,7 @@ contract AccountRoleTest is Test {
             uint160(address(usdt)),
             "walletfactory",
             "walletfactory",
-            "walletfactory"
+            address(vemoCollectionDescriptor)
         );
         
         (uint256 tokenId, address _tba) = walletFactory.create(nftAddress, "");
@@ -200,7 +210,7 @@ contract AccountRoleTest is Test {
             uint160(address(usdt)),
             "walletfactory",
             "walletfactory",
-            "walletfactory"
+            address(vemoCollectionDescriptor)
         );
         
         (uint256 tokenId, address _tba) = walletFactory.create(nftAddress, "");

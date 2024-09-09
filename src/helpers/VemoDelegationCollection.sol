@@ -66,13 +66,15 @@ contract VemoDelegationCollection is ERC721, Ownable, IDelegationCollection, UUP
     // }
 
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
+        address _tba = IWalletFactory(walletFactory).getTokenBoundAccount(address(this), tokenId);
+        require(_tba != address(0));
         return
             INFTDelegationDescriptor(descriptor).constructTokenURI(
                 INFTDelegationDescriptor.ConstructTokenURIParams({
                     nftId: tokenId,
                     nftAddress: address(this),
                     collectionName: name(),
-                    tba: IWalletFactory(walletFactory).getTokenBoundAccount(address(this), tokenId)
+                    tba: _tba
                 })
             );
     }

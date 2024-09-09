@@ -16,15 +16,14 @@ interface IWalletFactory {
         address indexed collection,
         uint256 indexed collectionIndex,
         string  name,
-        string  symbol,
-        string  dappURI
+        string  symbol
     );
 
     function createWalletCollection(
         uint160 collectionIndex,
         string calldata name,
         string calldata symbol,
-        string calldata dappURI
+        address descriptor
     ) external returns (address);
 
     function create(address nftAddress, string memory tokenUri) external returns (uint256 tokenId, address tba);

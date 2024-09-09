@@ -53,25 +53,23 @@ contract CollectionDeployer is ICollectionDeployer, Ownable {
      function createVemoCollection(
         string memory name,
         string memory symbol,
-        string memory dappURI,
-        uint256 salt
+        uint256 salt,
+        address walletFactory,
+        address descriptor
     ) public onlyOwner returns (address nftAddress) {
-        bytes memory bytecode = abi.encodePacked(
-            type(VemoWalletCollection).creationCode,
-            abi.encode(
-                name,
-                symbol,
-                owner()
-            )
-        );
-        bytes32 saltHash = keccak256(abi.encodePacked(salt));
+        parameters = DelegateCollectionParameters({
+            name: name,
+            symbol: symbol,
+            owner: walletFactory,
+            walletFactory: walletFactory,
+            descriptor: descriptor , 
+            term: walletFactory, // no use
+            issuer: walletFactory // no use
+        });
 
-        assembly {
-            nftAddress := create2(0, add(bytecode, 0x20), mload(bytecode), saltHash)
-            if iszero(extcodesize(nftAddress)) {
-                revert(0, 0)
-            }
-        }
+        nftAddress = address(new VemoWalletCollection{salt: bytes32(salt)}());
+
+        delete parameters;
 
         return nftAddress;
     }

@@ -27,7 +27,8 @@ interface ICollectionDeployer {
     function createVemoCollection(
         string memory name,
         string memory symbol,
-        string memory dappURI,
-        uint256 salt
+        uint256 salt,
+        address walletFactory,
+        address descriptor
     ) external returns (address nftAddress);
 }

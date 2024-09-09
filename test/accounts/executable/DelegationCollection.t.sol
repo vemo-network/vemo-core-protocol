@@ -31,6 +31,7 @@ import "./mocks/MockReverter.sol";
 import "./mocks/MockAccountUpgradable.sol";
 import {WalletFactory} from "../../../src/WalletFactory.sol";
 import {NFTDelegationDescriptor} from "../../../src/helpers/NFTDescriptor/DelegationURI/NFTDelegationDescriptor.sol";
+import {NFTAccountDescriptor} from "../../../src/helpers/NFTDescriptor/NFTAccount/NFTAccountDescriptor.sol";
 import {VePendleTerm} from "../../../src/terms/VePendleTerm.sol";
 
 contract DelegationCollectionTest is Test {
@@ -51,6 +52,7 @@ contract DelegationCollectionTest is Test {
     address userReceiver = vm.addr(userPrivateKey+99);
     address feeReceiver = vm.addr(feeReceiverPrivateKey);
     NFTDelegationDescriptor descriptor;
+    NFTAccountDescriptor vemoCollectionDescriptor;
     VePendleTerm term;
 
     CollectionDeployer collectionDeployer;
@@ -89,6 +91,15 @@ contract DelegationCollectionTest is Test {
                 (address(this))
             )
         ));
+
+        vemoCollectionDescriptor = NFTAccountDescriptor(Upgrades.deployUUPSProxy(
+            "NFTAccountDescriptor.sol:NFTAccountDescriptor",
+            abi.encodeCall(
+                NFTAccountDescriptor.initialize,
+                (address(this))
+            )
+        ));
+
         term = VePendleTerm(payable(Upgrades.deployUUPSProxy(
             "VePendleTerm.sol:VePendleTerm",
             abi.encodeCall(
@@ -115,7 +126,7 @@ contract DelegationCollectionTest is Test {
             uint160(address(usdt)),
             "walletfactory",
             "walletfactory",
-            "walletfactory"
+            address(vemoCollectionDescriptor)
         );
         
         (uint256 tokenId, address _tba) = walletFactory.create(nftAddress, "");
@@ -180,7 +191,7 @@ contract DelegationCollectionTest is Test {
             uint160(address(usdt)),
             "walletfactory",
             "walletfactory",
-            "walletfactory"
+            address(vemoCollectionDescriptor)
         );
         
         (uint256 tokenId, address _tba) = walletFactory.create(nftAddress, "");

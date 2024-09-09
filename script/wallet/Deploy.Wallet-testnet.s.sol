@@ -21,6 +21,7 @@ import "../../src/CollectionDeployer.sol";
 import {Upgrades} from "openzeppelin-foundry-upgrades/Upgrades.sol";
 import "../../src/helpers/NFTDescriptor/DelegationURI/NFTDelegationDescriptor.sol";
 import "../../src/terms/VePendleTerm.sol";
+import {NFTAccountDescriptor} from "../../src/helpers/NFTDescriptor/NFTAccount/NFTAccountDescriptor.sol";
 
 /**
 WalletFactory address: 0x4dC60D2348Cb5F3d14DB2bCa0Ca8923156B661E1 
@@ -40,17 +41,16 @@ layerzero OApp Testnet: 0x823b6CeA760716F40D6CA720a11f7459Fa361e9e
  */
 contract DeployVemoWalletSC is Script {
     uint256 salt = 0x123456789987654321;
+    /**
+     * prod configuration
+     */
+    address forwarder = 0xcA1167915584462449EE5b4Ea51c37fE81eCDCCD;
+    address registry = 0x000000006551c19487814612e58FE06813775758;
+    address owner = 0xaA6Fb5C8C0978532AaA46f99592cB0b71F11d94E;
+    address tokenboundLayerZero = 0x823b6CeA760716F40D6CA720a11f7459Fa361e9e;
 
     function run() public {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
-
-        /**
-         * prod configuration
-         */
-        address forwarder = 0xcA1167915584462449EE5b4Ea51c37fE81eCDCCD;
-        address registry = 0x000000006551c19487814612e58FE06813775758;
-        address owner = 0xaA6Fb5C8C0978532AaA46f99592cB0b71F11d94E;
-        address tokenboundLayerZero = 0x823b6CeA760716F40D6CA720a11f7459Fa361e9e;
 
         // entrypoint for ERC4337, if there is no erc4337 protocol, leave it zero
         address entrypointERC4337 = 0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789;
@@ -121,11 +121,19 @@ contract DeployVemoWalletSC is Script {
 
     function deployVemoCollection(WalletFactory  factory) public returns(address){
         // WalletFactory factory = WalletFactory(payable(0x5A72A673f0621dC3b39B59084a72b95706E75EFd));
+        address vemoNFTdescriptor = Upgrades.deployUUPSProxy(
+            "NFTAccountDescriptor.sol:NFTAccountDescriptor",
+            abi.encodeCall(
+                NFTAccountDescriptor.initialize,
+                owner
+            )
+        );
+
         address collection = factory.createWalletCollection(
             uint160(salt),
             "Vemo Smart Wallet",
             "VSW",
-            "vemowallet"
+            vemoNFTdescriptor
         );
 
         console2.log("NFT collection ", collection);

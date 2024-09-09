@@ -65,7 +65,7 @@ contract WalletFactory is IERC721Receiver, IWalletFactory, UUPSUpgradeable, Acce
     mapping (bytes32 hashkey => address collection) private _collectionRegistries;
 
     // dappURI for categorizing collections by project
-    mapping (string uri => address[] collections) private dappURIs;
+    mapping (string uri => address[] collections) private dappURIs; // no longer use
 
     // delegate collection 
     address public collectionDeployer;
@@ -110,19 +110,18 @@ contract WalletFactory is IERC721Receiver, IWalletFactory, UUPSUpgradeable, Acce
      * @param collectionIndex salt for creating collection, use same salt return same address across chains
      * @param name collection name
      * @param symbol  collection symbol
-     * @param dappURI  for categorizing collection ie
+     * @param descriptor token uri descriptor address
      */
     function createWalletCollection(
         uint160 collectionIndex,
         string calldata name,
         string calldata symbol,
-        string calldata dappURI 
+        address descriptor
     ) public onlyRole(MINTER_ROLE) returns (address) {
         if (walletCollections[collectionIndex] != address(0)) return walletCollections[collectionIndex];
 
-        address nftAddress = _deployNFTCollection(name, symbol, dappURI, collectionIndex);
+        address nftAddress = _deployNFTCollection(name, symbol, descriptor, collectionIndex);
         walletCollections[collectionIndex] = nftAddress;
-        dappURIs[dappURI].push(nftAddress);
 
         return nftAddress;
     }
@@ -130,23 +129,22 @@ contract WalletFactory is IERC721Receiver, IWalletFactory, UUPSUpgradeable, Acce
     function _deployNFTCollection(
         string memory name,
         string memory symbol,
-        string memory dappURI,
+        address descriptor, 
         uint256 salt
     ) internal returns (address nftAddress) {
-        bytes32 hashKey = keccak256(abi.encode(name, symbol, dappURI));
+        bytes32 hashKey = keccak256(abi.encode(name, symbol));
         if (_collectionRegistries[hashKey] != address(0)) revert DeployedCollection();
 
         nftAddress = ICollectionDeployer(collectionDeployer).createVemoCollection(
             name,
             symbol,
-            dappURI,
-            salt
+            salt,
+            address(this),
+            descriptor
         );
 
-        if (Ownable(nftAddress).owner() != address(this)) revert IssuedByOtherFactory();
-
         _collectionRegistries[hashKey] = nftAddress;
-        emit CollectionCreated(nftAddress, salt, name, symbol, dappURI);
+        emit CollectionCreated(nftAddress, salt, name, symbol);
     }
 
     function createDelegateCollection(
@@ -225,19 +223,14 @@ contract WalletFactory is IERC721Receiver, IWalletFactory, UUPSUpgradeable, Acce
         return account;
     }
 
-    function setWalletCollection(uint160 collectionIndex, address _nft, string calldata dappURI) public onlyRole(MINTER_ROLE) {
+    function setWalletCollection(uint160 collectionIndex, address _nft) public onlyRole(MINTER_ROLE) {
         if (walletCollections[collectionIndex] != address(0)) revert InvalidInput();
 
         walletCollections[collectionIndex] = _nft;
-        dappURIs[dappURI].push(_nft);
     }
 
     function setCollectionDeployer(address _deployer) public onlyRole(MINTER_ROLE) {
         collectionDeployer = _deployer;
-    }
-
-    function getAllTokensNftsByDappURI(string calldata dappURI) public view returns (address[] memory nfts) {
-        return dappURIs[dappURI];
     }
 
     function isOwner(address redeemer, uint256 tokenId, address nftAddress) internal view returns (bool) {
