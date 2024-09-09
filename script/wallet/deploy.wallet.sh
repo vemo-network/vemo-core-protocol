@@ -97,7 +97,7 @@ esac
 
 
 # Deploy the contract using the provided parameters and capture the contract address
-# DEPLOY_OUTPUT=$(forge clean && forge build && forge script script/wallet/${DEPLOYMENT}.s.sol \
+# DEPLOY_OUTPUT=$(forge clean && forge build && forge script script/wallet/${DEPLOYMENT}.s.sol --with-gas-price 100000000 \
 DEPLOY_OUTPUT=$(forge clean && forge build && forge script script/wallet/${DEPLOYMENT}.s.sol --with-gas-price 100000000 \
     --rpc-url $RPC_URL \
     --verifier-url $VERIFIER_URL \
@@ -109,8 +109,8 @@ DEPLOY_OUTPUT=$(forge clean && forge build && forge script script/wallet/${DEPLO
 # Print deployment output for debugging
 echo "$DEPLOY_OUTPUT"
 
-# # Extract the contract address from the deploy output
-# # CONTRACT_ADDRESS=$(echo "$DEPLOY_OUTPUT" | grep -oP 'Contract Address: \K0x[a-fA-F0-9]{40}')
+# Extract the contract address from the deploy output
+# CONTRACT_ADDRESS=$(echo "$DEPLOY_OUTPUT" | grep -oP 'Contract Address: \K0x[a-fA-F0-9]{40}')
 # CONTRACT_ADDRESS=$(echo "$DEPLOY_OUTPUT" | awk '/Contract Address:/ {print $3}')
 
 # # Print contract address for debugging

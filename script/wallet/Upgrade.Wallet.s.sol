@@ -66,14 +66,14 @@ contract DeployVemoWalletSC is Script {
         vm.startBroadcast(deployerPrivateKey);
 
         // upgrade walletFactory
-        WalletFactory proxy = WalletFactory(
-            payable(upgradeWalletFactory())
-        );
+        upgradeWalletFactory();
+        WalletFactory proxy = WalletFactory(payable(walletFactoryProxy));
 
         /**
          * Deploy new VemoWallet implementation
          */
         AccountGuardian guardian = AccountGuardian(guardianAddress);
+        // address accountv3Implementation = 0x42ea7f52E9D80637eB05a1Df4b067A182bD31AB5;
         NFTAccountDelegable accountv3Implementation = new NFTAccountDelegable(
             address(entrypointERC4337), address(forwarder), address(registry), address(guardian)
         );
@@ -116,7 +116,7 @@ contract DeployVemoWalletSC is Script {
     */
     function deployVemoRoleModule(WalletFactory proxy, AccountGuardian guardian) public {
         // Deploy collection registry
-        CollectionDeployer collectionRegistry = new CollectionDeployer(walletFactoryProxy);
+        CollectionDeployer collectionRegistry = new CollectionDeployer{salt: bytes32(salt)}(walletFactoryProxy);
         proxy.setCollectionDeployer(address(collectionRegistry));
         console.log("collectionRegistry is set to WalletFatory ", address(collectionRegistry));
 
