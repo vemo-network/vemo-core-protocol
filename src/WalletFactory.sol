@@ -132,7 +132,7 @@ contract WalletFactory is IERC721Receiver, IWalletFactory, UUPSUpgradeable, Acce
         address descriptor, 
         uint256 salt
     ) internal returns (address nftAddress) {
-        bytes32 hashKey = keccak256(abi.encode(name, symbol));
+        bytes32 hashKey = keccak256(abi.encode(name, symbol, salt));
         if (_collectionRegistries[hashKey] != address(0)) revert DeployedCollection();
 
         nftAddress = ICollectionDeployer(collectionDeployer).createVemoCollection(

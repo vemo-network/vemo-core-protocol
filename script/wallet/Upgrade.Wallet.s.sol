@@ -19,6 +19,8 @@ import {CollectionDeployer} from "../../src/CollectionDeployer.sol";
 import "multicall-authenticated/Multicall3.sol";
 import {ERC6551Registry} from "erc6551/ERC6551Registry.sol";
 import {NFTDelegationDescriptor} from "../../src/helpers/NFTDescriptor/DelegationURI/NFTDelegationDescriptor.sol";
+import {NFTAccountDescriptor} from "../../src/helpers/NFTDescriptor/NFTAccount/NFTAccountDescriptor.sol";
+
 import {Upgrades} from "openzeppelin-foundry-upgrades/Upgrades.sol";
 import {VePendleTerm} from "../../src/terms/VePendleTerm.sol";
 
@@ -36,10 +38,17 @@ import {VePendleTerm} from "../../src/terms/VePendleTerm.sol";
   walletfactory address: 0x2D675d0C90D39751FA33d7b2498D556142590a36 
   WalletFactory Proxy address: 0x5A72A673f0621dC3b39B59084a72b95706E75EFd 
   guardian  0xC833002b8179716Ae225B7a2B3DA463C47B14F76
-  account v3  0xA94e04f900eF10670F0D730A49cEA5447fe6fcb8
+  account v3  0xcb4a7FF79E90BDE163583f20BB96E8610b0b5829
   accountProxy  0xE1E5F84F59BB5B55fAdec8b9496B70Ca0A312c73
   account registry  0x000000006551c19487814612e58FE06813775758
   wallet factory proxy  0x5A72A673f0621dC3b39B59084a72b95706E75EFd
+
+  collectionRegistry is set to WalletFatory  0xba56F3A85080c48Bbd9687A77b12c8fB00411dD2
+  vemoNFTdescriptor  0x92C301E70Ee2062960D6A8456ea9f340AD2F79a9
+  vemoCollection  0x604873F647c6888c109e9fB28ea32De82D97806a
+  vePendle voter  0x094b8880C2F318f866Cf704cF5a89B541157407B
+  term  0xE5dfC61304fFC39f1B464dd3eF4FCc36679242c7
+  descriptor  0x75aF44Cf66e63FaE6E27DF3B5F9b4AA57330F80B
  */
 
 contract DeployVemoWalletSC is Script {
@@ -81,6 +90,7 @@ contract DeployVemoWalletSC is Script {
         // whitelist new implementation
         guardian.setTrustedImplementation(address(accountv3Implementation), true);
         proxy.setWalletImpl(address(accountv3Implementation));
+
         console2.log("account v3 upgraded to ", address(accountv3Implementation));
 
         /**
@@ -107,9 +117,11 @@ contract DeployVemoWalletSC is Script {
         return address(factory);
     }
 
+
     /**
      * There are 4 parts of Role module
         - collectionRegistry  0xD8C9587bB79a27c2307845E4427A172F8393c022
+        - new Vemo NFT account  0x2C3E236EAE4e8E0a5901a088ABD2bddC33F7D014
         - nftDlgAddress  0x2C3E236EAE4e8E0a5901a088ABD2bddC33F7D014
         - term  0xc97A3CC29D383cE05E7DcA3fAd3e0B8DE9260d20
         - descriptor  0x03b2C4c788ECca804100F706C0646e831CB5227f
@@ -119,6 +131,22 @@ contract DeployVemoWalletSC is Script {
         CollectionDeployer collectionRegistry = new CollectionDeployer{salt: bytes32(salt)}(walletFactoryProxy);
         proxy.setCollectionDeployer(address(collectionRegistry));
         console.log("collectionRegistry is set to WalletFatory ", address(collectionRegistry));
+
+        // vemo NFT account collection 
+        address vemoNFTdescriptor = Upgrades.deployUUPSProxy(
+            "NFTAccountDescriptor.sol:NFTAccountDescriptor",
+            abi.encodeCall(
+                NFTAccountDescriptor.initialize,
+                owner
+            )
+        );
+
+        address vemoCollection = proxy.createWalletCollection(
+            uint160(salt),
+            "Vemo NFT Account",
+            "VNA",
+            vemoNFTdescriptor
+        );
 
         // deploy a new  descriptor
         address descriptor = Upgrades.deployUUPSProxy(
@@ -142,17 +170,17 @@ contract DeployVemoWalletSC is Script {
             )
         );
 
-        guardian.setTrustedImplementation(term, true);
-
         address nftDlgAddress = proxy.createDelegateCollection(
-            "Vemo Delegation Wallet",
-            "VDW",
+            "vePENDLE Voter",
+            "VPV",
             descriptor, 
             term,
             NFTCollectionAddress
         );
 
-        console.log("nftDlgAddress ", nftDlgAddress);
+        console.log("vemoNFTdescriptor ", vemoNFTdescriptor);
+        console.log("vemoCollection ", vemoCollection);
+        console.log("vePendle voter ", nftDlgAddress);
         console.log("term ", term);
         console.log("descriptor ", descriptor);
     }

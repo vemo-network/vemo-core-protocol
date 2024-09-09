@@ -82,27 +82,6 @@ contract WalletFactoryUtilsTest is Test, WalletFactoryBaseTest {
         }
     }
 
-    function testCreateWalletCollectionSameNameSymbol() public {
-        vm.startPrank(defaultAdmin);
-        address _nft = walletFactory.createWalletCollection(
-            uint160(randomToken),
-            "random",
-            "random",
-            address(vemoCollectionDescriptor)
-        );
-        vm.stopPrank();
-
-        vm.startPrank(defaultAdmin);
-        vm.expectRevert();
-        _nft = walletFactory.createWalletCollection(
-            uint160(randomToken) + 1,
-            "random",
-            "random",
-            address(vemoCollectionDescriptor)
-        );
-        vm.stopPrank();
-    }
-
     function testSetAccountRegistry() public {
         vm.startPrank(user);
         vm.expectRevert();
