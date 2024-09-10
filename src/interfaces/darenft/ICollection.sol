@@ -3,7 +3,6 @@ pragma solidity ^0.8.21;
 
 interface ICollection {
     function safeMint(address to) external returns (uint256);
-    function safeMint(address to, string memory uri) external returns (uint256);
 
     function safeMintBatchWithTokenUrisAndRoyalty(
         address to,
