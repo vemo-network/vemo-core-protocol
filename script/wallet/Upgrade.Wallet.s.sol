@@ -45,7 +45,7 @@ import {VePendleTerm} from "../../src/terms/VePendleTerm.sol";
 
   collectionRegistry is set to WalletFatory  0xba56F3A85080c48Bbd9687A77b12c8fB00411dD2
   vemoNFTdescriptor  0x92C301E70Ee2062960D6A8456ea9f340AD2F79a9
-  vemoCollection  0x604873F647c6888c109e9fB28ea32De82D97806a
+  vemoCollection  0x06450eE3D2013A1cA3712d0e48691475F3Ac9AF1
   vePendle voter  0x094b8880C2F318f866Cf704cF5a89B541157407B
   term  0xE5dfC61304fFC39f1B464dd3eF4FCc36679242c7
   descriptor  0x75aF44Cf66e63FaE6E27DF3B5F9b4AA57330F80B

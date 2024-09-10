@@ -5,16 +5,20 @@ This repository contains the core smart contracts for the Vemo Protocol.
 Refer https://docs.vemo.network/ for more information about our main products - Smart Voucher and Vemo Wallet
 
 ## Deployment contracts
-Deployment Wallet on production BNB, ARB, ETH
+Deployment Wallet on production ARB
 | Contract Name | Address | Commit |
 | --- | --- | --- |
-| walletfactory |  0x2D675d0C90D39751FA33d7b2498D556142590a36 |
 | WalletFactory Proxy |  0x5A72A673f0621dC3b39B59084a72b95706E75EFd |
 | guardian |  0xC833002b8179716Ae225B7a2B3DA463C47B14F76 |
-| account v3 |   0xA94e04f900eF10670F0D730A49cEA5447fe6fcb8 |
+| account v3 |   0xcb4a7FF79E90BDE163583f20BB96E8610b0b5829 |
 | accountProxy | 0xE1E5F84F59BB5B55fAdec8b9496B70Ca0A312c73 |
 | account registry | 0x000000006551c19487814612e58FE06813775758 |
-| wallet factory proxy | 0x5A72A673f0621dC3b39B59084a72b95706E75EFd |
+|  collection deployer |  0xba56F3A85080c48Bbd9687A77b12c8fB00411dD2 |
+| vemoNFTdescriptor | 0x92C301E70Ee2062960D6A8456ea9f340AD2F79a9 |
+| vemoCollection | 0x06450eE3D2013A1cA3712d0e48691475F3Ac9AF1 |
+|  vePendle voter | 0x094b8880C2F318f866Cf704cF5a89B541157407B |
+|  term | 0xE5dfC61304fFC39f1B464dd3eF4FCc36679242c7 |
+|  descriptor | 0x75aF44Cf66e63FaE6E27DF3B5F9b4AA57330F80B |
 
 Deployment Wallet on ARB, BNB testnet
 | Contract Name | Address | Commit |
