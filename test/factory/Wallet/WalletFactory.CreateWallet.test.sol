@@ -16,7 +16,7 @@ contract WalletFactoryCreateTest is Test, WalletFactoryBaseTest {
         address nftAddress = walletFactory.walletCollections(uint160(address(usdt)));
         console.log(nftAddress);
 
-        (uint256 tokenId, address _tba) = walletFactory.create(nftAddress, "");
+        (uint256 tokenId, address _tba) = walletFactory.create(nftAddress);
         vm.stopPrank();
 
         // // make sure we store the correct vesting data in ERC6551

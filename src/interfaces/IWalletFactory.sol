@@ -26,9 +26,9 @@ interface IWalletFactory {
         address descriptor
     ) external returns (address);
 
-    function create(address nftAddress, string memory tokenUri) external returns (uint256 tokenId, address tba);
+    function create(address nftAddress) external returns (uint256 tokenId, address tba);
 
-    function createFor(address nftAddress, string memory tokenUri, address receiver) external returns (uint256, address);
+    function createFor(address nftAddress, address receiver) external returns (uint256, address);
 
     function createTBA(address nftAddress, uint256 tokenId, uint256 chainId) external;
 

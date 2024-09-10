@@ -174,26 +174,24 @@ contract WalletFactory is IERC721Receiver, IWalletFactory, UUPSUpgradeable, Acce
     /**
      * Create wallet of a specific collection with an URI for msg.sender
      * @param nftAddress collection managed by factory
-     * @param tokenUri tokenURI
      * @return tokenId 
      * @return tba - token bound account
      */
-    function create(address nftAddress, string memory tokenUri) public returns (uint256 tokenId, address tba){
-        return createFor(nftAddress, tokenUri, msg.sender);
+    function create(address nftAddress) public returns (uint256 tokenId, address tba){
+        return createFor(nftAddress, msg.sender);
     }
 
     /**
      * Create wallet of a specific collection with an URI for a specific user
      * @param nftAddress collection managed by factory
-     * @param tokenUri tokenURI
      * @param receiver receiver
      * @return tokenId 
      * @return tba - token bound account 
      */
-    function createFor(address nftAddress, string memory tokenUri, address receiver) public override returns (uint256, address) {
+    function createFor(address nftAddress, address receiver) public override returns (uint256, address) {
         if (receiver == address(0)) revert InvalidInput();
         
-        uint256 tokenId = ICollection(nftAddress).safeMint(receiver, tokenUri);
+        uint256 tokenId = ICollection(nftAddress).safeMint(receiver);
         address tba = _createAndInitializeTBA(nftAddress, tokenId, block.chainid);
 
         if (Ownable(tba).owner() != receiver) revert DeployedWallet();

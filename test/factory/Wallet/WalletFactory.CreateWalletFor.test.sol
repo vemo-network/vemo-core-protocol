@@ -15,7 +15,6 @@ contract WalletFactoryCreateForTest is Test, WalletFactoryBaseTest {
         address nftAddress = walletFactory.walletCollections(uint160(address(usdt)));
         (uint256 tokenId, address _tba) = walletFactory.createFor(
             nftAddress,
-            "abcdef",
             address(userReceiver)
         );
         vm.stopPrank();

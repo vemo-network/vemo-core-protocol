@@ -11,7 +11,6 @@ import "../interfaces/IWalletFactory.sol";
 
 contract VemoWalletCollection is ERC721, Ownable {
     uint256 private _nextTokenId;
-    mapping(uint256 => string) private _tokenURIs;
     address immutable public descriptor;
     address immutable public walletFactory;
 
@@ -33,15 +32,10 @@ contract VemoWalletCollection is ERC721, Ownable {
         (,,owner,,,,) = ICollectionDeployer(msg.sender).parameters();
     }
 
-    function safeMint(address to, string memory uri) public onlyOwner returns (uint256 tokenId){
+    function safeMint(address to) public onlyOwner returns (uint256 tokenId){
         tokenId = _nextTokenId++;
 
         _safeMint(to, tokenId);
-        _setTokenURI(tokenId, uri);
-    }
-
-    function _setTokenURI(uint256 tokenId, string memory uri) internal {
-        _tokenURIs[tokenId] = uri;
     }
 
     function tokenURI(uint256 tokenId) public view override returns (string memory) {

@@ -129,7 +129,7 @@ contract DelegationCollectionTest is Test {
             address(vemoCollectionDescriptor)
         );
         
-        (uint256 tokenId, address _tba) = walletFactory.create(nftAddress, "");
+        (uint256 tokenId, address _tba) = walletFactory.create(nftAddress);
 
         // create delegate collection
         address dlgCollection = walletFactory.createDelegateCollection(
@@ -194,7 +194,7 @@ contract DelegationCollectionTest is Test {
             address(vemoCollectionDescriptor)
         );
         
-        (uint256 tokenId, address _tba) = walletFactory.create(nftAddress, "");
+        (uint256 tokenId, address _tba) = walletFactory.create(nftAddress);
 
         // create delegate collection
         address dlgCollection = walletFactory.createDelegateCollection(
