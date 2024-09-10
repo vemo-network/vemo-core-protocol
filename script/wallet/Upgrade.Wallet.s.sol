@@ -45,10 +45,10 @@ import {VePendleTerm} from "../../src/terms/VePendleTerm.sol";
 
   collectionRegistry is set to WalletFatory  0xba56F3A85080c48Bbd9687A77b12c8fB00411dD2
   vemoNFTdescriptor  0x92C301E70Ee2062960D6A8456ea9f340AD2F79a9
-  vemoCollection  0x06450eE3D2013A1cA3712d0e48691475F3Ac9AF1
-  vePendle voter  0x094b8880C2F318f866Cf704cF5a89B541157407B
   term  0xE5dfC61304fFC39f1B464dd3eF4FCc36679242c7
   descriptor  0x75aF44Cf66e63FaE6E27DF3B5F9b4AA57330F80B
+  vemoCollection  0xc39A10aB32A1c7578948f13EaD465dB2045D8d29
+  vePendle voter  0xC6eAa9fDBA43eD591437845260e99f77B1Ec3A79
  */
 
 contract DeployVemoWalletSC is Script {
@@ -69,6 +69,7 @@ contract DeployVemoWalletSC is Script {
 
     // entrypoint for ERC4337, if there is no erc4337 protocol, leave it zero
     address entrypointERC4337 = 0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789;
+    uint160 vemoCollectionIndex = 2;
 
     function run() public {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
@@ -117,15 +118,6 @@ contract DeployVemoWalletSC is Script {
         return address(factory);
     }
 
-
-    /**
-     * There are 4 parts of Role module
-        - collectionRegistry  0xD8C9587bB79a27c2307845E4427A172F8393c022
-        - new Vemo NFT account  0x2C3E236EAE4e8E0a5901a088ABD2bddC33F7D014
-        - nftDlgAddress  0x2C3E236EAE4e8E0a5901a088ABD2bddC33F7D014
-        - term  0xc97A3CC29D383cE05E7DcA3fAd3e0B8DE9260d20
-        - descriptor  0x03b2C4c788ECca804100F706C0646e831CB5227f
-    */
     function deployVemoRoleModule(WalletFactory proxy, AccountGuardian guardian) public {
         // Deploy collection registry
         CollectionDeployer collectionRegistry = new CollectionDeployer{salt: bytes32(salt)}(walletFactoryProxy);
@@ -142,7 +134,7 @@ contract DeployVemoWalletSC is Script {
         );
 
         address vemoCollection = proxy.createWalletCollection(
-            uint160(salt),
+            uint160(salt) + vemoCollectionIndex,
             "Vemo NFT Account",
             "VNA",
             vemoNFTdescriptor
