@@ -7,7 +7,6 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "../interfaces/IAccountGuardian.sol";
 import "@solidity-bytes-utils/BytesLib.sol";
 import {IERC20, SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "forge-std/console.sol";
 /**
  * @title VePendleTerm
  * @notice Strategy to check if a call from delegate NFT of a TBA can be executed
@@ -121,8 +120,6 @@ contract VePendleTerm is IExecutionTerm, UUPSUpgradeable, OwnableUpgradeable {
                 break;
             }
         }
-
-        console.log("isValidSelector ", isValidSelector);
 
         if (!isValidSelector) {
             return (false, 2); // "invalid function selector"

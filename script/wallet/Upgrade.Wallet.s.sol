@@ -140,7 +140,7 @@ contract DeployVemoWalletSC is Script {
         //     0x92C301E70Ee2062960D6A8456ea9f340AD2F79a9
         // );
         // 0xc7b869d9BB168aa99B2E482C0aAE5582C2aCEEE2
-        address vemoCollection = 0xa815Fd40821b722765Daa326177E3832703C390f;
+        // address vemoCollection = 0xa815Fd40821b722765Daa326177E3832703C390f;
         // proxy.createFor(vemoCollection, 0x308C6c08735c5cB323FC78b956Dcae19CC008608);
         // deploy a new  descriptor
         // address descriptor = Upgrades.deployUUPSProxy(
@@ -166,16 +166,16 @@ contract DeployVemoWalletSC is Script {
 
         // term  0xE5dfC61304fFC39f1B464dd3eF4FCc36679242c7
         // descriptor  0x75aF44Cf66e63FaE6E27DF3B5F9b4AA57330F80B
-        address nftDlgAddress = proxy.createDelegateCollection(
-            "vePENDLE Voter",
-            "VPV",
-            0x75aF44Cf66e63FaE6E27DF3B5F9b4AA57330F80B, 
-            0xE5dfC61304fFC39f1B464dd3eF4FCc36679242c7,
-            vemoCollection
-        );
+        // address nftDlgAddress = proxy.createDelegateCollection(
+        //     "vePENDLE Voter",
+        //     "VPV",
+        //     0x75aF44Cf66e63FaE6E27DF3B5F9b4AA57330F80B, 
+        //     0xE5dfC61304fFC39f1B464dd3eF4FCc36679242c7,
+        //     vemoCollection
+        // );
 
         // console.log("vemoNFTdescriptor ", vemoNFTdescriptor);
-        console.log("vemoCollection ", vemoCollection);
+        // console.log("vemoCollection ", vemoCollection);
         // console.log("vePendle voter ", nftDlgAddress);
         // console.log("term ", term);
         // console.log("descriptor ", descriptor);
