@@ -191,9 +191,12 @@ contract AccountRoleTest is Test {
         vm.expectRevert(NotAuthorized.selector);
         NFTAccountDelegable(payable(_tba)).execute(vm.addr(2), 0.1 ether, "", 0);
 
+        assertEq(_tba.balance, 1 ether);
         NFTAccountDelegable(payable(_tba)).delegateExecute(dlgCollection, vm.addr(2), 0.1 ether, "", "");
+        assertEq(_tba.balance, 1 ether - 0.1 ether);
+        assertEq(vm.addr(2).balance, 0.1 ether);
 
-        vm.startPrank(user);
+        // verify signature
         bytes32 hash = keccak256("This is a signed message");
         (uint8 v1, bytes32 r1, bytes32 s1) = vm.sign(2, hash);
 

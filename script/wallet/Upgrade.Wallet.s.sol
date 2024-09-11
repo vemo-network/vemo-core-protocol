@@ -43,12 +43,12 @@ import {VePendleTerm} from "../../src/terms/VePendleTerm.sol";
   account registry  0x000000006551c19487814612e58FE06813775758
   wallet factory proxy  0x5A72A673f0621dC3b39B59084a72b95706E75EFd
 
-  collectionRegistry is set to WalletFatory  0xba56F3A85080c48Bbd9687A77b12c8fB00411dD2
+  collectionDeployer  0xa9457218CeD3Dcdd2ab54dFAe020b32da9480A19
   vemoNFTdescriptor  0x92C301E70Ee2062960D6A8456ea9f340AD2F79a9
   term  0xE5dfC61304fFC39f1B464dd3eF4FCc36679242c7
   descriptor  0x75aF44Cf66e63FaE6E27DF3B5F9b4AA57330F80B
   vemoCollection  0xa815Fd40821b722765Daa326177E3832703C390f
-  vePendle voter  0xf9ad84fE8e4Cf9A521369650E29000F621dB7C90
+  vePendle voter  0xe199E125a3cCA16A688D964C555b457Bdf7C6125
  */
 
 contract DeployVemoWalletSC is Script {
@@ -120,9 +120,9 @@ contract DeployVemoWalletSC is Script {
 
     function deployVemoRoleModule(WalletFactory proxy, AccountGuardian guardian) public {
         // Deploy collection registry
-        // CollectionDeployer collectionRegistry = new CollectionDeployer{salt: bytes32(salt)}(walletFactoryProxy);
-        // proxy.setCollectionDeployer(address(collectionRegistry));
-        // console.log("collectionRegistry is set to WalletFatory ", address(collectionRegistry));
+        CollectionDeployer collectionRegistry = new CollectionDeployer{salt: bytes32(salt)}(walletFactoryProxy);
+        proxy.setCollectionDeployer(address(collectionRegistry));
+        console.log("CollectionDeployer is set to WalletFatory ", address(collectionRegistry));
 
         // vemo NFT account collection 
         // address vemoNFTdescriptor = Upgrades.deployUUPSProxy(
@@ -166,13 +166,13 @@ contract DeployVemoWalletSC is Script {
 
         // term  0xE5dfC61304fFC39f1B464dd3eF4FCc36679242c7
         // descriptor  0x75aF44Cf66e63FaE6E27DF3B5F9b4AA57330F80B
-        // address nftDlgAddress = proxy.createDelegateCollection(
-        //     "vePENDLE Voter",
-        //     "VPV",
-        //     0x75aF44Cf66e63FaE6E27DF3B5F9b4AA57330F80B, 
-        //     0xE5dfC61304fFC39f1B464dd3eF4FCc36679242c7,
-        //     vemoCollection
-        // );
+        address nftDlgAddress = proxy.createDelegateCollection(
+            "vePENDLE Voter",
+            "VPV",
+            0x75aF44Cf66e63FaE6E27DF3B5F9b4AA57330F80B, 
+            0xE5dfC61304fFC39f1B464dd3eF4FCc36679242c7,
+            0xa815Fd40821b722765Daa326177E3832703C390f
+        );
 
         // console.log("vemoNFTdescriptor ", vemoNFTdescriptor);
         // console.log("vemoCollection ", vemoCollection);
