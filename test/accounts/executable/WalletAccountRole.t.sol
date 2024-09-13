@@ -111,8 +111,6 @@ contract AccountRoleTest is Test {
             )
         )));
 
-        guardian.setTrustedImplementation(address(term), true);
-
         collectionDeployer = new CollectionDeployer(walletProxy);
 
         // init vePendle term and mock pendle reward
@@ -264,9 +262,6 @@ contract AccountRoleTest is Test {
             ),
             ""
         );
-
-        uint16 splitRatio = 1; // 0.01%
-        uint256 rewardAmount = 1 ether;
         
         assertEq(address(user).balance, 1 ether / 10000);
         assertEq(address(_tba).balance, 1 ether -  (1 ether / 10000));

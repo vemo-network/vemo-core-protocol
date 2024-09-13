@@ -10,7 +10,7 @@ contract Factory is Test {
         string calldata symbol,
         IFactory.CollectionSettings calldata settings,
         IFactory.CollectionKind kind
-    ) external returns (address collection) {
+    ) external pure returns (address collection) {
         return vm.addr(uint256(keccak256(abi.encodePacked(name, symbol))));
     }
 }

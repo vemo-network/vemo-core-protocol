@@ -175,8 +175,8 @@ contract NFTAccountDelegable is AccountV3, UUPSUpgradeable {
         return NFTRoles.get(delegation) > 0;
     }
 
-    function delegates(address last, uint limit) public view returns(address[] memory delegates) {
-        (delegates,) = NFTRoles.entries(last, limit);
+    function delegates(address last, uint limit) public view returns(address[] memory _delegates) {
+        (_delegates,) = NFTRoles.entries(last, limit);
     }
 
     // trustless: can be called by anyone

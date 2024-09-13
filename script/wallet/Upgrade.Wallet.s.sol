@@ -49,7 +49,46 @@ import {VePendleTerm} from "../../src/terms/VePendleTerm.sol";
   descriptor  0x75aF44Cf66e63FaE6E27DF3B5F9b4AA57330F80B
   vemoCollection  0xa815Fd40821b722765Daa326177E3832703C390f
   vePendle voter  0xe199E125a3cCA16A688D964C555b457Bdf7C6125
+
  */
+
+/**
+ * Ethereum deployment 
+ * walletfactory upgrade to implementation: 0x2e68609AfDFCEEd1A901A5832860c22277D2aAbd 
+
+  account v3 upgraded to  0x42ea7f52E9D80637eB05a1Df4b067A182bD31AB5
+  CollectionDeployer is set to WalletFatory  0xa9457218CeD3Dcdd2ab54dFAe020b32da9480A19
+  vemoNFTdescriptor  0x2a5782937c1ffDBe22a8f1236c730f6f6a84908E
+  vemoCollection  0x7aBD3fb92c722659CAf9A9692e94BcAA651F9759
+  vePendle voter  0x90ba36e80bEAB9F32b81AE3E37A5Cc89BEfCd118
+  term  0x3dA87E0397acca76a7F21C6ceC1E61B576343a31
+  descriptor  0xE5dfC61304fFC39f1B464dd3eF4FCc36679242c7
+ */
+
+struct VeBalance {
+    uint128 bias;
+    uint128 slope;
+}
+
+struct UserPoolData {
+    uint64 weight;
+    VeBalance vote;
+}
+interface IPendleVoting {
+    function vote(address[] memory pools, uint64[] memory weights) external; // total weights  = 1e18
+    function getUserPoolVote(address user, address pool) external view returns (UserPoolData memory);
+}
+
+interface IPendleGaugeController {
+}
+
+interface IPendleRewardManager {
+    function claimRetail(
+        address receiver,
+        uint256 totalAccrued,
+        bytes32[] calldata proof
+    ) external returns (uint256 amountOut);
+}
 
 contract DeployVemoWalletSC is Script {
     // a Prime
@@ -69,30 +108,29 @@ contract DeployVemoWalletSC is Script {
 
     // entrypoint for ERC4337, if there is no erc4337 protocol, leave it zero
     address entrypointERC4337 = 0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789;
-    uint160 vemoCollectionIndex = 123456;
+    uint160 vemoCollectionIndex = 123456; // current using on production
 
     function run() public {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         vm.startBroadcast(deployerPrivateKey);
 
         // upgrade walletFactory
-        // upgradeWalletFactory();
+        upgradeWalletFactory();
         WalletFactory proxy = WalletFactory(payable(walletFactoryProxy));
 
-        // /**
-        //  * Deploy new VemoWallet implementation
-        //  */
+        /**
+         * Deploy new VemoWallet implementation
+         */
         AccountGuardian guardian = AccountGuardian(guardianAddress);
-        // // address accountv3Implementation = 0x42ea7f52E9D80637eB05a1Df4b067A182bD31AB5;
-        // NFTAccountDelegable accountv3Implementation = new NFTAccountDelegable(
-        //     address(entrypointERC4337), address(forwarder), address(registry), address(guardian)
-        // );
+        NFTAccountDelegable accountv3Implementation = new NFTAccountDelegable(
+            address(entrypointERC4337), address(forwarder), address(registry), address(guardian)
+        );
 
-        // // whitelist new implementation
-        // guardian.setTrustedImplementation(address(accountv3Implementation), true);
-        // proxy.setWalletImpl(address(accountv3Implementation));
+        // whitelist new implementation
+        guardian.setTrustedImplementation(address(accountv3Implementation), true);
+        proxy.setWalletImpl(address(accountv3Implementation));
 
-        // console2.log("account v3 upgraded to ", address(accountv3Implementation));
+        console2.log("account v3 upgraded to ", address(accountv3Implementation));
 
         /**
          * deploy new components for role module including
@@ -119,66 +157,91 @@ contract DeployVemoWalletSC is Script {
     }
 
     function deployVemoRoleModule(WalletFactory proxy, AccountGuardian guardian) public {
-        // Deploy collection registry
-        CollectionDeployer collectionRegistry = new CollectionDeployer{salt: bytes32(salt)}(walletFactoryProxy);
-        proxy.setCollectionDeployer(address(collectionRegistry));
-        console.log("CollectionDeployer is set to WalletFatory ", address(collectionRegistry));
+        // Deploy collection deployer
+        CollectionDeployer collectionDeployer = new CollectionDeployer{salt: bytes32(salt)}(walletFactoryProxy);
+        proxy.setCollectionDeployer(address(collectionDeployer));
+        console.log("CollectionDeployer is set to WalletFatory ", address(collectionDeployer));
 
-        // vemo NFT account collection 
-        // address vemoNFTdescriptor = Upgrades.deployUUPSProxy(
-        //     "NFTAccountDescriptor.sol:NFTAccountDescriptor",
-        //     abi.encodeCall(
-        //         NFTAccountDescriptor.initialize,
-        //         owner
-        //     )
-        // );
-
-        // address vemoCollection = proxy.createWalletCollection(
-        //     uint160(salt) + vemoCollectionIndex,
-        //     "Vemo NFT Account",
-        //     "VNA",
-        //     0x92C301E70Ee2062960D6A8456ea9f340AD2F79a9
-        // );
-        // 0xc7b869d9BB168aa99B2E482C0aAE5582C2aCEEE2
-        // address vemoCollection = 0xa815Fd40821b722765Daa326177E3832703C390f;
-        // proxy.createFor(vemoCollection, 0x308C6c08735c5cB323FC78b956Dcae19CC008608);
-        // deploy a new  descriptor
-        // address descriptor = Upgrades.deployUUPSProxy(
-        //     "NFTDelegationDescriptor.sol:NFTDelegationDescriptor",
-        //     abi.encodeCall(
-        //         NFTDelegationDescriptor.initialize,
-        //         owner
-        //     )
-        // );
-
-        // // // deploy a new term
-        // address term = Upgrades.deployUUPSProxy(
-        //     "VePendleTerm.sol:VePendleTerm",
-        //     abi.encodeCall(
-        //         VePendleTerm.initialize,
-        //         (
-        //             owner,
-        //             address(proxy),
-        //             address(guardian)
-        //         )
-        //     )
-        // );
-
-        // term  0xE5dfC61304fFC39f1B464dd3eF4FCc36679242c7
-        // descriptor  0x75aF44Cf66e63FaE6E27DF3B5F9b4AA57330F80B
-        address nftDlgAddress = proxy.createDelegateCollection(
-            "vePENDLE Voter",
-            "VPV",
-            0x75aF44Cf66e63FaE6E27DF3B5F9b4AA57330F80B, 
-            0xE5dfC61304fFC39f1B464dd3eF4FCc36679242c7,
-            0xa815Fd40821b722765Daa326177E3832703C390f
+        //vemo NFT account collection 
+        address vemoNFTdescriptor = Upgrades.deployUUPSProxy(
+            "NFTAccountDescriptor.sol:NFTAccountDescriptor",
+            abi.encodeCall(
+                NFTAccountDescriptor.initialize,
+                owner
+            )
         );
 
-        // console.log("vemoNFTdescriptor ", vemoNFTdescriptor);
-        // console.log("vemoCollection ", vemoCollection);
-        // console.log("vePendle voter ", nftDlgAddress);
-        // console.log("term ", term);
-        // console.log("descriptor ", descriptor);
+        address vemoCollection = proxy.createWalletCollection(
+            uint160(salt) + vemoCollectionIndex,
+            "Vemo NFT Account Ethereum",
+            "VNA",
+            0x92C301E70Ee2062960D6A8456ea9f340AD2F79a9
+        );
+
+        proxy.createFor(vemoCollection, owner);
+
+        // deploy a new  descriptor
+        address descriptor = Upgrades.deployUUPSProxy(
+            "NFTDelegationDescriptor.sol:NFTDelegationDescriptor",
+            abi.encodeCall(
+                NFTDelegationDescriptor.initialize,
+                owner
+            )
+        );
+
+        // deploy a new term
+        address term = Upgrades.deployUUPSProxy(
+            "VePendleTerm.sol:VePendleTerm",
+            abi.encodeCall(
+                VePendleTerm.initialize,
+                (
+                    owner,
+                    address(proxy),
+                    address(guardian)
+                )
+            )
+        );
+        trySetvePendleProperties(VePendleTerm(payable(term)));
+
+        //term  0xE5dfC61304fFC39f1B464dd3eF4FCc36679242c7
+        //descriptor  0x75aF44Cf66e63FaE6E27DF3B5F9b4AA57330F80B
+        address nftDlgAddress = proxy.createDelegateCollection(
+            "vePENDLE Voter Ethereum",
+            "VPV",
+            descriptor, 
+            term,
+            vemoCollection
+        );
+
+        console.log("vemoNFTdescriptor ", vemoNFTdescriptor);
+        console.log("vemoCollection ", vemoCollection);
+        console.log("vePendle voter ", nftDlgAddress);
+        console.log("term ", term);
+        console.log("descriptor ", descriptor);
+    }
+
+    function trySetvePendleProperties(VePendleTerm term) public {
+        IPendleVoting PENDLE_VOTING = IPendleVoting(0x44087E105137a5095c008AaB6a6530182821F2F0);
+        IPendleRewardManager REWARD_MANAGER = IPendleRewardManager(0x8C237520a8E14D658170A633D96F8e80764433b9);
+        
+        address[] memory whitelist = new address[](2);
+        bytes4[] memory selectors = new bytes4[](2);
+        bytes4[] memory _harvestSelectors = new bytes4[](1);
+
+        // allow calling those methods
+        selectors[0] = PENDLE_VOTING.vote.selector;
+        selectors[1] = IPendleRewardManager.claimRetail.selector;
+        _harvestSelectors[0] = IPendleRewardManager.claimRetail.selector;
+
+        // allow calling to pendle voting and reward manager
+        whitelist[0] = address(PENDLE_VOTING);
+        whitelist[1] = address(REWARD_MANAGER);
+
+        // reward is eth
+        address[] memory _rewardAssets_ = new address[](1);
+        _rewardAssets_[0] = address(0);
+
+        term.setTermProperties(address(0), selectors, _harvestSelectors, whitelist, _rewardAssets_ );
     }
     
 }
