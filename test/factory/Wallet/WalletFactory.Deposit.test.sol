@@ -13,7 +13,7 @@ contract WalletFactorDepositTest is Test, WalletFactoryBaseTest {
     function testSingleCreate() public {
         vm.startPrank(user);
         address nftAddress = walletFactory.walletCollections(uint160(address(usdt)));
-        (uint256 tokenId, address _tba) = walletFactory.createFor(
+        (uint256 tokenId,) = walletFactory.createFor(
             nftAddress,
             address(userReceiver)
         );

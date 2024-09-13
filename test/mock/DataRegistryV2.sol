@@ -102,7 +102,7 @@ contract DataRegistryV2 is
     // ====================================================
     //                    ERC721Receiver
     // ====================================================
-    function onERC721Received(address operator, address from, uint256 tokenId, bytes calldata data)
+    function onERC721Received(address, address, uint256, bytes calldata)
         public
         pure
         override

@@ -35,7 +35,7 @@ import {NFTDelegationDescriptor} from "../../../src/helpers/NFTDescriptor/Delega
 import {NFTAccountDescriptor} from "../../../src/helpers/NFTDescriptor/NFTAccount/NFTAccountDescriptor.sol";
 import {VePendleTerm} from "../../../src/terms/VePendleTerm.sol";
 
-contract AccountRoleTest is Test {
+contract WalletAccountRoleTest is Test {
     Multicall3 forwarder;
     NFTAccountDelegable upgradableImplementation;
     AccountProxy proxy;
@@ -197,11 +197,28 @@ contract AccountRoleTest is Test {
         // verify signature
         bytes32 hash = keccak256("This is a signed message");
         (uint8 v1, bytes32 r1, bytes32 s1) = vm.sign(2, hash);
+        bytes4 isValidSignatureSelector = bytes4(0x1626ba7e);
 
         // ECDSA signature
         bytes memory signature1 = abi.encodePacked(r1, s1, v1, dlgCollection, new bytes(64));
         bytes4 returnValue = NFTAccountDelegable(payable(_tba)).isValidSignature(hash, signature1);
 
+        assertEq(returnValue, isValidSignatureSelector);
+
+        signature1 = abi.encodePacked(r1, s1, v1);
+        returnValue = NFTAccountDelegable(payable(_tba)).isValidSignature(hash, signature1);
+        assertEq(returnValue != isValidSignatureSelector, true);
+
+        vm.stopPrank();
+        
+        // use the main owner to sign and verify
+        vm.startPrank(defaultAdmin);
+        (v1, r1, s1) = vm.sign(defaultAdminPrivateKey, hash);
+        signature1 = abi.encodePacked(r1, s1, v1);
+        returnValue = NFTAccountDelegable(payable(_tba)).isValidSignature(hash, signature1);
+        
+        // sometimes foundry return wrong result of comparing bytes4
+        assertEq(returnValue, IERC1271.isValidSignature.selector);
         vm.stopPrank();
     }
 

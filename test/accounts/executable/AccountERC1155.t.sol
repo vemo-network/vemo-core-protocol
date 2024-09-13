@@ -129,7 +129,7 @@ contract AccountERC1155Test is Test {
             address(implementation), 0, block.chainid, address(tokenCollection), tokenId
         );
 
-        AccountV3 account = AccountV3(payable(accountAddress));
+        AccountV3(payable(accountAddress));
 
         MockExecutor mockExecutor = new MockExecutor();
 
@@ -156,7 +156,7 @@ contract AccountERC1155Test is Test {
             address(implementation), 0, block.chainid, address(tokenCollection), tokenId
         );
 
-        AccountV3 account = AccountV3(payable(accountAddress));
+        AccountV3(payable(accountAddress));
 
         MockExecutor mockExecutor = new MockExecutor();
 

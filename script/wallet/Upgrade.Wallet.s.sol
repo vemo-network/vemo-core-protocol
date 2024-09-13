@@ -34,7 +34,7 @@ import {VePendleTerm} from "../../src/terms/VePendleTerm.sol";
   account registry  0x000000006551c19487814612e58FE06813775758
   wallet factory proxy  0x5A72A673f0621dC3b39B59084a72b95706E75EFd
 
-  ------------
+  ------------ ARB
   walletfactory address: 0x2D675d0C90D39751FA33d7b2498D556142590a36 
   WalletFactory Proxy address: 0x5A72A673f0621dC3b39B59084a72b95706E75EFd 
   guardian  0xC833002b8179716Ae225B7a2B3DA463C47B14F76
@@ -62,7 +62,7 @@ import {VePendleTerm} from "../../src/terms/VePendleTerm.sol";
   vemoCollection  0x7aBD3fb92c722659CAf9A9692e94BcAA651F9759
   vePendle voter  0x90ba36e80bEAB9F32b81AE3E37A5Cc89BEfCd118
   term  0x3dA87E0397acca76a7F21C6ceC1E61B576343a31
-  descriptor  0xE5dfC61304fFC39f1B464dd3eF4FCc36679242c7
+  descriptor  0xE5dfC61304fFC39f1B464dd3eF4FCc36679242c7 // ???
  */
 
 struct VeBalance {
@@ -115,7 +115,7 @@ contract DeployVemoWalletSC is Script {
         vm.startBroadcast(deployerPrivateKey);
 
         // upgrade walletFactory
-        upgradeWalletFactory();
+        // upgradeWalletFactory();
         WalletFactory proxy = WalletFactory(payable(walletFactoryProxy));
 
         /**
@@ -139,7 +139,15 @@ contract DeployVemoWalletSC is Script {
          * 3. vependleterm
          * 4. NFT delegation collection
          * */
-        deployVemoRoleModule(proxy, guardian);
+        // deployVemoRoleModule(proxy, guardian);
+
+        // upgrade term
+        VePendleTerm vePendleTermImpl = new VePendleTerm();
+        VePendleTerm termProxy = VePendleTerm(payable(0xE5dfC61304fFC39f1B464dd3eF4FCc36679242c7));
+
+        bytes memory data;
+        termProxy.upgradeToAndCall(address(vePendleTermImpl), data);
+
 
         vm.stopBroadcast();
     }
@@ -201,7 +209,7 @@ contract DeployVemoWalletSC is Script {
                 )
             )
         );
-        trySetvePendleProperties(VePendleTerm(payable(term)));
+        // trySetvePendleProperties(VePendleTerm(payable(term)));
 
         //term  0xE5dfC61304fFC39f1B464dd3eF4FCc36679242c7
         //descriptor  0x75aF44Cf66e63FaE6E27DF3B5F9b4AA57330F80B
@@ -242,6 +250,10 @@ contract DeployVemoWalletSC is Script {
         _rewardAssets_[0] = address(0);
 
         term.setTermProperties(address(0), selectors, _harvestSelectors, whitelist, _rewardAssets_ );
+    }
+
+    function upgradeTermInterface() public {
+
     }
     
 }

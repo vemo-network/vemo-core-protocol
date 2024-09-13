@@ -23,6 +23,9 @@ contract VePendleTerm is IExecutionTerm, UUPSUpgradeable, OwnableUpgradeable {
     bytes4[] public harvestSelectors;
     uint16 public splitRatio; // for farmer - 1 bps = 0.01%, 100% = 10000 
 
+    error NonWhitelistTarget();
+    error NonWhitelistAction();
+
     function initialize(
         address _owner,
         address _walletFactory,
@@ -94,7 +97,7 @@ contract VePendleTerm is IExecutionTerm, UUPSUpgradeable, OwnableUpgradeable {
         external
         override
         view
-        returns (bool,uint8)
+        // returns (bool,uint8)
     {
         bool isWhitelisted = whitelist.length > 0 ? false : true;
 
@@ -104,9 +107,7 @@ contract VePendleTerm is IExecutionTerm, UUPSUpgradeable, OwnableUpgradeable {
                 break;
             }
         }
-        if (!isWhitelisted) {
-            return (false, 1); // "to address not whitelisted"
-        }
+        if (!isWhitelisted) revert NonWhitelistTarget();
 
         bytes4 selector;
         assembly {
@@ -121,11 +122,8 @@ contract VePendleTerm is IExecutionTerm, UUPSUpgradeable, OwnableUpgradeable {
             }
         }
 
-        if (!isValidSelector) {
-            return (false, 2); // "invalid function selector"
-        }
+        if (!isValidSelector) revert NonWhitelistAction();
 
-        return (true, 0); //success
     }
 
     function _authorizeUpgrade(address newImplementation) internal onlyOwner virtual override {

@@ -60,7 +60,6 @@ contract FactoryCreateForTest is Test, VoucherFactoryBaseTest {
     }
 
     function testCreateVoucher() public {
-        USDT lockToken = new USDT();
         address autoURICollection = voucherFactory.createAutoURIVoucherCollection(
             address(lockToken),
             address(globalDescriptor)

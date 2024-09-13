@@ -55,10 +55,9 @@ contract NFTAccountDelegable is AccountV3, UUPSUpgradeable {
         if (IERC721(delegateCollection).ownerOf(tokenId) != _msgSender()) revert InvalidImplementation();
 
         address term = IDelegationCollection(delegateCollection).term();
-        (bool canExecute, uint8 errorCode) =  IExecutionTerm(term).canExecute(to, value, executeData);
-
-        if (!canExecute) revert InvalidImplementation();
         
+        IExecutionTerm(term).canExecute(to, value, executeData);
+
         if (IExecutionTerm(term).isHarvesting(to, value, executeData)) {
             return _harvestAndDistributeReward(term, delegateCollection, to, value, executeData);
         }

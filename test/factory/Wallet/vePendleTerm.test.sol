@@ -22,16 +22,11 @@ contract VePendleTermTest is Test {
 
     function testCanExecute_ValidWhitelistedAddressAndSelector() public {
         bytes memory data = abi.encodeWithSelector(validSelector, whitelistedAddress, 100);
-        (bool success, uint8 errorCode) = vePendleTerm.canExecute(whitelistedAddress, 0, data);
+        vePendleTerm.canExecute(whitelistedAddress, 0, data);
         
-        assertTrue(success);
-        assertEq(errorCode, 0);
-
         setTermProperties();
 
-        (success, errorCode) = vePendleTerm.canExecute(whitelistedAddress, 0, data);
-        assertTrue(success);
-        assertEq(errorCode, 0);
+        vePendleTerm.canExecute(whitelistedAddress, 0, data);
     }
 
     function setTermProperties() internal {
@@ -51,46 +46,31 @@ contract VePendleTermTest is Test {
 
     function testCanExecute_NonWhitelistedAddress() public {
         bytes memory data = abi.encodeWithSelector(validSelector, nonWhitelistedAddress, 100);
-        (bool success, uint8 errorCode) = vePendleTerm.canExecute(address(0), 0, data);
-        
-        assertTrue(success);
-        assertEq(errorCode, 0);
+        vePendleTerm.canExecute(address(0), 0, data);
 
         setTermProperties();
 
-        (success, errorCode) = vePendleTerm.canExecute(address(0), 0, data);
-        
-        assertFalse(success);
-        assertEq(errorCode, 1);
+        vm.expectRevert(bytes4(keccak256(abi.encodePacked("NonWhitelistTarget()"))));
+        vePendleTerm.canExecute(address(0), 0, data);
+
     }
 
     function testCanExecute_InvalidSelector() public {
         bytes memory data = abi.encodeWithSelector(invalidSelector, whitelistedAddress, 100);
-        
-        (bool success, uint8 errorCode) = vePendleTerm.canExecute(whitelistedAddress, 0, data);
-        
-        assertTrue(success);
-        assertEq(errorCode, 0);
+        vePendleTerm.canExecute(whitelistedAddress, 0, data);
 
         setTermProperties();
 
-        (success, errorCode) = vePendleTerm.canExecute(whitelistedAddress, 0, data);
-
-        assertFalse(success);
-        assertEq(errorCode, 2);
+        vm.expectRevert(bytes4(keccak256(abi.encodePacked("NonWhitelistAction()"))));
+        vePendleTerm.canExecute(whitelistedAddress, 0, data);
     }
 
     function testCanExecute_NonWhitelistedAddressAndInvalidSelector() public {
         bytes memory data = abi.encodeWithSelector(invalidSelector, nonWhitelistedAddress, 100);
-        (bool success, uint8 errorCode) = vePendleTerm.canExecute(nonWhitelistedAddress, 0, data);
-        
-        assertTrue(success);
-        assertEq(errorCode, 0);
-
+        vePendleTerm.canExecute(nonWhitelistedAddress, 0, data);
         setTermProperties();
 
-        (success, errorCode) = vePendleTerm.canExecute(nonWhitelistedAddress, 0, data);
-        assertFalse(success);
-        assertEq(errorCode, 1);
+        vm.expectRevert(bytes4(keccak256(abi.encodePacked("NonWhitelistTarget()"))));
+        vePendleTerm.canExecute(nonWhitelistedAddress, 0, data);
     }
 }

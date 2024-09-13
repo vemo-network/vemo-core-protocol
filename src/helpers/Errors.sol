@@ -22,3 +22,5 @@ error DeployedWallet();
 error IssuedByOtherFactory();
 error InvalidDepositValue();
 error InvalidDescriptor();
+error ForbiddenTarget();
+error ForbiddenAction();

@@ -38,7 +38,7 @@ contract WalletFactoryUtilsTest is Test, WalletFactoryBaseTest {
     function testCreateWalletCollection() public {
         vm.startPrank(randomAdrr);
         vm.expectRevert();
-        address nft = walletFactory.createWalletCollection(
+        walletFactory.createWalletCollection(
             uint160(randomToken),
             "random",
             "random",

@@ -9,11 +9,11 @@ interface IExecutionTerm {
     
     function canExecute(address to, uint256 value, bytes calldata data)
         external
-        view
-        returns (
-            bool,
-            uint8
-        );
+        view;
+        // returns (
+        //     bool,
+        //     uint8
+        // );
     
     function isHarvesting(address to, uint256 value, bytes calldata data)
         external

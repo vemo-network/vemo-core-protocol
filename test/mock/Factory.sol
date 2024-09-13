@@ -11,6 +11,11 @@ contract Factory is Test {
         IFactory.CollectionSettings calldata settings,
         IFactory.CollectionKind kind
     ) external pure returns (address collection) {
+        // cost 4 gas
+        assembly {
+            pop(settings)
+            pop(kind)
+        }
         return vm.addr(uint256(keccak256(abi.encodePacked(name, symbol))));
     }
 }
