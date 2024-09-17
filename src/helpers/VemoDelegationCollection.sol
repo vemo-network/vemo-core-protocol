@@ -11,6 +11,7 @@ import "../interfaces/IExecutionTerm.sol";
 import "../interfaces/IDelegationCollection.sol";
 import "../interfaces/ICollectionDeployer.sol";
 
+import "forge-std/console.sol";
 /**
  * VemoDelegateCollection 
  * - ERC721
@@ -85,7 +86,7 @@ contract VemoDelegationCollection is ERC721, Ownable, IDelegationCollection  {
     function burn(uint256 tokenId) public virtual  {
         address _owner = _ownerOf(tokenId);
         address _tba = IWalletFactory(walletFactory).getTokenBoundAccount(issuer, tokenId);
-
+       
         if (_owner == tx.origin || 
             (
                 _tba == _msgSender() &&

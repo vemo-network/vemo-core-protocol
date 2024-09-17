@@ -163,7 +163,7 @@ contract NFTAccountDelegable is AccountV3, UUPSUpgradeable {
         IDelegationCollection(delegation).revoke(tokenId);
     }
 
-    function burn(address delegation) public onlyValidExecutor {
+    function burn(address delegation) public {
         (,,uint256 tokenId) = ERC6551AccountLib.token();
 
         IDelegationCollection(delegation).burn(tokenId);

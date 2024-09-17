@@ -219,10 +219,6 @@ contract DelegationCollectionTest is Test {
         //revoke only trigger by the TBA owner
         vm.startPrank(defaultAdmin);
         NFTAccountDelegable(payable(_tba)).revoke(dlgCollection);
-        // VemoDelegationCollection(dlgCollection).revoke(tokenId);
-        console.log(
-            VemoDelegationCollection(dlgCollection).revokingRoles(tokenId)
-        );
         skip(100);
 
         // revert in duration time
@@ -233,7 +229,6 @@ contract DelegationCollectionTest is Test {
         vm.startPrank(defaultAdmin);
         vm.expectRevert();
         NFTAccountDelegable(payable(_tba)).burn(dlgCollection);
-        // VemoDelegationCollection(dlgCollection).burn(tokenId);
 
         skip(9999999);
 
@@ -243,10 +238,18 @@ contract DelegationCollectionTest is Test {
 
         vm.startPrank(defaultAdmin);
         NFTAccountDelegable(payable(_tba)).burn(dlgCollection);
-        // VemoDelegationCollection(dlgCollection).burn(tokenId);
 
         // no longer exist
         vm.expectRevert();
         MockERC721(dlgCollection).ownerOf(tokenId);
+
+        // trigger burn is allow from nft' owner
+        vm.startPrank(defaultAdmin);
+        NFTAccountDelegable(payable(_tba)).delegate(dlgCollection, user);
+        assertEq(user, MockERC721(dlgCollection).ownerOf(tokenId));
+
+        // vm.startPrank(user);
+        // NFTAccountDelegable(payable(_tba)).burn(dlgCollection);
+
     }
 }

@@ -142,11 +142,11 @@ contract DeployVemoWalletSC is Script {
         // deployVemoRoleModule(proxy, guardian);
 
         // upgrade term
-        VePendleTerm vePendleTermImpl = new VePendleTerm();
-        VePendleTerm termProxy = VePendleTerm(payable(0xE5dfC61304fFC39f1B464dd3eF4FCc36679242c7));
+        // VePendleTerm vePendleTermImpl = new VePendleTerm();
+        // VePendleTerm termProxy = VePendleTerm(payable(0xE5dfC61304fFC39f1B464dd3eF4FCc36679242c7));
 
-        bytes memory data;
-        termProxy.upgradeToAndCall(address(vePendleTermImpl), data);
+        // bytes memory data;
+        // termProxy.upgradeToAndCall(address(vePendleTermImpl), data);
 
 
         vm.stopBroadcast();
