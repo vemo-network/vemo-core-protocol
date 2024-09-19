@@ -237,6 +237,8 @@ contract DelegationCollectionTest is Test {
         MockERC721(dlgCollection).transferFrom(user, user1, tokenId);
 
         vm.startPrank(defaultAdmin);
+        address[] memory delegates = NFTAccountDelegable(payable(_tba)).delegates(address(0), 999999);
+        assertEq(delegates[0], dlgCollection);
         NFTAccountDelegable(payable(_tba)).burn(dlgCollection);
 
         // no longer exist
@@ -246,10 +248,23 @@ contract DelegationCollectionTest is Test {
         // trigger burn is allow from nft' owner
         vm.startPrank(defaultAdmin);
         NFTAccountDelegable(payable(_tba)).delegate(dlgCollection, user);
+        delegates = NFTAccountDelegable(payable(_tba)).delegates(address(0), 999999);
+        assertEq(delegates[0], dlgCollection);
         assertEq(user, MockERC721(dlgCollection).ownerOf(tokenId));
 
-        // vm.startPrank(user);
-        // NFTAccountDelegable(payable(_tba)).burn(dlgCollection);
+        vm.startPrank(user, user);
+        assertEq(delegates[0], dlgCollection);
+        NFTAccountDelegable(payable(_tba)).burn(dlgCollection);
 
+        // burn the third times
+        vm.startPrank(defaultAdmin);
+        NFTAccountDelegable(payable(_tba)).delegate(dlgCollection, user);
+        delegates = NFTAccountDelegable(payable(_tba)).delegates(address(0), 999999);
+        assertEq(delegates[0], dlgCollection);
+        assertEq(user, MockERC721(dlgCollection).ownerOf(tokenId));
+
+        vm.startPrank(user, user);
+        assertEq(delegates[0], dlgCollection);
+        NFTAccountDelegable(payable(_tba)).burn(dlgCollection);
     }
 }
