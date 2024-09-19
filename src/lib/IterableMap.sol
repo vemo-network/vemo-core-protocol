@@ -37,12 +37,16 @@ library IterableMap {
     function set(Store storage store, address key, uint96 value) internal {
         require(key != NOA, "Zero Address");
         Value memory old = store.values[key];
+        if (old.value == value) {
+            return; // NOP
+        }
         if (old.next == NOA && old.value == 0) {
-            if (value == 0) {
-                return; // remove a non-existing key
+            // non-existing key or removed last key
+            address firstKey = store.first();
+            if (key != firstKey) {
+                store.values[key].next = firstKey;
+                store.setFirst(key);
             }
-            store.values[key].next = store.first();
-            store.setFirst(key);
         }
         store.values[key].value = value;
     }
