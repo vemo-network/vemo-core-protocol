@@ -221,8 +221,8 @@ contract AccountTest is Test {
 
         // fallback calls should revert if account is locked
         vm.prank(user1);
-        // (bool success, bytes memory result) =
-            // accountAddress.call(abi.encodeWithSignature("customFunction()"));
+        (bool success, bytes memory result) =
+            accountAddress.call(abi.encodeWithSignature("customFunction()"));
 
         // setOverrides calls should revert if account is locked
         {

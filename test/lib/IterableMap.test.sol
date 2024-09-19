@@ -7,7 +7,6 @@ import "../../src/lib/IterableMap.sol";
 
 contract IterableMapTest is Test {
     Store store;
-    Store store1;
     using IterableMap for Store;
 
     function setUp() public {
@@ -66,12 +65,10 @@ contract IterableMapTest is Test {
             assertEq(keysA[i], keysB[i], "keys");
             assertEq(valuesA[i], valuesB[i], "values");
         }
-
         
         // get/set/remove 5 times
         address testKey = 0x0000000000000000000000000000000000000011;
-        for (uint i = 0; i < 2; ++i) {
-            console.log("set/remove/entries times - ", i);
+        for (uint i = 1; i < 5; ++i) {
             store1.set(testKey, uint96(i));
             (address[] memory _keys, uint96[] memory _values) = store1.entries();
             assertEq(_values[0], uint96(i));
