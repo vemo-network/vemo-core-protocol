@@ -62,11 +62,15 @@ library IterableMap {
     /// loop through the single linked list and skip any empty value
     function entries(Store storage store, address last, uint limit) view internal returns (address[] memory keys, uint96[] memory values) {
         bytes memory buffer;
+        address firstKey = NOA;
         address key = last;
         for (uint i = 0; i < limit; ++i) {
             key = store.values[key].next;
-            if (key == NOA) {
+            if (key == NOA || key == firstKey) {
                 break;
+            }
+            if (firstKey == NOA) {
+                firstKey = key;
             }
             Value memory old = store.values[key];
             if (old.value > 0) {
@@ -86,11 +90,15 @@ library IterableMap {
     /// remove any empty value from the list
     /// this function is trustless, and can be called by anyone
     function compact(Store storage store, address last, uint limit) internal {
+        address firstKey = NOA;
         address key = last;
         for (uint i = 0; i < limit; ++i) {
             key = store.values[key].next;
-            if (key == NOA) {
+            if (key == NOA || key == firstKey) {
                 break;
+            }
+            if (firstKey == NOA) {
+                firstKey = key;
             }
             Value memory old = store.values[key];
             if (old.value == 0) {
