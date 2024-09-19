@@ -293,4 +293,34 @@ contract IterableMapTest is Test {
         (address[] memory keysB, ) = store.entries();
         assertEq(keysB.length, keys.length-2, "lengthB");
     }
+
+    Store store1;
+
+    function testCircularSingular() public {
+        address testKey = 0x0000000000000000000000000000000000000011;
+        store1.set(testKey, 1);
+        store1.remove(testKey);
+        store1.set(testKey, 1);
+        (address[] memory _keys, uint96[] memory _values) = store1.entries();
+    }
+
+    function testCircularLast() public {
+        address testKey = 0x0000000000000000000000000000000000000011;
+        store1.set(testKey, 1);
+        store1.set(0x0000000000000000000000000000000000000012, 1);
+        store1.set(0x0000000000000000000000000000000000000013, 1);
+        store1.remove(testKey);
+        store1.set(testKey, 1);
+        (address[] memory _keys, uint96[] memory _values) = store1.entries();
+    }
+
+    function testCircularSandwitch() public {
+        address testKey = 0x0000000000000000000000000000000000000011;
+        store1.set(0x0000000000000000000000000000000000000013, 1);
+        store1.set(testKey, 1);
+        store1.set(0x0000000000000000000000000000000000000012, 1);
+        store1.remove(testKey);
+        store1.set(testKey, 1);
+        (address[] memory _keys, uint96[] memory _values) = store1.entries();
+    }
 }
