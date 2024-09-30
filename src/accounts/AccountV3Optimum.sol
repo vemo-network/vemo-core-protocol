@@ -7,64 +7,47 @@ import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
 
 import "erc6551/lib/ERC6551AccountLib.sol";
 
-import "../abstract/Lockable.sol";
-import "../abstract/Overridable.sol";
-import "../abstract/Permissioned.sol";
 import "../abstract/ERC6551Account.sol";
-import "../abstract/ERC4337Account.sol";
-import "../abstract/execution/TokenboundExecutor.sol";
-
+import "../abstract/execution/ERC6551Executor.sol";
 import "../lib/OPAddressAliasHelper.sol";
-
 import "../interfaces/IAccountGuardian.sol";
 
 /**
  * @title Tokenbound ERC-6551 Account Implementation
  */
-contract AccountV3 is
+contract AccountV3Optimum is
     ERC721Holder,
     ERC1155Holder,
-    Lockable,
-    Overridable,
-    Permissioned,
     ERC6551Account,
-    ERC4337Account,
-    TokenboundExecutor
+    ERC6551Executor
 {
     IAccountGuardian immutable guardian;
+    address immutable __self = address(this);
+    address public immutable erc6551Registry;
 
     /**
-     * @param entryPoint_ The ERC-4337 EntryPoint address
-     * @param multicallForwarder The MulticallForwarder address
-     * @param erc6551Registry The ERC-6551 Registry address
+     * @param _erc6551Registry The ERC-6551 Registry address
      * @param _guardian The AccountGuardian address
      */
     constructor(
-        address entryPoint_,
-        address multicallForwarder,
-        address erc6551Registry,
+        address _erc6551Registry,
         address _guardian
-    ) ERC4337Account(entryPoint_) TokenboundExecutor(multicallForwarder, erc6551Registry) {
+    ) ERC6551Executor() {
         guardian = IAccountGuardian(_guardian);
+        erc6551Registry = _erc6551Registry;
     }
 
     /**
      * @notice Called whenever this account received Ether
      *
-     * @dev Can be overriden via Overridable
      */
-    receive() external payable override {
-        _handleOverride();
-    }
+    receive() external payable override {}
 
     /**
      * @notice Called whenever the calldata function selector does not match a defined function
      *
-     * @dev Can be overriden via Overridable
      */
-    fallback() external payable {
-        _handleOverride();
-    }
+    fallback() external payable {}
 
     /**
      * @notice Returns the owner of the token this account is bound to (if available)
@@ -81,8 +64,6 @@ contract AccountV3 is
     /**
      * @notice Returns whether a given ERC165 interface ID is supported
      *
-     * @dev Can be overriden via Overridable except for base interfaces.
-     *
      * @param interfaceId The interface ID to query for
      * @return bool True if the interface is supported, false otherwise
      */
@@ -97,13 +78,11 @@ contract AccountV3 is
 
         if (interfaceSupported) return true;
 
-        _handleOverrideStatic();
-
         return false;
     }
 
     /**
-     * @dev called whenever an ERC-721 token is received. Can be overriden via Overridable. Reverts
+     * @dev called whenever an ERC-721 token is received. Reverts
      * if token being received is the token the account is bound to.
      */
     function onERC721Received(address, address, uint256 tokenId, bytes memory)
@@ -118,13 +97,11 @@ contract AccountV3 is
             revert OwnershipCycle();
         }
 
-        _handleOverride();
-
         return this.onERC721Received.selector;
     }
 
     /**
-     * @dev called whenever an ERC-1155 token is received. Can be overriden via Overridable.
+     * @dev called whenever an ERC-1155 token is received.
      */
     function onERC1155Received(address, address, uint256, uint256, bytes memory)
         public
@@ -132,12 +109,11 @@ contract AccountV3 is
         override
         returns (bytes4)
     {
-        _handleOverride();
         return this.onERC1155Received.selector;
     }
 
     /**
-     * @dev called whenever a batch of ERC-1155 tokens are received. Can be overriden via Overridable.
+     * @dev called whenever a batch of ERC-1155 tokens are received.
      */
     function onERC1155BatchReceived(
         address,
@@ -146,7 +122,6 @@ contract AccountV3 is
         uint256[] memory,
         bytes memory
     ) public virtual override returns (bytes4) {
-        _handleOverride();
         return this.onERC1155BatchReceived.selector;
     }
 
@@ -173,8 +148,7 @@ contract AccountV3 is
         address _rootOwner = _rootTokenOwner(_owner, chainId, tokenContract, tokenId);
         if (signer == _rootOwner) return true;
 
-        // Accounts granted permission by root owner are valid signers
-        return hasPermission(signer, _rootOwner);
+        return false;
     }
 
     /**
@@ -186,7 +160,7 @@ contract AccountV3 is
         internal
         view
         virtual
-        override(ERC4337Account, Signatory)
+        override(Signatory)
         returns (bool)
     {
         uint8 v = uint8(signature[64]);
@@ -224,9 +198,6 @@ contract AccountV3 is
      * @return True if the executor is authorized, false otherwise
      */
     function _isValidExecutor(address executor) internal view virtual override returns (bool) {
-        // Allow execution from ERC-4337 EntryPoint
-        if (executor == address(entryPoint())) return true;
-
         (uint256 chainId, address tokenContract, uint256 tokenId) = ERC6551AccountLib.token();
 
         // Allow cross chain execution
@@ -248,9 +219,6 @@ contract AccountV3 is
         address _rootOwner = _rootTokenOwner(_owner, chainId, tokenContract, tokenId);
         if (executor == _rootOwner) return true;
 
-        // Allow execution from permissioned account
-        if (hasPermission(executor, _rootOwner)) return true;
-
         return false;
     }
 
@@ -266,35 +234,9 @@ contract AccountV3 is
      * updated prior to execution.
      */
     function _beforeExecute() internal virtual override {
-        if (isLocked()) revert AccountLocked();
         _updateState();
     }
 
-    /**
-     * @dev Called before locking the account. Reverts if account is locked. Updates account state.
-     */
-    function _beforeLock() internal virtual override {
-        if (isLocked()) revert AccountLocked();
-        _updateState();
-    }
-
-    /**
-     * @dev Called before setting overrides on the account. Reverts if account is locked. Updates
-     * account state.
-     */
-    function _beforeSetOverrides() internal virtual override {
-        if (isLocked()) revert AccountLocked();
-        _updateState();
-    }
-
-    /**
-     * @dev Called before setting permissions on the account. Reverts if account is locked. Updates
-     * account state.
-     */
-    function _beforeSetPermissions() internal virtual override {
-        if (isLocked()) revert AccountLocked();
-        _updateState();
-    }
 
     /**
      * @dev Returns the root owner of an account. If account is not owned by a TBA, returns the
@@ -309,7 +251,6 @@ contract AccountV3 is
         internal
         view
         virtual
-        override(Overridable, Permissioned, Lockable)
         returns (address)
     {
         address _owner = _tokenOwner(chainId, tokenContract, tokenId);

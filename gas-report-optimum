@@ -1,0 +1,605 @@
+No files changed, compilation skipped
+
+Running 20 tests for test/lib/IterableMap.test.sol:IterableMapTest
+[32m[PASS][0m testCircularLast() (gas: 103029)
+[32m[PASS][0m testCircularSandwitch() (gas: 102025)
+[32m[PASS][0m testCircularSingular() (gas: 52308)
+[32m[PASS][0m testCompact() (gas: 49796)
+[32m[PASS][0m testDelete() (gas: 56844)
+[32m[PASS][0m testDelete2() (gas: 48499)
+[32m[PASS][0m testDelete3() (gas: 46905)
+[32m[PASS][0m testDeleteFirst() (gas: 53652)
+[32m[PASS][0m testDeleteFirst2() (gas: 48687)
+[32m[PASS][0m testDeleteFirstLast() (gas: 51706)
+[32m[PASS][0m testDeleteLast() (gas: 53851)
+[32m[PASS][0m testDeleteLast2() (gas: 48965)
+[32m[PASS][0m testEntries() (gas: 24475)
+[32m[PASS][0m testEntriesHalfLimit() (gas: 11759)
+[32m[PASS][0m testEntriesLimit() (gas: 15724)
+[32m[PASS][0m testGet() (gas: 5062)
+[32m[PASS][0m testInsert() (gas: 89009)
+[32m[PASS][0m testSet() (gas: 143860)
+[32m[PASS][0m testSetFirst() (gas: 59583)
+[32m[PASS][0m testSetLast() (gas: 59781)
+Test result: [32mok[0m. [32m20[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 9.99ms
+
+Running 12 tests for test/accounts/executable/Account.t.sol:AccountTest
+[32m[PASS][0m testAccountOwnerIsNullIfContextNotSet() (gas: 47675)
+[32m[PASS][0m testAccountOwnershipTransfer() (gas: 231612)
+[32m[PASS][0m testAccountUpgrade() (gas: 1920354)
+[32m[PASS][0m testEIP165Support() (gas: 92943)
+[32m[PASS][0m testExecuteCallRevert() (gas: 184952)
+[32m[PASS][0m testExecuteCreate() (gas: 1035610)
+[32m[PASS][0m testExecuteCreate2() (gas: 1048735)
+[32m[PASS][0m testExecuteInvalidOperation() (gas: 122072)
+[32m[PASS][0m testNonOwnerCallsFail() (gas: 118228)
+[32m[PASS][0m testProxyZeroAddressInit() (gas: 69302)
+[32m[PASS][0m testSignatureVerification() (gas: 202835)
+[32m[PASS][0m testSignatureVerificationFailsInvalidSigner() (gas: 103213)
+Test result: [32mok[0m. [32m12[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 5.15ms
+
+Running 2 tests for test/accounts/executable/AccountERC20.t.sol:AccountERC20Test
+[32m[PASS][0m testTransferERC20PostDeploy(uint256) (runs: 256, μ: 231101, ~: 231101)
+[32m[PASS][0m testTransferERC20PreDeploy(uint256) (runs: 256, μ: 243472, ~: 243472)
+Test result: [32mok[0m. [32m2[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 142.64ms
+
+Running 5 tests for test/accounts/executable/AccountERC1155.t.sol:AccountERC1155Test
+[32m[PASS][0m testBatchTransferERC1155(uint256) (runs: 256, μ: 224781, ~: 224781)
+[32m[PASS][0m testOverrideERC1155BatchReceiver(uint256) (runs: 256, μ: 480235, ~: 480235)
+[32m[PASS][0m testOverrideERC1155Receiver(uint256) (runs: 256, μ: 435823, ~: 435823)
+[32m[PASS][0m testTransferERC1155PostDeploy(uint256) (runs: 256, μ: 216101, ~: 216101)
+[32m[PASS][0m testTransferERC1155PreDeploy(uint256) (runs: 256, μ: 215636, ~: 215636)
+Test result: [32mok[0m. [32m5[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 373.99ms
+
+Running 4 tests for test/accounts/executable/AccountERC721.t.sol:AccountERC721Test
+[32m[PASS][0m testCannotOwnSelf() (gas: 153806)
+[32m[PASS][0m testOverrideERC721Receiver(uint256) (runs: 256, μ: 248815, ~: 248815)
+[32m[PASS][0m testTransferERC721PostDeploy(uint256) (runs: 256, μ: 240696, ~: 240696)
+[32m[PASS][0m testTransferERC721PreDeploy(uint256) (runs: 256, μ: 239574, ~: 239574)
+Test result: [32mok[0m. [32m4[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 328.33ms
+
+Running 3 tests for test/AccountRegistry.test.sol:RegistryTest
+[32m[PASS][0m testDeploy() (gas: 84582)
+[32m[PASS][0m testDeploy2() (gas: 93497)
+[32m[PASS][0m testDeployFuzz(address,uint256,address,uint256,bytes32) (runs: 256, μ: 82584, ~: 82584)
+Test result: [32mok[0m. [32m3[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 23.88ms
+
+Running 1 test for test/factory/Voucher/NFTDescriptor.test.sol:NFTDescriptorTest
+[32m[PASS][0m testGenerateDescriptionPart() (gas: 718589)
+Test result: [32mok[0m. [32m1[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 6.03s
+
+Running 1 test for test/factory/Wallet/NFTDelegateDescriptor.test.sol:NFTDelegateDescriptorTest
+[32m[PASS][0m testGenerateDescriptionPart() (gas: 2256648)
+Test result: [32mok[0m. [32m1[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 6.14s
+
+Running 1 test for test/factory/Wallet/NFTAccountDescriptor.test.sol:NFTAccountDescriptorTest
+[32m[PASS][0m testGenerateDescriptionPart() (gas: 1916933)
+Test result: [32mok[0m. [32m1[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 6.18s
+
+Running 4 tests for test/factory/Wallet/vePendleTerm.test.sol:VePendleTermTest
+[32m[PASS][0m testCanExecute_InvalidSelector() (gas: 125917)
+[32m[PASS][0m testCanExecute_NonWhitelistedAddress() (gas: 125029)
+[32m[PASS][0m testCanExecute_NonWhitelistedAddressAndInvalidSelector() (gas: 125048)
+[32m[PASS][0m testCanExecute_ValidWhitelistedAddressAndSelector() (gas: 125269)
+Test result: [32mok[0m. [32m4[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 1.26ms
+
+Running 1 test for test/factory/Wallet/WalletFactory.CreateWallet.test.sol:WalletFactoryCreateTest
+[32m[PASS][0m testSingleCreate() (gas: 225119)
+Logs:
+  0xf5C8C758668AA8382d0D80FA65e3DDBfc45eCdbE
+
+Test result: [32mok[0m. [32m1[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 9.53s
+
+Running 1 test for test/factory/Voucher/VoucherFactory.CreateBatchVoucher.test.sol:FactoryCreateBatchTest
+[32m[PASS][0m testCreateBatchAndRedeem() (gas: 985521)
+Test result: [32mok[0m. [32m1[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 9.55s
+
+Running 4 tests for test/factory/Voucher/VoucherFactory.CreateVoucherFor.test.sol:FactoryCreateForTest
+[32m[PASS][0m testMultipleCreate() (gas: 210)
+[32m[PASS][0m testSingleCreate() (gas: 1370775)
+[32m[PASS][0m testSingleCreateAndRedeemThruVoucher() (gas: 1041374)
+[32m[PASS][0m testSingleCreateAndRedeemThruVoucherAccount() (gas: 862310)
+Test result: [32mok[0m. [32m4[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 9.88s
+
+Running 8 tests for test/factory/Voucher/VoucherFactory.Utils.test.sol:FactoryUtilsTest
+[32m[PASS][0m testCreateVoucherCollection() (gas: 117582)
+Logs:
+  voucherFactory.getNftAddressFromMap(randomToken)  0xBf66433D109Ee1757eF0766F372e098611cF0e65
+
+[32m[PASS][0m testRemoveX() (gas: 94152)
+[32m[PASS][0m testSetAccountRegistry() (gas: 38353)
+[32m[PASS][0m testSetDataRegistry() (gas: 38578)
+[32m[PASS][0m testSetFactory() (gas: 38579)
+[32m[PASS][0m testSetVoucherAccountImpl() (gas: 38616)
+[32m[PASS][0m testSetX() (gas: 113216)
+[32m[PASS][0m testTransferOwner() (gas: 34496)
+Test result: [32mok[0m. [32m8[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 9.58s
+
+Running 2 tests for test/factory/Voucher/VoucherFactory.CreateAutoURIVoucher.test.sol:FactoryCreateForTest
+[32m[PASS][0m testCreateVoucher() (gas: 3238020)
+[32m[PASS][0m testNewAutoURICollection() (gas: 1280191)
+Test result: [32mok[0m. [32m2[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 10.19s
+
+Running 1 test for test/factory/Wallet/WalletFactory.DepositETH.test.sol:WalletFactorDepositTest
+[32m[PASS][0m testSingleCreate() (gas: 254380)
+Logs:
+  1000
+
+Test result: [32mok[0m. [32m1[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 9.77s
+
+Running 1 test for test/factory/Wallet/WalletFactory.CreateWalletFor.test.sol:WalletFactoryCreateForTest
+[32m[PASS][0m testSingleCreate() (gas: 226891)
+Test result: [32mok[0m. [32m1[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 6.16s
+
+Running 1 test for test/factory/Voucher/VoucherFactory.CreateBatchVoucherFor.test.sol:FactoryCreateBatchForTest
+[32m[PASS][0m testCreateBatchAndRedeem() (gas: 1000304)
+Test result: [32mok[0m. [32m1[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 6.15s
+
+Running 4 tests for test/factory/Voucher/VoucherFactory.CreateVoucher.test.sol:FactoryCreateTest
+[32m[PASS][0m testMultipleCreate() (gas: 210)
+[32m[PASS][0m testSingleCreate() (gas: 1368393)
+[32m[PASS][0m testSingleCreateAndRedeemThruVoucher() (gas: 1029189)
+[32m[PASS][0m testSingleCreateAndRedeemThruVoucherAccount() (gas: 862174)
+Test result: [32mok[0m. [32m4[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 4.07s
+
+Running 1 test for test/factory/Wallet/WalletFactory.Deposit.test.sol:WalletFactorDepositTest
+[32m[PASS][0m testSingleCreate() (gas: 301393)
+Test result: [32mok[0m. [32m1[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 4.18s
+
+Running 7 tests for test/factory/Wallet/WalletFactory.Utils.test.sol:WalletFactoryUtilsTest
+[32m[PASS][0m testCreateDelegationCollection() (gas: 6301262)
+[32m[PASS][0m testCreateTBA() (gas: 110826)
+[32m[PASS][0m testCreateWalletCollection() (gas: 3288616)
+[32m[PASS][0m testSetAccountRegistry() (gas: 39220)
+[32m[PASS][0m testSetFeeReceiver() (gas: 36702)
+[32m[PASS][0m testSetWalletAccountImpl() (gas: 39124)
+[32m[PASS][0m testSetWalletCollection() (gas: 58951)
+Test result: [32mok[0m. [32m7[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 7.75s
+
+Running 2 tests for test/accounts/executable/DelegationCollection.t.sol:DelegationCollectionTest
+[32m[PASS][0m testDelegateFail() (gas: 2899454)
+[32m[PASS][0m testSimpleDelegate() (gas: 8660281895700928718)
+Test result: [32mok[0m. [32m2[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 13.92s
+
+Running 2 tests for test/accounts/executable/WalletAccountRole.t.sol:WalletAccountRoleTest
+[32m[PASS][0m testHarvestDistribution() (gas: 8660281895701065156)
+[32m[PASS][0m testMintNFTDelegation() (gas: 8660281895701037453)
+Test result: [32mok[0m. [32m2[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 7.56s
+
+Running 2 tests for test/accounts/executable/AccountCrossChain.t.sol:AccountTest
+[32m[PASS][0m testCrossChainCalls() (gas: 340630)
+[32m[PASS][0m testCrossChainCallsOPStack() (gas: 302751)
+Test result: [32mok[0m. [32m2[0m passed; [31m0[0m failed; [33m0[0m skipped; finished in 21.63s
+| lib/erc6551/src/ERC6551Registry.sol:ERC6551Registry contract |                 |       |        |       |         |
+|--------------------------------------------------------------|-----------------|-------|--------|-------|---------|
+| Deployment Cost                                              | Deployment Size |       |        |       |         |
+| 114359                                                       | 603             |       |        |       |         |
+| Function Name                                                | min             | avg   | median | max   | # calls |
+| account                                                      | 697             | 697   | 697    | 697   | 4       |
+| createAccount                                                | 70209           | 72511 | 72709  | 72709 | 38      |
+
+
+| lib/openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy contract                                          |                 |                     |         |                     |         |
+|------------------------------------------------------------------------------------------------------------------------------------|-----------------|---------------------|---------|---------------------|---------|
+| Deployment Cost                                                                                                                    | Deployment Size |                     |         |                     |         |
+| 174509                                                                                                                             | 1258            |                     |         |                     |         |
+| Function Name                                                                                                                      | min             | avg                 | median  | max                 | # calls |
+| _owner                                                                                                                             | 838             | 838                 | 838     | 838                 | 1       |
+| accountRegistry                                                                                                                    | 771             | 4043                | 4043    | 7315                | 4       |
+| canExecute                                                                                                                         | 10168           | 10171               | 10171   | 10174               | 2       |
+| constructTokenURI                                                                                                                  | 544434          | 588287              | 587694  | 633327              | 4       |
+| create(address)                                                                                                                    | 186343          | 187023              | 186409  | 190843              | 7       |
+| create(address,(uint256,(uint256,uint8,uint8,uint256,uint256,uint8,uint256)[],(uint8,address,address,uint256,uint256)))            | 551083          | 665289              | 709924  | 723178              | 7       |
+| createAutoURIVoucherCollection                                                                                                     | 4638            | 840774              | 1258843 | 1258843             | 3       |
+| createBatch                                                                                                                        | 706701          | 706701              | 706701  | 706701              | 1       |
+| createBatchFor                                                                                                                     | 709247          | 709247              | 709247  | 709247              | 1       |
+| createDelegateCollection                                                                                                           | 1534900         | 3247605710887729891 | 1534900 | 8660281895698070103 | 8       |
+| createFor(address,(uint256,(uint256,uint8,uint8,uint256,uint256,uint8,uint256)[],(uint8,address,address,uint256,uint256)),address) | 566899          | 684133              | 723212  | 723212              | 4       |
+| createFor(address,address)                                                                                                         | 193327          | 193327              | 193327  | 193327              | 3       |
+| createTBA                                                                                                                          | 95190           | 95190               | 95190   | 95190               | 1       |
+| createVoucherCollection                                                                                                            | 5130            | 50309               | 50309   | 95489               | 2       |
+| createWalletCollection                                                                                                             | 8461            | 1191304             | 1256295 | 1269295             | 18      |
+| dataRegistry                                                                                                                       | 816             | 4066                | 4066    | 7316                | 2       |
+| depositETH                                                                                                                         | 10093           | 10093               | 10093   | 10093               | 1       |
+| depositFeeBps                                                                                                                      | 752             | 752                 | 752     | 752                 | 2       |
+| depositTokens                                                                                                                      | 30604           | 30604               | 30604   | 30604               | 1       |
+| feeReceiver                                                                                                                        | 794             | 2127                | 2794    | 2794                | 3       |
+| generateDescriptionPart                                                                                                            | 50485           | 57809               | 57809   | 65134               | 2       |
+| getNftAddressFromMap                                                                                                               | 1070            | 1202                | 1229    | 1229                | 6       |
+| getTokenBoundAccount                                                                                                               | 1093            | 1201                | 1093    | 3093                | 40      |
+| isHarvesting                                                                                                                       | 5661            | 5725                | 5725    | 5789                | 2       |
+| isValidSignature                                                                                                                   | 1040            | 1040                | 1040    | 1040                | 1       |
+| onERC721Received                                                                                                                   | 1311            | 1311                | 1311    | 1311                | 11      |
+| protocolFactoryAddress                                                                                                             | 838             | 4088                | 4088    | 7338                | 2       |
+| redeem                                                                                                                             | 21336           | 108974              | 152794  | 152794              | 6       |
+| removeX                                                                                                                            | 1063            | 5753                | 5753    | 10444               | 2       |
+| revokeTimeout                                                                                                                      | 5102            | 5102                | 5102    | 5102                | 1       |
+| rewardAssets                                                                                                                       | 5414            | 5414                | 5414    | 5414                | 1       |
+| setAccountRegistry                                                                                                                 | 1181            | 5057                | 6143    | 7831                | 6       |
+| setCollectionDeployer                                                                                                              | 23417           | 23417               | 23417   | 23417               | 15      |
+| setDataRegistry                                                                                                                    | 1248            | 4968                | 6048    | 7608                | 3       |
+| setFactory                                                                                                                         | 1248            | 4968                | 6048    | 7608                | 3       |
+| setFeeReceiver                                                                                                                     | 7808            | 10295               | 10295   | 12783               | 2       |
+| setTermProperties                                                                                                                  | 82141           | 82141               | 82141   | 82141               | 2       |
+| setVoucherAccountImpl                                                                                                              | 1268            | 4988                | 6068    | 7628                | 3       |
+| setWalletCollection                                                                                                                | 7926            | 19103               | 19103   | 30280               | 2       |
+| setWalletImpl                                                                                                                      | 1462            | 5170                | 6262    | 7787                | 3       |
+| setX                                                                                                                               | 7712            | 105100              | 112045  | 112045              | 23      |
+| split                                                                                                                              | 41301           | 41301               | 41301   | 41301               | 1       |
+| splitRatio                                                                                                                         | 2770            | 2770                | 2770    | 2770                | 1       |
+| transferOwner                                                                                                                      | 7564            | 9034                | 9034    | 10504               | 2       |
+| voucherAccountImpl                                                                                                                 | 816             | 4066                | 4066    | 7316                | 2       |
+| walletCollections                                                                                                                  | 1078            | 2703                | 1078    | 7578                | 16      |
+| walletImpl                                                                                                                         | 795             | 4045                | 4045    | 7295                | 2       |
+
+
+| src/AccountGuardian.sol:AccountGuardian contract |                 |       |        |       |         |
+|--------------------------------------------------|-----------------|-------|--------|-------|---------|
+| Deployment Cost                                  | Deployment Size |       |        |       |         |
+| 206378                                           | 1196            |       |        |       |         |
+| Function Name                                    | min             | avg   | median | max   | # calls |
+| isTrustedExecutor                                | 565             | 2065  | 2565   | 2565  | 4       |
+| isTrustedImplementation                          | 521             | 1521  | 1521   | 2521  | 2       |
+| setTrustedExecutor                               | 24149           | 24149 | 24149  | 24149 | 1       |
+| setTrustedImplementation                         | 24117           | 25517 | 26117  | 26117 | 20      |
+
+
+| src/AccountRegistry.sol:AccountRegistry contract |                 |        |        |        |         |
+|--------------------------------------------------|-----------------|--------|--------|--------|---------|
+| Deployment Cost                                  | Deployment Size |        |        |        |         |
+| 253094                                           | 1296            |        |        |        |         |
+| Function Name                                    | min             | avg    | median | max    | # calls |
+| account                                          | 1647            | 1647   | 1647   | 1647   | 3       |
+| createAccount                                    | 2035            | 328213 | 412121 | 412121 | 17      |
+
+
+| src/CollectionDeployer.sol:CollectionDeployer contract |                 |                     |         |                     |         |
+|--------------------------------------------------------|-----------------|---------------------|---------|---------------------|---------|
+| Deployment Cost                                        | Deployment Size |                     |         |                     |         |
+| 3369675                                                | 16995           |                     |         |                     |         |
+| Function Name                                          | min             | avg                 | median  | max                 | # calls |
+| createDelegateCollection                               | 1486483         | 3247605710887698523 | 1486483 | 8660281895698067152 | 8       |
+| createVemoCollection                                   | 1203342         | 1204047             | 1203342 | 1205342             | 17      |
+| parameters                                             | 3045            | 3045                | 3045    | 3045                | 88      |
+
+
+| src/VoucherFactory.sol:VoucherFactory contract |                 |        |         |         |         |
+|------------------------------------------------|-----------------|--------|---------|---------|---------|
+| Deployment Cost                                | Deployment Size |        |         |         |         |
+| 4665518                                        | 23362           |        |         |         |         |
+| Function Name                                  | min             | avg    | median  | max     | # calls |
+| _owner                                         | 448             | 448    | 448     | 448     | 1       |
+| accountRegistry                                | 425             | 1425   | 1425    | 2425    | 2       |
+| create                                         | 550587          | 662227 | 709435  | 718189  | 7       |
+| createAutoURIVoucherCollection                 | 4242            | 837378 | 1253947 | 1253947 | 3       |
+| createBatch                                    | 701660          | 701660 | 701660  | 701660  | 1       |
+| createBatchFor                                 | 704200          | 704200 | 704200  | 704200  | 1       |
+| createFor                                      | 561897          | 679137 | 718217  | 718217  | 4       |
+| createVoucherCollection                        | 4680            | 47609  | 47609   | 90539   | 2       |
+| dataRegistry                                   | 426             | 1426   | 1426    | 2426    | 2       |
+| getNftAddressFromMap                           | 664             | 807    | 836     | 836     | 6       |
+| getTokenBoundAccount                           | 720             | 720    | 720     | 720     | 14      |
+| initialize                                     | 158099          | 158099 | 158099  | 158099  | 20      |
+| onERC721Received                               | 897             | 897    | 897     | 897     | 11      |
+| protocolFactoryAddress                         | 448             | 1448   | 1448    | 2448    | 2       |
+| redeem                                         | 20924           | 108569 | 152392  | 152392  | 6       |
+| removeX                                        | 657             | 5355   | 5355    | 10054   | 2       |
+| setAccountRegistry                             | 791             | 3005   | 2635    | 5591    | 3       |
+| setDataRegistry                                | 858             | 3072   | 2702    | 5658    | 3       |
+| setFactory                                     | 858             | 3072   | 2702    | 5658    | 3       |
+| setVoucherAccountImpl                          | 878             | 3092   | 2722    | 5678    | 3       |
+| setX                                           | 2803            | 104119 | 111652  | 111652  | 23      |
+| transferOwner                                  | 2658            | 4136   | 4136    | 5614    | 2       |
+| voucherAccountImpl                             | 426             | 1426   | 1426    | 2426    | 2       |
+
+
+| src/WalletFactory.sol:WalletFactory contract |                 |                     |         |                     |         |
+|----------------------------------------------|-----------------|---------------------|---------|---------------------|---------|
+| Deployment Cost                              | Deployment Size |                     |         |                     |         |
+| 1813161                                      | 9118            |                     |         |                     |         |
+| Function Name                                | min             | avg                 | median  | max                 | # calls |
+| accountRegistry                              | 381             | 1381                | 1381    | 2381                | 2       |
+| create                                       | 185947          | 186627              | 186013  | 190447              | 7       |
+| createDelegateCollection                     | 1534462         | 3247605710887729453 | 1534462 | 8660281895698069667 | 8       |
+| createFor                                    | 192928          | 192928              | 192928  | 192928              | 3       |
+| createTBA                                    | 90291           | 90291               | 90291   | 90291               | 1       |
+| createWalletCollection                       | 3522            | 1189121             | 1255863 | 1264363             | 18      |
+| depositETH                                   | 9703            | 9703                | 9703    | 9703                | 1       |
+| depositFeeBps                                | 362             | 362                 | 362     | 362                 | 2       |
+| depositTokens                                | 30205           | 30205               | 30205   | 30205               | 1       |
+| feeReceiver                                  | 404             | 1737                | 2404    | 2404                | 3       |
+| getTokenBoundAccount                         | 697             | 850                 | 697     | 2697                | 26      |
+| initialize                                   | 211606          | 211606              | 211606  | 211606              | 15      |
+| setAccountRegistry                           | 1116            | 3321                | 2931    | 5916                | 3       |
+| setCollectionDeployer                        | 23027           | 23027               | 23027   | 23027               | 15      |
+| setFeeReceiver                               | 2908            | 5400                | 5400    | 7893                | 2       |
+| setWalletCollection                          | 3023            | 14205               | 14205   | 25387               | 2       |
+| setWalletImpl                                | 1072            | 3277                | 2887    | 5872                | 3       |
+| walletCollections                            | 685             | 1185                | 685     | 2685                | 16      |
+| walletImpl                                   | 405             | 1405                | 1405    | 2405                | 2       |
+
+
+| src/accounts/AccountProxy.sol:AccountProxy contract                                                                                         |                 |        |        |        |         |
+|---------------------------------------------------------------------------------------------------------------------------------------------|-----------------|--------|--------|--------|---------|
+| Deployment Cost                                                                                                                             | Deployment Size |        |        |        |         |
+| 34655                                                                                                                                       | 183             |        |        |        |         |
+| Function Name                                                                                                                               | min             | avg    | median | max    | # calls |
+| customFunction                                                                                                                              | 715             | 798    | 798    | 881    | 2       |
+| execute                                                                                                                                     | 3238            | 93700  | 32566  | 913874 | 27      |
+| getClaimableAndSchedule                                                                                                                     | 3918            | 3918   | 3918   | 3918   | 6       |
+| getDataBalanceAndSchedule                                                                                                                   | 2314            | 2314   | 2314   | 2314   | 6       |
+| getDataFee                                                                                                                                  | 1377            | 1377   | 1377   | 1377   | 10      |
+| initialize(address)                                                                                                                         | 26592           | 27926  | 27926  | 29261  | 2       |
+| initialize(address,address,address,(uint256,(uint256,uint8,uint8,uint256,uint256,uint8,uint256)[],(uint8,address,address,uint256,uint256))) | 335025          | 337332 | 337525 | 337525 | 13      |
+| isValidSignature                                                                                                                            | 6872            | 12555  | 13328  | 16692  | 4       |
+| onERC1155BatchReceived                                                                                                                      | 4772            | 4772   | 4772   | 4772   | 2       |
+| onERC1155Received                                                                                                                           | 3697            | 3697   | 3697   | 3697   | 2       |
+| onERC721Received                                                                                                                            | 4347            | 4372   | 4372   | 4398   | 2       |
+| redeem                                                                                                                                      | 29811           | 61176  | 71632  | 71632  | 8       |
+| schedules                                                                                                                                   | 2020            | 2020   | 2020   | 2020   | 3       |
+| state                                                                                                                                       | 502             | 2752   | 2752   | 5002   | 4       |
+| supportsInterface                                                                                                                           | 656             | 1410   | 868    | 3250   | 4       |
+| token                                                                                                                                       | 1010            | 1010   | 1010   | 1010   | 5       |
+| tokenAddress                                                                                                                                | 571             | 571    | 571    | 571    | 5       |
+| upgradeToAndCall                                                                                                                            | 7063            | 9432   | 9432   | 11800  | 4       |
+
+
+| src/accounts/AccountV3Optimum.sol:AccountV3Optimum contract |                 |       |        |        |         |
+|-------------------------------------------------------------|-----------------|-------|--------|--------|---------|
+| Deployment Cost                                             | Deployment Size |       |        |        |         |
+| 1433329                                                     | 7441            |       |        |        |         |
+| Function Name                                               | min             | avg   | median | max    | # calls |
+| delegate                                                    | 184             | 184   | 184    | 184    | 1       |
+| execute                                                     | 3043            | 92250 | 30626  | 912771 | 27      |
+| initialize                                                  | 183             | 183   | 183    | 183    | 7       |
+| isValidSignature                                            | 6670            | 11100 | 11870  | 13990  | 4       |
+| onERC1155BatchReceived                                      | 2034            | 2034  | 2034   | 2034   | 2       |
+| onERC1155Received                                           | 995             | 995   | 995    | 995    | 2       |
+| onERC721Received                                            | 1652            | 1677  | 1677   | 1702   | 2       |
+| owner                                                       | 1013            | 2096  | 2277   | 2277   | 7       |
+| receive                                                     | 55              | 55    | 55     | 55     | 1       |
+| state                                                       | 336             | 1336  | 1336   | 2336   | 4       |
+| supportsInterface                                           | 484             | 613   | 625    | 721    | 4       |
+| token                                                       | 976             | 976   | 976    | 976    | 8       |
+
+
+| src/accounts/AccountV3Upgradable.sol:AccountV3Upgradable contract |                 |      |        |       |         |
+|-------------------------------------------------------------------|-----------------|------|--------|-------|---------|
+| Deployment Cost                                                   | Deployment Size |      |        |       |         |
+| 1708703                                                           | 8853            |      |        |       |         |
+| Function Name                                                     | min             | avg  | median | max   | # calls |
+| upgradeToAndCall                                                  | 6593            | 8873 | 8873   | 11153 | 2       |
+
+
+| src/accounts/NFTAccountDelegable.sol:NFTAccountDelegable contract |                 |       |        |        |         |
+|-------------------------------------------------------------------|-----------------|-------|--------|--------|---------|
+| Deployment Cost                                                   | Deployment Size |       |        |        |         |
+| 2969566                                                           | 15150           |       |        |        |         |
+| Function Name                                                     | min             | avg   | median | max    | # calls |
+| burn                                                              | 3998            | 7391  | 8383   | 8803   | 4       |
+| delegate                                                          | 2977            | 56621 | 71487  | 102503 | 10      |
+| delegateExecute                                                   | 56254           | 90232 | 90232  | 124211 | 2       |
+| delegates                                                         | 3584            | 3584  | 3584   | 3584   | 3       |
+| execute                                                           | 3243            | 3243  | 3243   | 3243   | 1       |
+| initialize                                                        | 205             | 205   | 205    | 205    | 4       |
+| isValidSignature                                                  | 6958            | 8423  | 7278   | 11033  | 3       |
+| owner                                                             | 2321            | 2321  | 2321   | 2321   | 4       |
+| receive                                                           | 55              | 55    | 55     | 55     | 1       |
+| revoke                                                            | 33904           | 33904 | 33904  | 33904  | 1       |
+
+
+| src/accounts/VoucherAccount.sol:VoucherAccount contract |                 |        |        |        |         |
+|---------------------------------------------------------|-----------------|--------|--------|--------|---------|
+| Deployment Cost                                         | Deployment Size |        |        |        |         |
+| 1849948                                                 | 9272            |        |        |        |         |
+| Function Name                                           | min             | avg    | median | max    | # calls |
+| getClaimableAndSchedule                                 | 3686            | 3686   | 3686   | 3686   | 6       |
+| getDataBalanceAndSchedule                               | 2094            | 2094   | 2094   | 2094   | 6       |
+| getDataFee                                              | 1187            | 1187   | 1187   | 1187   | 10      |
+| initialize                                              | 334748          | 334748 | 334748 | 334748 | 13      |
+| redeem                                                  | 29642           | 61007  | 71463  | 71463  | 8       |
+| schedules                                               | 1815            | 1815   | 1815   | 1815   | 3       |
+| token                                                   | 832             | 832    | 832    | 832    | 5       |
+| tokenAddress                                            | 405             | 405    | 405    | 405    | 5       |
+
+
+| src/helpers/NFTDescriptor/DelegationURI/NFTDelegationDescriptor.sol:NFTDelegationDescriptor contract |                 |        |        |        |         |
+|------------------------------------------------------------------------------------------------------|-----------------|--------|--------|--------|---------|
+| Deployment Cost                                                                                      | Deployment Size |        |        |        |         |
+| 2177772                                                                                              | 10939           |        |        |        |         |
+| Function Name                                                                                        | min             | avg    | median | max    | # calls |
+| constructTokenURI                                                                                    | 624007          | 625609 | 625609 | 627211 | 2       |
+| initialize                                                                                           | 46516           | 46516  | 46516  | 46516  | 12      |
+
+
+| src/helpers/NFTDescriptor/NFTAccount/NFTAccountDescriptor.sol:NFTAccountDescriptor contract |                 |        |        |        |         |
+|---------------------------------------------------------------------------------------------|-----------------|--------|--------|--------|---------|
+| Deployment Cost                                                                             | Deployment Size |        |        |        |         |
+| 1724669                                                                                     | 8676            |        |        |        |         |
+| Function Name                                                                               | min             | avg    | median | max    | # calls |
+| constructTokenURI                                                                           | 538519          | 538935 | 538935 | 539351 | 2       |
+| initialize                                                                                  | 46494           | 46494  | 46494  | 46494  | 16      |
+
+
+| src/helpers/NFTDescriptor/VoucherURI/NFTDescriptor.sol:NFTDescriptor contract |                 |       |        |       |         |
+|-------------------------------------------------------------------------------|-----------------|-------|--------|-------|---------|
+| Deployment Cost                                                               | Deployment Size |       |        |       |         |
+| 2787694                                                                       | 13985           |       |        |       |         |
+| Function Name                                                                 | min             | avg   | median | max   | # calls |
+| generateDescriptionPart                                                       | 45424           | 54980 | 54980  | 64536 | 2       |
+| initialize                                                                    | 46496           | 46496 | 46496  | 46496 | 21      |
+
+
+| src/helpers/VemoAutoURIVoucherCollection.sol:VemoAutoURIVoucherCollection contract |                 |       |        |       |         |
+|------------------------------------------------------------------------------------|-----------------|-------|--------|-------|---------|
+| Deployment Cost                                                                    | Deployment Size |       |        |       |         |
+| 1129666                                                                            | 6982            |       |        |       |         |
+| Function Name                                                                      | min             | avg   | median | max   | # calls |
+| name                                                                               | 1285            | 1285  | 1285   | 1285  | 3       |
+| ownerOf                                                                            | 576             | 576   | 576    | 576   | 1       |
+| safeMint                                                                           | 48169           | 64102 | 72069  | 72069 | 3       |
+| symbol                                                                             | 1350            | 1350  | 1350   | 1350  | 3       |
+| transferFrom                                                                       | 6407            | 17357 | 17357  | 28307 | 2       |
+
+
+| src/helpers/VemoDelegationCollection.sol:VemoDelegationCollection contract |                 |        |        |        |         |
+|----------------------------------------------------------------------------|-----------------|--------|--------|--------|---------|
+| Deployment Cost                                                            | Deployment Size |        |        |        |         |
+| 0                                                                          | 7636            |        |        |        |         |
+| Function Name                                                              | min             | avg    | median | max    | # calls |
+| burn                                                                       | 2647            | 5359   | 6123   | 6543   | 4       |
+| delegate                                                                   | 2274            | 33062  | 45374  | 51874  | 9       |
+| issuer                                                                     | 350             | 350    | 350    | 350    | 2       |
+| name                                                                       | 1285            | 1285   | 1285   | 1285   | 1       |
+| owner                                                                      | 398             | 398    | 398    | 398    | 5       |
+| ownerOf                                                                    | 653             | 683    | 686    | 686    | 12      |
+| revoke                                                                     | 30428           | 30428  | 30428  | 30428  | 1       |
+| symbol                                                                     | 1328            | 1328   | 1328   | 1328   | 1       |
+| term                                                                       | 349             | 349    | 349    | 349    | 4       |
+| tokenURI                                                                   | 665009          | 665009 | 665009 | 665009 | 1       |
+| transferFrom                                                               | 643             | 19557  | 27515  | 30515  | 6       |
+
+
+| src/helpers/VemoWalletCollection.sol:VemoWalletCollection contract |                 |        |        |        |         |
+|--------------------------------------------------------------------|-----------------|--------|--------|--------|---------|
+| Deployment Cost                                                    | Deployment Size |        |        |        |         |
+| 1009520                                                            | 6071            |        |        |        |         |
+| Function Name                                                      | min             | avg    | median | max    | # calls |
+| ownerOf                                                            | 664             | 664    | 664    | 664    | 27      |
+| safeMint                                                           | 69875           | 71425  | 69875  | 74375  | 10      |
+| tokenURI                                                           | 3891            | 194228 | 3891   | 574903 | 3       |
+
+
+| src/terms/VePendleTerm.sol:VePendleTerm contract |                 |        |        |        |         |
+|--------------------------------------------------|-----------------|--------|--------|--------|---------|
+| Deployment Cost                                  | Deployment Size |        |        |        |         |
+| 1259364                                          | 6352            |        |        |        |         |
+| Function Name                                    | min             | avg    | median | max    | # calls |
+| canExecute                                       | 1468            | 3874   | 5263   | 5263   | 10      |
+| initialize                                       | 115051          | 115051 | 115051 | 115051 | 8       |
+| isHarvesting                                     | 5247            | 5314   | 5314   | 5381   | 2       |
+| isValidSignature                                 | 608             | 608    | 608    | 608    | 1       |
+| revokeTimeout                                    | 212             | 212    | 212    | 212    | 1       |
+| rewardAssets                                     | 5018            | 5018   | 5018   | 5018   | 1       |
+| setTermProperties                                | 81694           | 93627  | 99594  | 99594  | 6       |
+| split                                            | 40890           | 40890  | 40890  | 40890  | 1       |
+| splitRatio                                       | 2380            | 2380   | 2380   | 2380   | 1       |
+
+
+| test/accounts/executable/mocks/MockAccountUpgradable.sol:MockAccountUpgradable contract |                 |     |        |     |         |
+|-----------------------------------------------------------------------------------------|-----------------|-----|--------|-----|---------|
+| Deployment Cost                                                                         | Deployment Size |     |        |     |         |
+| 1715321                                                                                 | 8989            |     |        |     |         |
+| Function Name                                                                           | min             | avg | median | max | # calls |
+| customFunction                                                                          | 258             | 258 | 258    | 258 | 1       |
+| proxiableUUID                                                                           | 354             | 354 | 354    | 354 | 1       |
+
+
+| test/accounts/executable/mocks/MockERC1155.sol:MockERC1155 contract |                 |       |        |       |         |
+|---------------------------------------------------------------------|-----------------|-------|--------|-------|---------|
+| Deployment Cost                                                     | Deployment Size |       |        |       |         |
+| 916726                                                              | 4959            |       |        |       |         |
+| Function Name                                                       | min             | avg   | median | max   | # calls |
+| balanceOf                                                           | 637             | 637   | 637    | 637   | 10      |
+| mint                                                                | 26264           | 27921 | 26264  | 30815 | 7       |
+| safeBatchTransferFrom                                               | 59711           | 59711 | 59711  | 59711 | 2       |
+| safeTransferFrom                                                    | 27422           | 27422 | 27422  | 27422 | 2       |
+
+
+| test/accounts/executable/mocks/MockERC20.sol:MockERC20 contract |                 |       |        |       |         |
+|-----------------------------------------------------------------|-----------------|-------|--------|-------|---------|
+| Deployment Cost                                                 | Deployment Size |       |        |       |         |
+| 430567                                                          | 2407            |       |        |       |         |
+| Function Name                                                   | min             | avg   | median | max   | # calls |
+| balanceOf                                                       | 562             | 562   | 562    | 562   | 6       |
+| mint                                                            | 46789           | 46789 | 46789  | 46789 | 2       |
+| transfer                                                        | 25188           | 25188 | 25188  | 25188 | 2       |
+
+
+| test/accounts/executable/mocks/MockERC721.sol:MockERC721 contract |                 |       |        |       |         |
+|-------------------------------------------------------------------|-----------------|-------|--------|-------|---------|
+| Deployment Cost                                                   | Deployment Size |       |        |       |         |
+| 848181                                                            | 4521            |       |        |       |         |
+| Function Name                                                     | min             | avg   | median | max   | # calls |
+| balanceOf                                                         | 634             | 634   | 634    | 634   | 8       |
+| mint                                                              | 49988           | 50086 | 49988  | 52750 | 28      |
+| ownerOf                                                           | 576             | 1134  | 576    | 2576  | 43      |
+| safeTransferFrom                                                  | 28684           | 32469 | 31205  | 38784 | 4       |
+| transferFrom                                                      | 28337           | 28337 | 28337  | 28337 | 1       |
+
+
+| test/accounts/executable/mocks/MockReverter.sol:MockReverter contract |                 |     |        |     |         |
+|-----------------------------------------------------------------------|-----------------|-----|--------|-----|---------|
+| Deployment Cost                                                       | Deployment Size |     |        |     |         |
+| 30081                                                                 | 180             |     |        |     |         |
+| Function Name                                                         | min             | avg | median | max | # calls |
+| fail                                                                  | 167             | 167 | 167    | 167 | 1       |
+
+
+| test/accounts/executable/mocks/MockVePendle.sol:MockVePendle contract |                 |      |        |      |         |
+|-----------------------------------------------------------------------|-----------------|------|--------|------|---------|
+| Deployment Cost                                                       | Deployment Size |      |        |      |         |
+| 75523                                                                 | 409             |      |        |      |         |
+| Function Name                                                         | min             | avg  | median | max  | # calls |
+| claim                                                                 | 7319            | 7319 | 7319   | 7319 | 1       |
+
+
+| test/mock/DataRegistryV2.sol:DataRegistryV2 contract |                 |        |        |        |         |
+|------------------------------------------------------|-----------------|--------|--------|--------|---------|
+| Deployment Cost                                      | Deployment Size |        |        |        |         |
+| 3484493                                              | 17435           |        |        |        |         |
+| Function Name                                        | min             | avg    | median | max    | # calls |
+| grantRole                                            | 25765           | 28085  | 27765  | 29765  | 50      |
+| initialize                                           | 211448          | 211448 | 211448 | 211448 | 20      |
+| read                                                 | 4833            | 6742   | 4833   | 12833  | 9       |
+| write                                                | 8684            | 41163  | 38980  | 104212 | 16      |
+| writeBatch                                           | 57351           | 57351  | 57351  | 57351  | 2       |
+
+
+| test/mock/Factory.sol:Factory contract |                 |      |        |      |         |
+|----------------------------------------|-----------------|------|--------|------|---------|
+| Deployment Cost                        | Deployment Size |      |        |      |         |
+| 770223                                 | 3687            |      |        |      |         |
+| Function Name                          | min             | avg  | median | max  | # calls |
+| createCollection                       | 1668            | 1668 | 1668   | 1668 | 1       |
+
+
+| test/mock/NFT.sol:NFT contract       |                 |       |        |       |         |
+|--------------------------------------|-----------------|-------|--------|-------|---------|
+| Deployment Cost                      | Deployment Size |       |        |       |         |
+| 1302771                              | 6958            |       |        |       |         |
+| Function Name                        | min             | avg   | median | max   | # calls |
+| grantRole                            | 27598           | 27598 | 27598  | 27598 | 20      |
+| ownerOf                              | 598             | 598   | 598    | 598   | 12      |
+| safeMint                             | 74315           | 74315 | 74315  | 74315 | 8       |
+| safeMintBatchWithTokenUrisAndRoyalty | 96018           | 97268 | 97268  | 98518 | 2       |
+| transferFrom                         | 26315           | 28065 | 28315  | 28315 | 8       |
+
+
+| test/mock/USDC.sol:USDC contract |                 |       |        |       |         |
+|----------------------------------|-----------------|-------|--------|-------|---------|
+| Deployment Cost                  | Deployment Size |       |        |       |         |
+| 430560                           | 2388            |       |        |       |         |
+| Function Name                    | min             | avg   | median | max   | # calls |
+| approve                          | 22639           | 24439 | 24739  | 24739 | 14      |
+| balanceOf                        | 562             | 562   | 562    | 562   | 16      |
+| mint                             | 22889           | 40814 | 46789  | 46789 | 8       |
+| transferFrom                     | 3773            | 19749 | 26062  | 26062 | 14      |
+
+
+| test/mock/USDT.sol:USDT contract |                 |       |        |       |         |
+|----------------------------------|-----------------|-------|--------|-------|---------|
+| Deployment Cost                  | Deployment Size |       |        |       |         |
+| 430560                           | 2388            |       |        |       |         |
+| Function Name                    | min             | avg   | median | max   | # calls |
+| approve                          | 22639           | 24548 | 24739  | 24739 | 11      |
+| balanceOf                        | 562             | 609   | 562    | 2562  | 42      |
+| mint                             | 22889           | 44616 | 46789  | 46789 | 11      |
+| symbol                           | 1221            | 2221  | 2221   | 3221  | 6       |
+| transfer                         | 3288            | 18213 | 23188  | 23188 | 8       |
+| transferFrom                     | 2959            | 21111 | 26062  | 26062 | 14      |
+
+
+
+ 
+Ran 24 test suites: [32m90[0m tests passed, [31m0[0m failed, [33m0[0m skipped (90 total tests)

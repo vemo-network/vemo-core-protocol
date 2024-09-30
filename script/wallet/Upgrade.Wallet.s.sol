@@ -123,7 +123,7 @@ contract DeployVemoWalletSC is Script {
          */
         AccountGuardian guardian = AccountGuardian(guardianAddress);
         NFTAccountDelegable accountv3Implementation = new NFTAccountDelegable(
-            address(entrypointERC4337), address(forwarder), address(registry), address(guardian)
+            address(registry), address(guardian)
         );
 
         // whitelist new implementation

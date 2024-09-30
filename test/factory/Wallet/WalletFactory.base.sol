@@ -16,7 +16,7 @@ import "../../../src/AccountGuardian.sol";
 import "../../../src/helpers/DataStruct.sol";
 import "../../../src/helpers/VemoWalletCollection.sol";
 import {WalletFactory} from "../../../src/WalletFactory.sol";
-import "../../../src/accounts/AccountV3.sol";
+import "../../../src/accounts/AccountV3Optimum.sol";
 
 import "../../mock/NFT.sol";
 import "../../mock/USDT.sol";
@@ -46,7 +46,7 @@ contract WalletFactoryBaseTest is Test {
     VemoWalletCollection nft;
     ERC6551Registry accountRegistry = new ERC6551Registry();
     AccountGuardian guardian = new AccountGuardian(address(this));
-    AccountV3 accountImpl = new AccountV3( address(0x1), address(forwarder), address(accountRegistry), address(guardian));
+    AccountV3Optimum accountImpl = new AccountV3Optimum( address(accountRegistry), address(guardian));
 
     address account;
     USDT usdt = new USDT();

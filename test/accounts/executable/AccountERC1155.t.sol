@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/proxy/Clones.sol";
 import "erc6551/ERC6551Registry.sol";
 import "erc6551/interfaces/IERC6551Account.sol";
 
-import "../../../src/accounts/AccountV3.sol";
+import "../../../src/accounts/AccountV3Optimum.sol";
 import "../../../src/AccountGuardian.sol";
 import "../../../src/accounts/AccountProxy.sol";
 
@@ -20,7 +20,7 @@ import "./mocks/MockExecutor.sol";
 contract AccountERC1155Test is Test {
     MockERC1155 public dummyERC1155;
 
-    AccountV3 implementation;
+    AccountV3Optimum implementation;
     ERC6551Registry public registry;
     AccountGuardian public guardian;
     MockERC721 public tokenCollection;
@@ -29,7 +29,7 @@ contract AccountERC1155Test is Test {
     function setUp() public {
         dummyERC1155 = new MockERC1155();
         registry = new ERC6551Registry();
-        implementation = new AccountV3(address(1), address(1), address(registry), address(guardian));
+        implementation = new AccountV3Optimum( address(registry), address(guardian));
 
         tokenCollection = new MockERC721();
     }
@@ -52,7 +52,7 @@ contract AccountERC1155Test is Test {
             address(implementation), 0, block.chainid, address(tokenCollection), tokenId
         );
 
-        AccountV3 account = AccountV3(payable(accountAddress));
+        AccountV3Optimum account = AccountV3Optimum(payable(accountAddress));
 
         bytes memory erc1155TransferCall = abi.encodeWithSignature(
             "safeTransferFrom(address,address,uint256,uint256,bytes)", account, user1, 1, 10, ""
@@ -78,7 +78,7 @@ contract AccountERC1155Test is Test {
 
         assertEq(dummyERC1155.balanceOf(accountAddress, 1), 10);
 
-        AccountV3 account = AccountV3(payable(accountAddress));
+        AccountV3Optimum account = AccountV3Optimum(payable(accountAddress));
 
         bytes memory erc1155TransferCall = abi.encodeWithSignature(
             "safeTransferFrom(address,address,uint256,uint256,bytes)", account, user1, 1, 10, ""
@@ -129,7 +129,7 @@ contract AccountERC1155Test is Test {
             address(implementation), 0, block.chainid, address(tokenCollection), tokenId
         );
 
-        AccountV3(payable(accountAddress));
+        AccountV3Optimum(payable(accountAddress));
 
         MockExecutor mockExecutor = new MockExecutor();
 
@@ -156,7 +156,7 @@ contract AccountERC1155Test is Test {
             address(implementation), 0, block.chainid, address(tokenCollection), tokenId
         );
 
-        AccountV3(payable(accountAddress));
+        AccountV3Optimum(payable(accountAddress));
 
         MockExecutor mockExecutor = new MockExecutor();
 

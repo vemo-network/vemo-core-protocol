@@ -5,7 +5,7 @@ import {Test, console2} from "forge-std/Test.sol";
 import "forge-std/console.sol";
 import {Upgrades} from "openzeppelin-foundry-upgrades/Upgrades.sol";
 import "./WalletFactory.base.sol";
-import "../../../src/accounts/AccountV3.sol";
+import "../../../src/accounts/AccountV3Optimum.sol";
 
 contract WalletFactoryCreateForTest is Test, WalletFactoryBaseTest {
     address user1 = vm.addr(4);
@@ -20,7 +20,7 @@ contract WalletFactoryCreateForTest is Test, WalletFactoryBaseTest {
         vm.stopPrank();
 
         // make sure we store the correct vesting data in ERC6551
-        AccountV3 tba = AccountV3(payable(walletFactory.getTokenBoundAccount(nftAddress, tokenId)));
+        AccountV3Optimum tba = AccountV3Optimum(payable(walletFactory.getTokenBoundAccount(nftAddress, tokenId)));
         (uint256 accountChainId, address accountNftAddress, uint256 accountTokenId) = IERC6551Account(tba).token();
         assertEq(accountNftAddress, nftAddress);
 

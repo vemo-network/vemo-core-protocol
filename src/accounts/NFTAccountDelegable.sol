@@ -5,12 +5,12 @@ import "@openzeppelin/contracts/interfaces/IERC721.sol";
 import "@openzeppelin/contracts/interfaces/IERC20.sol";
 import "../interfaces/IDelegationCollection.sol";
 import "../interfaces/IExecutionTerm.sol";
-import "./AccountV3.sol";
+import "./AccountV3Optimum.sol";
 import "../lib/LibExecutor.sol";
 import "../lib/IterableMap.sol";
 import "@solidity-bytes-utils/BytesLib.sol";
 
-contract NFTAccountDelegable is AccountV3, UUPSUpgradeable {
+contract NFTAccountDelegable is AccountV3Optimum, UUPSUpgradeable {
     Store NFTRoles;
     using IterableMap for Store;
 
@@ -22,11 +22,9 @@ contract NFTAccountDelegable is AccountV3, UUPSUpgradeable {
     );
 
     constructor(
-        address entryPoint_,
-        address multicallForwarder,
         address erc6551Registry,
         address guardian
-    ) AccountV3(entryPoint_, multicallForwarder, erc6551Registry, guardian) {}
+    ) AccountV3Optimum(erc6551Registry, guardian) {}
 
     function _authorizeUpgrade(address implementation) internal virtual override {
         if (!guardian.isTrustedImplementation(implementation)) revert InvalidImplementation();
@@ -112,7 +110,7 @@ contract NFTAccountDelegable is AccountV3, UUPSUpgradeable {
         internal
         view
         virtual
-        override(AccountV3)
+        override(AccountV3Optimum)
         returns (bool)
     {
         // non-delegate signature

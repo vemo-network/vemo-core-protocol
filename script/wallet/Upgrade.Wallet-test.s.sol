@@ -5,7 +5,7 @@ import "forge-std/console2.sol";
 import "forge-std/Script.sol";
 import "../../src/AccountRegistry.sol";
 import "../../src/AccountGuardian.sol";
-import "../../src/accounts/AccountV3.sol";
+import "../../src/accounts/AccountV3Optimum.sol";
 import {NFTAccountDelegable} from "../../src/accounts/NFTAccountDelegable.sol";
 import "../../src/accounts/AccountProxy.sol";
 import "../../src/WalletFactory.sol";

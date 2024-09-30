@@ -61,7 +61,7 @@ contract DeployVemoWalletSC is Script {
          */
         AccountGuardian guardian = new AccountGuardian {salt: bytes32(salt)} (owner);
         NFTAccountDelegable accountv3Implementation = new NFTAccountDelegable{salt: bytes32(salt)}(
-            entrypointERC4337, address(forwarder), address(registry), address(guardian));
+            address(registry), address(guardian));
 
         guardian.setTrustedImplementation(address(accountv3Implementation), true);
         guardian.setTrustedExecutor(tokenboundLayerZero, true);

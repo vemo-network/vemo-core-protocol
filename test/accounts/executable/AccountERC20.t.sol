@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/proxy/Clones.sol";
 import "erc6551/ERC6551Registry.sol";
 import "erc6551/interfaces/IERC6551Account.sol";
 
-import "../../../src/accounts/AccountV3.sol";
+import "../../../src/accounts/AccountV3Optimum.sol";
 import "../../../src/AccountGuardian.sol";
 import "../../../src/accounts/AccountProxy.sol";
 
@@ -19,7 +19,7 @@ import "./mocks/MockERC20.sol";
 contract AccountERC20Test is Test {
     MockERC20 public dummyERC20;
 
-    AccountV3 implementation;
+    AccountV3Optimum implementation;
     ERC6551Registry public registry;
 
     MockERC721 public tokenCollection;
@@ -31,7 +31,7 @@ contract AccountERC20Test is Test {
         registry = new ERC6551Registry();
 
         guardian = new AccountGuardian(address(this));
-        implementation = new AccountV3(address(1), address(1), address(registry), address(guardian));
+        implementation = new AccountV3Optimum(address(registry), address(guardian));
         registry = new ERC6551Registry();
 
         tokenCollection = new MockERC721();
@@ -56,7 +56,7 @@ contract AccountERC20Test is Test {
             address(implementation), 0, block.chainid, address(tokenCollection), tokenId
         );
 
-        AccountV3 account = AccountV3(payable(accountAddress));
+        AccountV3Optimum account = AccountV3Optimum(payable(accountAddress));
 
         bytes memory erc20TransferCall =
             abi.encodeWithSignature("transfer(address,uint256)", user1, 1 ether);
@@ -88,7 +88,7 @@ contract AccountERC20Test is Test {
 
         assertEq(dummyERC20.balanceOf(accountAddress), 1 ether);
 
-        AccountV3 account = AccountV3(payable(accountAddress));
+        AccountV3Optimum account = AccountV3Optimum(payable(accountAddress));
 
         bytes memory erc20TransferCall =
             abi.encodeWithSignature("transfer(address,uint256)", user1, 1 ether);

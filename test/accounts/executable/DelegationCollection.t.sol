@@ -67,7 +67,7 @@ contract DelegationCollectionTest is Test {
         forwarder = new Multicall3();
         guardian = new AccountGuardian(address(this));
         upgradableImplementation = new NFTAccountDelegable(
-            address(1), address(forwarder), address(registry), address(guardian)
+            address(registry), address(guardian)
         );
         proxy = new AccountProxy(address(guardian), address(upgradableImplementation));
 

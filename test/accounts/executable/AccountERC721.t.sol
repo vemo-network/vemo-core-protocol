@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/proxy/Clones.sol";
 import "erc6551/ERC6551Registry.sol";
 import "erc6551/interfaces/IERC6551Account.sol";
 
-import "../../../src/accounts/AccountV3.sol";
+import "../../../src/accounts/AccountV3Optimum.sol";
 import "../../../src/AccountGuardian.sol";
 import "../../../src/accounts/AccountProxy.sol";
 
@@ -19,7 +19,7 @@ import "./mocks/MockExecutor.sol";
 contract AccountERC721Test is Test {
     MockERC721 public dummyERC721;
 
-    AccountV3 implementation;
+    AccountV3Optimum implementation;
     ERC6551Registry public registry;
     AccountGuardian public guardian;
     MockERC721 public tokenCollection;
@@ -28,7 +28,7 @@ contract AccountERC721Test is Test {
         dummyERC721 = new MockERC721();
         registry = new ERC6551Registry();
         guardian = new AccountGuardian(address(this));
-        implementation = new AccountV3(address(1), address(1), address(registry), address(guardian));        
+        implementation = new AccountV3Optimum(address(registry), address(guardian));        
 
         tokenCollection = new MockERC721();
     }
@@ -52,7 +52,7 @@ contract AccountERC721Test is Test {
             address(implementation), 0, block.chainid, address(tokenCollection), tokenId
         );
 
-        AccountV3 account = AccountV3(payable(accountAddress));
+        AccountV3Optimum account = AccountV3Optimum(payable(accountAddress));
 
         bytes memory erc721TransferCall = abi.encodeWithSignature(
             "safeTransferFrom(address,address,uint256)", accountAddress, user1, 1
@@ -80,7 +80,7 @@ contract AccountERC721Test is Test {
         assertEq(dummyERC721.balanceOf(accountAddress), 1);
         assertEq(dummyERC721.ownerOf(1), accountAddress);
 
-        AccountV3 account = AccountV3(payable(accountAddress));
+        AccountV3Optimum account = AccountV3Optimum(payable(accountAddress));
 
         bytes memory erc721TransferCall =
             abi.encodeWithSignature("safeTransferFrom(address,address,uint256)", account, user1, 1);
@@ -130,7 +130,7 @@ contract AccountERC721Test is Test {
         accountAddress = registry.createAccount(
             address(implementation), 0, block.chainid, address(tokenCollection), tokenId
         );
-        AccountV3 account = AccountV3(payable(accountAddress));
+        AccountV3Optimum account = AccountV3Optimum(payable(accountAddress));
 
         bytes memory erc721TransferCall =
             abi.encodeWithSignature("transferFrom(address,address,uint256)", accountAddress, user2, 2);

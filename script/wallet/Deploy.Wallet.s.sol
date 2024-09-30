@@ -11,7 +11,7 @@ import "forge-std/console.sol";
 import "forge-std/Script.sol";
 import "../../src/AccountRegistry.sol";
 import "../../src/AccountGuardian.sol";
-import "../../src/accounts/AccountV3.sol";
+import "../../src/accounts/AccountV3Optimum.sol";
 import "../../src/accounts/AccountProxy.sol";
 import "../../src/WalletFactory.sol";
 import "./UUPSProxy.sol";
@@ -63,8 +63,8 @@ contract DeployVemoWalletSC is Script {
          * uncomment if want to deploy from the scratch 
          */
         AccountGuardian guardian = new AccountGuardian {salt: bytes32(salt)} (owner);
-        AccountV3 accountv3Implementation = new AccountV3{salt: bytes32(salt)}(
-            entrypointERC4337, address(forwarder), address(registry), address(guardian));
+        AccountV3Optimum accountv3Implementation = new AccountV3Optimum{salt: bytes32(salt)}(
+            address(registry), address(guardian));
 
         guardian.setTrustedImplementation(address(accountv3Implementation), true);
         guardian.setTrustedExecutor(tokenboundLayerZero, true);

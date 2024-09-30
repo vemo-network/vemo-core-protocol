@@ -6,7 +6,7 @@ import "forge-std/console.sol";
 import "forge-std/Script.sol";
 import "../../src/AccountRegistry.sol";
 import "../../src/AccountGuardian.sol";
-import "../../src/accounts/AccountV3.sol";
+import "../../src/accounts/AccountV3Optimum.sol";
 import "../../src/WalletFactory.sol";
 
 import {Upgrades} from "openzeppelin-foundry-upgrades/Upgrades.sol";

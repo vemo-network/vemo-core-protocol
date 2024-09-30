@@ -12,7 +12,7 @@ import "erc6551/ERC6551Registry.sol";
 import "erc6551/interfaces/IERC6551Account.sol";
 import "erc6551/interfaces/IERC6551Executable.sol";
 
-import "../../../src/accounts/AccountV3.sol";
+import "../../../src/accounts/AccountV3Optimum.sol";
 import "../../../src/accounts/AccountV3Upgradable.sol";
 import "../../../src/AccountGuardian.sol";
 import "../../../src/accounts/AccountProxy.sol";
@@ -27,7 +27,7 @@ import "./mocks/MockReverter.sol";
 import "./mocks/MockAccountUpgradable.sol";
 
 contract AccountTest is Test {
-    AccountV3 implementation;
+    AccountV3Optimum implementation;
     AccountV3Upgradable upgradableImplementation;
     ERC6551Registry public registry;
     AccountGuardian public guardian;
@@ -44,7 +44,7 @@ contract AccountTest is Test {
         registry = new ERC6551Registry();
 
         guardian = new AccountGuardian(address(this));
-        implementation = new AccountV3(address(1), address(1), address(registry), address(guardian));
+        implementation = new AccountV3Optimum( address(registry), address(guardian));
 
         vm.makePersistent(address(registry));
         vm.makePersistent(address(guardian));
@@ -81,7 +81,7 @@ contract AccountTest is Test {
 
         vm.deal(accountAddress, 1 ether);
 
-        AccountV3 account = AccountV3(payable(accountAddress));
+        AccountV3Optimum account = AccountV3Optimum(payable(accountAddress));
 
         vm.prank(crossChainExecutor);
         uint256 user1BlBefore = user1.balance;
@@ -105,7 +105,7 @@ contract AccountTest is Test {
             address(implementation), 0, block.chainid, address(tokenCollection), tokenId
         );
 
-        AccountV3 nativeAccount = AccountV3(payable(nativeAccountAddress));
+        AccountV3Optimum nativeAccount = AccountV3Optimum(payable(nativeAccountAddress));
 
         vm.prank(crossChainExecutor);
         vm.expectRevert(NotAuthorized.selector);
@@ -135,7 +135,7 @@ contract AccountTest is Test {
 
         vm.deal(accountAddress, 1 ether);
 
-        AccountV3 account = AccountV3(payable(accountAddress));
+        AccountV3Optimum account = AccountV3Optimum(payable(accountAddress));
 
         uint256 user1BlBefore = user1.balance;
 
@@ -154,7 +154,7 @@ contract AccountTest is Test {
             address(implementation), 0, block.chainid, address(tokenCollection), tokenId
         );
 
-        AccountV3 nativeAccount = AccountV3(payable(nativeAccountAddress));
+        AccountV3Optimum nativeAccount = AccountV3Optimum(payable(nativeAccountAddress));
 
         // portal cannot be used to access native OP accounts
         vm.prank(OPAddressAliasHelper.applyL1ToL2Alias(accountAddress));
