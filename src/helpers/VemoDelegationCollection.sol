@@ -11,7 +11,6 @@ import "../interfaces/IExecutionTerm.sol";
 import "../interfaces/IDelegationCollection.sol";
 import "../interfaces/ICollectionDeployer.sol";
 
-import "forge-std/console.sol";
 /**
  * VemoDelegateCollection 
  * - ERC721

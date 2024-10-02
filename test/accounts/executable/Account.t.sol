@@ -41,7 +41,7 @@ contract AccountTest is Test {
 
         forwarder = new Multicall3();
         guardian = new AccountGuardian(address(this));
-        implementation = new AccountV3Optimum(address(1), 
+        implementation = new AccountV3Optimum(address(forwarder), 
             address(registry), address(guardian)
         );
         upgradableImplementation = new AccountV3Upgradable(
