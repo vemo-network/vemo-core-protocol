@@ -64,7 +64,7 @@ contract DeployVemoWalletSC is Script {
          */
         AccountGuardian guardian = new AccountGuardian {salt: bytes32(salt)} (owner);
         AccountV3Optimum accountv3Implementation = new AccountV3Optimum{salt: bytes32(salt)}(
-            address(registry), address(guardian));
+            address(forwarder),address(registry), address(guardian));
 
         guardian.setTrustedImplementation(address(accountv3Implementation), true);
         guardian.setTrustedExecutor(tokenboundLayerZero, true);

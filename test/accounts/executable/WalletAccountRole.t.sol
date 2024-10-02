@@ -66,7 +66,7 @@ contract WalletAccountRoleTest is Test {
         forwarder = new Multicall3();
         guardian = new AccountGuardian(address(this));
         upgradableImplementation = new NFTAccountDelegable(
-            address(registry), address(guardian)
+            address(forwarder), address(registry), address(guardian)
         );
         proxy = new AccountProxy(address(guardian), address(upgradableImplementation));
 

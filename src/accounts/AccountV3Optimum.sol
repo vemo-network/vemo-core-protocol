@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.13;
+pragma solidity ^0.8.23;
 
 import "@openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
 import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
 import "erc6551/lib/ERC6551AccountLib.sol";
 
 import "../abstract/ERC6551Account.sol";
-import "../abstract/execution/ERC6551Executor.sol";
+import "../abstract/execution/TokenboundExecutor.sol";
 import "../lib/OPAddressAliasHelper.sol";
 import "../interfaces/IAccountGuardian.sol";
 
@@ -19,7 +19,7 @@ contract AccountV3Optimum is
     ERC721Holder,
     ERC1155Holder,
     ERC6551Account,
-    ERC6551Executor
+    TokenboundExecutor
 {
     IAccountGuardian immutable guardian;
     address immutable __self = address(this);
@@ -30,9 +30,10 @@ contract AccountV3Optimum is
      * @param _guardian The AccountGuardian address
      */
     constructor(
+        address _multicallForwarder,
         address _erc6551Registry,
         address _guardian
-    ) ERC6551Executor() {
+    ) TokenboundExecutor(_multicallForwarder) {
         guardian = IAccountGuardian(_guardian);
         erc6551Registry = _erc6551Registry;
     }

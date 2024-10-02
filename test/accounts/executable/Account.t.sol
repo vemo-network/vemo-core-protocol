@@ -41,11 +41,11 @@ contract AccountTest is Test {
 
         forwarder = new Multicall3();
         guardian = new AccountGuardian(address(this));
-        implementation = new AccountV3Optimum(
+        implementation = new AccountV3Optimum(address(1), 
             address(registry), address(guardian)
         );
         upgradableImplementation = new AccountV3Upgradable(
-            address(registry), address(guardian)
+            address(forwarder), address(registry), address(guardian)
         );
         proxy = new AccountProxy(address(guardian), address(upgradableImplementation));
 
@@ -303,7 +303,6 @@ contract AccountTest is Test {
         MockAccountUpgradable upgradedImplementation = new MockAccountUpgradable(
             address(1),
             address(1),
-            address(1),
             address(1)
         );
 
@@ -327,4 +326,126 @@ contract AccountTest is Test {
         vm.expectRevert(InvalidImplementation.selector);
         new AccountProxy(address(0), address(1));
     }
+
+    function testExecuteBatch() public {
+      uint256 tokenId = 1;
+      address user1 = vm.addr(1);
+      address user2 = vm.addr(2);
+
+      address accountAddress = registry.createAccount(
+          address(implementation), 0, block.chainid, address(tokenCollection), tokenId
+      );
+
+      vm.deal(accountAddress, 1 ether);
+
+      AccountV3Optimum account = AccountV3Optimum(payable(accountAddress));
+
+      BatchExecutor.Operation[] memory operations = new BatchExecutor.Operation[](3);
+      operations[0] = BatchExecutor.Operation(vm.addr(2), 0.1 ether, "", 0);
+      operations[1] = BatchExecutor.Operation(vm.addr(3), 0.1 ether, "", 0);
+      operations[2] = BatchExecutor.Operation(vm.addr(4), 0.1 ether, "", 0);
+
+      uint256 state = account.state();
+
+      // should succeed when called by owner
+      vm.prank(user1);
+      account.executeBatch(operations);
+
+      // batch execution should change state
+      assertTrue(state != account.state());
+
+      assertEq(vm.addr(2).balance, 0.1 ether);
+      assertEq(vm.addr(3).balance, 0.1 ether);
+      assertEq(vm.addr(4).balance, 0.1 ether);
+
+      // should fail when called by non-owner
+      vm.prank(user2);
+      vm.expectRevert(NotAuthorized.selector);
+      account.executeBatch(operations);
+  }
+
+
+  function testExecuteForwarder() public {
+      uint256 tokenId = 1;
+      address user1 = vm.addr(1);
+      address user2 = vm.addr(2);
+
+      address accountAddress = registry.createAccount(
+          address(implementation), 0, block.chainid, address(tokenCollection), tokenId
+      );
+
+      tokenCollection.mint(user1, 2);
+
+      address accountAddress2 = registry.createAccount(
+          address(implementation), 0, block.chainid, address(tokenCollection), 2
+      );
+
+      tokenCollection.mint(user1, 3);
+
+      address accountAddress3 = registry.createAccount(
+          address(implementation), 0, block.chainid, address(tokenCollection), 3
+      );
+
+      vm.deal(accountAddress, 1 ether);
+      vm.deal(accountAddress2, 1 ether);
+      vm.deal(accountAddress3, 1 ether);
+
+      Multicall3.Call3[] memory calls = new Multicall3.Call3[](3);
+      calls[0] = Multicall3.Call3(
+          accountAddress,
+          false,
+          abi.encodeWithSignature(
+              "execute(address,uint256,bytes,uint8)",
+              vm.addr(2),
+              0.1 ether,
+              "",
+              LibExecutor.OP_CALL
+          )
+      );
+      calls[1] = Multicall3.Call3(
+          accountAddress2,
+          false,
+          abi.encodeWithSignature(
+              "execute(address,uint256,bytes,uint8)",
+              vm.addr(2),
+              0.1 ether,
+              "",
+              LibExecutor.OP_CALL
+          )
+      );
+      calls[2] = Multicall3.Call3(
+          accountAddress3,
+          false,
+          abi.encodeWithSignature(
+              "execute(address,uint256,bytes,uint8)",
+              vm.addr(2),
+              0.1 ether,
+              "",
+              LibExecutor.OP_CALL
+          )
+      );
+
+      vm.prank(user1);
+      Multicall3.Result[] memory results = forwarder.aggregate3(calls);
+      for (uint256 i = 0; i < results.length; i++) {
+          assertTrue(results[i].success);
+          assertEq(results[i].returnData, abi.encode(new bytes(0)));
+      }
+
+      assertEq(user2.balance, 0.3 ether);
+
+      // should fail when called by non-owner
+      vm.prank(user2);
+      vm.expectRevert("Multicall3: call failed");
+      results = forwarder.aggregate3(calls);
+
+      // balance should not have changed
+      assertEq(user2.balance, 0.3 ether);
+
+      for (uint256 i = 0; i < results.length; i++) {
+          assertFalse(results[i].success);
+          assertEq(bytes4(results[i].returnData), NotAuthorized.selector);
+      }
+  }
+
 }

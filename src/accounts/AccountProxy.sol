@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.13;
+pragma solidity ^0.8.23;
 
 import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Utils.sol";
 import "@openzeppelin/contracts/proxy/Proxy.sol";

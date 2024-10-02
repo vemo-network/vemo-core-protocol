@@ -46,7 +46,7 @@ contract WalletFactoryBaseTest is Test {
     VemoWalletCollection nft;
     ERC6551Registry accountRegistry = new ERC6551Registry();
     AccountGuardian guardian = new AccountGuardian(address(this));
-    AccountV3Optimum accountImpl = new AccountV3Optimum( address(accountRegistry), address(guardian));
+    AccountV3Optimum accountImpl = new AccountV3Optimum(address(1),  address(accountRegistry), address(guardian));
 
     address account;
     USDT usdt = new USDT();

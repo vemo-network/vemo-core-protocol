@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.23;
 
 interface IExecutionTerm {
     function isValidSignature(bytes32 hash, bytes calldata signature)
@@ -35,12 +35,4 @@ interface IExecutionTerm {
     function setSplitRatio(uint16 _splitRatio) external;
     function splitRatio() external returns(uint16 _splitRatio);
 
-    function setTermProperties(
-        address _nftCollectionAddress,
-        bytes4[] memory _selectors,
-        bytes4[] memory _harvestSelectors,
-        address[] memory _whitelist,
-        address[] memory _rewardAssets_
-    ) external;
-    
 }

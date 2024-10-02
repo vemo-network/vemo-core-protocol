@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.21;
+pragma solidity ^0.8.23;
 
 /// @dev the ERC-165 identifier for this interface is `0xd212301b`
 interface IDynamic {

@@ -28,7 +28,7 @@ contract AccountERC721Test is Test {
         dummyERC721 = new MockERC721();
         registry = new ERC6551Registry();
         guardian = new AccountGuardian(address(this));
-        implementation = new AccountV3Optimum(address(registry), address(guardian));        
+        implementation = new AccountV3Optimum(address(1), address(registry), address(guardian));        
 
         tokenCollection = new MockERC721();
     }

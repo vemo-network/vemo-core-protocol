@@ -31,7 +31,7 @@ contract AccountERC20Test is Test {
         registry = new ERC6551Registry();
 
         guardian = new AccountGuardian(address(this));
-        implementation = new AccountV3Optimum(address(registry), address(guardian));
+        implementation = new AccountV3Optimum(address(1), address(registry), address(guardian));
         registry = new ERC6551Registry();
 
         tokenCollection = new MockERC721();

@@ -44,7 +44,7 @@ contract AccountTest is Test {
         registry = new ERC6551Registry();
 
         guardian = new AccountGuardian(address(this));
-        implementation = new AccountV3Optimum( address(registry), address(guardian));
+        implementation = new AccountV3Optimum(address(1),  address(registry), address(guardian));
 
         vm.makePersistent(address(registry));
         vm.makePersistent(address(guardian));

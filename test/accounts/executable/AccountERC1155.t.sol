@@ -29,7 +29,7 @@ contract AccountERC1155Test is Test {
     function setUp() public {
         dummyERC1155 = new MockERC1155();
         registry = new ERC6551Registry();
-        implementation = new AccountV3Optimum( address(registry), address(guardian));
+        implementation = new AccountV3Optimum(address(1),  address(registry), address(guardian));
 
         tokenCollection = new MockERC721();
     }
