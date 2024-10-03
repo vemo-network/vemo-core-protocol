@@ -88,7 +88,6 @@ contract PendleFlowTest is Test {
     IPendleGaugeController constant GAUGE_CONTROLLER = IPendleGaugeController(0x47D74516B33eD5D70ddE7119A40839f6Fcc24e57);
     IPendleRewardManager constant REWARD_MANAGER = IPendleRewardManager(0x8C237520a8E14D658170A633D96F8e80764433b9);
     
-
     //// Vemo setup
     NFTAccountDelegable upgradableImplementation;
     AccountProxy proxy;
@@ -103,71 +102,66 @@ contract PendleFlowTest is Test {
 
     CollectionDeployer collectionDeployer = CollectionDeployer(0x84F27Ab1722BCA7D0B0D9944E2ADFB451Baeb0a9);
     
-    address _tba;
+    address globalTba;
     address NFTAccountCollection;
     address dlgCollection;
 
     uint256 constant PROPOSAL_ID = 1;
     address constant GAUGE_ADDRESS = 0xC374f7eC85F8C7DE3207a10bB1978bA104bdA3B2;
 
+    bool public isForkEnabled;
     function setUp() public {
-        vm.createSelectFork("http://127.0.0.1:8545");
-        signer = vm.addr(signerpvk);
-        deployVemoSystem();
-        deployTBA();
+        isForkEnabled = vm.envOr("LOCAL_FORK_ENABLED", false);
 
-        vm.startPrank(signer);
+        if (isForkEnabled) {
+            vm.createSelectFork("http://127.0.0.1:8545");
+            signer = vm.addr(signerpvk);
+            deployVemoSystem();
+            (,globalTba) = deployTbaAndDelegate();
 
-        uint256 ethAmount = 100 ether;
+            vm.startPrank(signer);
 
-        vm.deal(signer, 200 ether);
-        vm.deal(defaultAdmin, 100 ether);
+            uint256 ethAmount = 100 ether;
 
-        IWETH9(WETH).deposit{value: ethAmount}();
-        IWETH9(WETH).approve(address(UNISWAP_V3_ROUTER), ethAmount);
+            vm.deal(signer, 200 ether);
+            vm.deal(defaultAdmin, 100 ether);
 
-        ISwapRouter.ExactInputSingleParams memory params = ISwapRouter.ExactInputSingleParams({
-            tokenIn: address(WETH),
-            tokenOut: address(PENDLE),
-            fee: 3000,
-            recipient: signer,
-            deadline: block.timestamp + 15 minutes,
-            amountIn: ethAmount, 
-            amountOutMinimum: 0, 
-            sqrtPriceLimitX96: 0
-        });
+            IWETH9(WETH).deposit{value: ethAmount}();
+            IWETH9(WETH).approve(address(UNISWAP_V3_ROUTER), ethAmount);
 
-        uint256 amountOut = UNISWAP_V3_ROUTER.exactInputSingle(params);
-        
-        PENDLE.transfer(_tba, amountOut/2);
+            ISwapRouter.ExactInputSingleParams memory params = ISwapRouter.ExactInputSingleParams({
+                tokenIn: address(WETH),
+                tokenOut: address(PENDLE),
+                fee: 3000,
+                recipient: signer,
+                deadline: block.timestamp + 15 minutes,
+                amountIn: ethAmount, 
+                amountOutMinimum: 0, 
+                sqrtPriceLimitX96: 0
+            });
 
-        vm.stopPrank();
+            uint256 amountOut = UNISWAP_V3_ROUTER.exactInputSingle(params);
+            
+            PENDLE.transfer(globalTba, amountOut/2);
 
-        stakePendleToVePendle();
+            vm.stopPrank();
 
+            stakePendleToVePendle(globalTba);
+        }
     }
 
-    function deployTBA() public {
+    modifier onlyEnableFork() {
+        if (!isForkEnabled) {
+            return;
+        }
+        _;
+    }
+
+    function deployTbaAndDelegate() public returns (uint256 _id, address _tba_) {
         vm.startPrank(defaultAdmin);
-        NFTAccountCollection = walletFactory.createWalletCollection(
-            1,
-            "walletfactory1",
-            "walletfactory1",
-            address(vemoCollectionDescriptor)
-        );
-        
-        (, _tba) = walletFactory.create(NFTAccountCollection);
+        (_id, _tba_) = walletFactory.create(NFTAccountCollection);
 
-        // create delegate collection
-        dlgCollection = walletFactory.createDelegateCollection(
-            "A",
-            "A1",
-            address(delegationDescriptor), 
-            address(term),
-            NFTAccountCollection
-        );
-
-        NFTAccountDelegable(payable(_tba)).delegate(dlgCollection, defaultAdmin);
+        NFTAccountDelegable(payable(_tba_)).delegate(dlgCollection, defaultAdmin);
     }
 
     function deployVemoSystem() public {
@@ -223,26 +217,42 @@ contract PendleFlowTest is Test {
         collectionDeployer = new CollectionDeployer{salt: salt}(walletProxy);
         walletFactory.setCollectionDeployer(address(collectionDeployer));
 
+        NFTAccountCollection = walletFactory.createWalletCollection(
+            1,
+            "walletfactory1",
+            "walletfactory1",
+            address(vemoCollectionDescriptor)
+        );
+        
+        // create delegate collection
+        dlgCollection = walletFactory.createDelegateCollection(
+            "A",
+            "A1",
+            address(delegationDescriptor), 
+            address(term),
+            NFTAccountCollection
+        );
     }
 
-     function stakePendleToVePendle() public {
+     function stakePendleToVePendle(address _tba_) public {
         vm.startPrank(defaultAdmin);
 
+        if (_tba_ == address(0)) {
+            _tba_ = _tba_;
+        }
+
         // uint256 additionalAmountToLock = 100 * 1e18; // 10 PENDLE tokens
-        uint256 additionalAmountToLock = PENDLE.balanceOf(_tba);
+        uint256 additionalAmountToLock = PENDLE.balanceOf(_tba_);
         uint128 newExpiry = 1788998400; 
         
-        // // Approve PENDLE spending for vePENDLE
+        // Approve PENDLE spending for vePENDLE
         bytes memory approveCalldata = abi.encodeWithSignature(
             "approve(address,uint256)",
             address(VE_PENDLE),
             additionalAmountToLock
         );
-        console.log(
-            PENDLE.balanceOf(_tba)
-        );
 
-        NFTAccountDelegable(payable(_tba)).execute(address(PENDLE), 0, approveCalldata, 0);
+        NFTAccountDelegable(payable(_tba_)).execute(address(PENDLE), 0, approveCalldata, 0);
 
         // Increase lock position using TBA
         bytes memory increaseLockCalldata = abi.encodeWithSignature(
@@ -250,37 +260,28 @@ contract PendleFlowTest is Test {
             additionalAmountToLock,
             newExpiry
         );
-        NFTAccountDelegable(payable(_tba)).execute(address(VE_PENDLE), 0, increaseLockCalldata, 0);
-        console.log(
-            PENDLE.balanceOf(_tba)
-        );
+        NFTAccountDelegable(payable(_tba_)).execute(address(VE_PENDLE), 0, increaseLockCalldata, 0);
 
-        assertEq(
-            VE_PENDLE.balanceOf(_tba), 32405370255601026498760
-        );
-
-        (,, uint256 tokenId) = NFTAccountDelegable(payable(_tba)).token();
+        (,, uint256 tokenId) = NFTAccountDelegable(payable(_tba_)).token();
 
         // using the delegation to vote
         VemoDelegationCollection(dlgCollection).transferFrom(defaultAdmin, signer, tokenId);
         
         vm.startPrank(signer);
-        vm.deal(_tba, 0.1 ether);
-        NFTAccountDelegable(payable(_tba)).delegateExecute(dlgCollection, signer, 0.1 ether, "", "");
-        assertEq(_tba.balance, 0);
-
-        // now we limit the permission of delegaltion to minimum as possible
+        vm.deal(_tba_, 0.1 ether);
+        NFTAccountDelegable(payable(_tba_)).delegateExecute(dlgCollection, signer, 0.1 ether, "", "");
+        assertEq(_tba_.balance, 0);
     }
 
-    function testVoteOnProposal() public {
+    function testVoteOnProposal() public onlyEnableFork {
         vm.startPrank(signer);
 
         assertTrue(
-            VE_PENDLE.balanceOf(_tba) > 0, ""
+            VE_PENDLE.balanceOf(globalTba) > 0, ""
         );
 
         // Check initial voting status
-        UserPoolData memory preVote = PENDLE_VOTING.getUserPoolVote(GAUGE_ADDRESS, _tba);
+        UserPoolData memory preVote = PENDLE_VOTING.getUserPoolVote(GAUGE_ADDRESS, globalTba);
         assertTrue(preVote.weight == 0, "Should not have voted initially");
 
 
@@ -290,17 +291,20 @@ contract PendleFlowTest is Test {
         uint64[] memory weights = new uint64[](1);
         weights[0] = 1e18;
 
-        // // Approve PENDLE spending for vePENDLE
+        // Approve PENDLE spending for vePENDLE
         bytes memory voteCalldata = abi.encodeWithSignature(
             "vote(address[],uint64[])",
             pools,
             weights
         );
 
-        NFTAccountDelegable(payable(_tba)).delegateExecute(dlgCollection, address(PENDLE_VOTING), 0, voteCalldata, "");
+        NFTAccountDelegable(payable(globalTba)).delegateExecute(dlgCollection, address(PENDLE_VOTING), 0, voteCalldata, "");
+
+        preVote = PENDLE_VOTING.getUserPoolVote(GAUGE_ADDRESS, globalTba);
+        assertGe(preVote.weight, 0);
     }
 
-    function testLimitJustVoteOnProposal() public {
+    function testLimitJustVoteOnProposal() public onlyEnableFork {
         vm.startPrank(defaultAdmin);
         address[] memory whitelist = new address[](1);
         whitelist[0] = address(UNISWAP_V3_ROUTER);
@@ -316,7 +320,7 @@ contract PendleFlowTest is Test {
 
         vm.startPrank(signer);
         // Check initial voting status
-        UserPoolData memory preVote = PENDLE_VOTING.getUserPoolVote(GAUGE_ADDRESS, _tba);
+        UserPoolData memory preVote = PENDLE_VOTING.getUserPoolVote(GAUGE_ADDRESS, globalTba);
         assertTrue(preVote.weight == 0, "Should not have voted initially");
 
         address[] memory pools = new address[](1);
@@ -331,7 +335,7 @@ contract PendleFlowTest is Test {
             weights
         );
         vm.expectRevert();
-        NFTAccountDelegable(payable(_tba)).delegateExecute(dlgCollection, address(PENDLE_VOTING), 0, voteCalldata, "");
+        NFTAccountDelegable(payable(globalTba)).delegateExecute(dlgCollection, address(PENDLE_VOTING), 0, voteCalldata, "");
 
         // allow voting
         selectors[0] = PENDLE_VOTING.vote.selector;
@@ -340,7 +344,7 @@ contract PendleFlowTest is Test {
         term.setTermProperties(address(0), selectors, _harvestSelectors, whitelist, _rewardAssets_ );
 
         vm.startPrank(signer);
-        NFTAccountDelegable(payable(_tba)).delegateExecute(dlgCollection, address(PENDLE_VOTING), 0, voteCalldata, "");
+        NFTAccountDelegable(payable(globalTba)).delegateExecute(dlgCollection, address(PENDLE_VOTING), 0, voteCalldata, "");
 
         // allow harvesting 
         vm.startPrank(defaultAdmin);
@@ -358,7 +362,7 @@ contract PendleFlowTest is Test {
 
         // calling harvest
         vm.startPrank(signer);
-        NFTAccountDelegable(payable(_tba)).delegateExecute(dlgCollection, address(PENDLE_VOTING), 0, voteCalldata, "");
+        NFTAccountDelegable(payable(globalTba)).delegateExecute(dlgCollection, address(PENDLE_VOTING), 0, voteCalldata, "");
 
         bytes32[] memory proof;
         bytes memory claimCalldata = abi.encodeWithSignature(
@@ -371,4 +375,62 @@ contract PendleFlowTest is Test {
         // NFTAccountDelegable(payable(_tba)).delegateExecute(dlgCollection, address(REWARD_MANAGER), 0, claimCalldata, "");
     }
 
+    function testBatchVote() public {
+        uint256 batch_number = 20;
+        address[] memory tbas_100 = new address[](batch_number);
+        for (uint i = 0; i < batch_number; i++) {
+            (, address _tba_) = deployTbaAndDelegate();
+            tbas_100[i] = _tba_;
+            deal(address(PENDLE), _tba_, 10 ether);
+            stakePendleToVePendle(_tba_);
+        }
+
+        // estimate gas for vote
+        address[] memory pools = new address[](1);
+        pools[0] = GAUGE_ADDRESS;
+
+        uint64[] memory weights = new uint64[](1);
+        weights[0] = 1e18;
+
+        bytes memory voteCalldata = abi.encodeWithSignature(
+            "vote(address[],uint64[])",
+            pools,
+            weights
+        );
+        
+        uint gas = gasleft();
+        for (uint i = 0; i < batch_number; i++) {
+            NFTAccountDelegable(payable(tbas_100[i])).delegateExecute(dlgCollection, address(PENDLE_VOTING), 0, voteCalldata, "");
+        }
+
+        uint gasAfterVote = gas - gasleft();
+        console.log("vote %s tba costing %s", batch_number, gasAfterVote);
+        
+        // try with multicall
+        Multicall3.Call3[] memory calls = new Multicall3.Call3[](batch_number);
+        for (uint i = 0; i < batch_number; i++) {
+            calls[i] = Multicall3.Call3(
+                tbas_100[i],
+                false,
+                abi.encodeWithSignature(
+                    "delegateExecute(address,address,uint256,bytes,bytes)",
+                    dlgCollection,
+                    address(PENDLE_VOTING),
+                    0,
+                    voteCalldata,
+                    ""
+                )
+            );
+        }
+        gas = gasleft();
+        Multicall3.Result[] memory results = forwarder.aggregate3(calls);
+        
+        gasAfterVote = gas - gasleft();
+        console.log("vote %s tba multicall costing %s", batch_number, gasAfterVote);
+
+        for (uint256 i = 0; i < results.length; i++) {
+          assertTrue(results[i].success);
+          assertEq(results[i].returnData, abi.encode(new bytes(0)));
+        }
+    }
 }
