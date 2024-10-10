@@ -284,5 +284,47 @@ contract WalletAccountRoleTest is Test {
         
         assertEq(address(user).balance, 1 ether / 10000);
         assertEq(address(_tba).balance, 1 ether -  (1 ether / 10000));
+
     }
+
+    function testExecuteThruTerm() public {
+        vm.startPrank(defaultAdmin);
+        address nftAddress = walletFactory.createWalletCollection(
+            uint160(address(usdt)),
+            "walletfactory",
+            "walletfactory",
+            address(vemoCollectionDescriptor)
+        );
+        
+        (uint256 tokenId, address _tba) = walletFactory.create(nftAddress);
+        // create delegate collection
+        address dlgCollection = walletFactory.createDelegateCollection(
+            "A",
+            "A1",
+            address(descriptor), 
+            address(term),
+            nftAddress
+        );
+        vm.stopPrank();
+
+        guardian.setTrustedImplementation(address(dlgCollection), true);
+
+        vm.startPrank(defaultAdmin);
+        // mint a derivative nft of that TBA
+        NFTAccountDelegable(payable(_tba)).delegate(dlgCollection, defaultAdmin);
+
+        vm.expectCall(
+            address(term),
+            abi.encodeWithSelector(VeTerm.execute.selector)
+        );
+        NFTAccountDelegable(payable(_tba)).execute(
+            address(pendle),
+            0,
+            abi.encodeWithSignature(
+                "claim()"
+            ),
+            0
+        );
+    }
+    
 }
