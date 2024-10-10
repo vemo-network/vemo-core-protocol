@@ -33,7 +33,7 @@ import "./mocks/MockAccountUpgradable.sol";
 import {WalletFactory} from "../../../src/WalletFactory.sol";
 import {NFTDelegationDescriptor} from "../../../src/helpers/NFTDescriptor/DelegationURI/NFTDelegationDescriptor.sol";
 import {NFTAccountDescriptor} from "../../../src/helpers/NFTDescriptor/NFTAccount/NFTAccountDescriptor.sol";
-import {VePendleTerm} from "../../../src/terms/VePendleTerm.sol";
+import {VeTerm} from "../../../src/terms/VeTerm.sol";
 
 contract WalletAccountRoleTest is Test {
     Multicall3 forwarder;
@@ -54,7 +54,7 @@ contract WalletAccountRoleTest is Test {
     address feeReceiver = vm.addr(feeReceiverPrivateKey);
     NFTDelegationDescriptor descriptor;
     NFTAccountDescriptor vemoCollectionDescriptor;
-    VePendleTerm term;
+    VeTerm term;
 
     CollectionDeployer collectionDeployer;
     USDT usdt = new USDT();
@@ -99,10 +99,10 @@ contract WalletAccountRoleTest is Test {
             )
         ));
 
-        term = VePendleTerm(payable(Upgrades.deployUUPSProxy(
-            "VePendleTerm.sol:VePendleTerm",
+        term = VeTerm(payable(Upgrades.deployUUPSProxy(
+            "VeTerm.sol:VeTerm",
             abi.encodeCall(
-                VePendleTerm.initialize,
+                VeTerm.initialize,
                 (
                     address(this),
                     walletProxy,
@@ -116,21 +116,23 @@ contract WalletAccountRoleTest is Test {
         // init vePendle term and mock pendle reward
         vm.deal(address(pendle), 1 ether);
 
-        bytes4[] memory selectors;
         bytes4[] memory _harvestSelectors = new bytes4[](1);
         _harvestSelectors[0] = pendle.claim.selector;
-        address[] memory _whitelist;
         address[] memory _rewardAssets_ = new address[](1);
         _rewardAssets_[0] = address(0);
 
+        bytes24[] memory actions = new bytes24[](2);
+        bytes24[] memory _harvestActions =  new bytes24[](1);
+        actions[0] = bytes24(abi.encodePacked(_harvestSelectors[0], pendle));
+        actions[1] = bytes24(abi.encodePacked(bytes4(0x0), vm.addr(2))); // allow simple transfer to 2
+        _harvestActions[0] = bytes24(abi.encodePacked(_harvestSelectors[0], pendle));
+
         term.setTermProperties(
             address(0x0),
-            selectors,
-            _harvestSelectors,
-            _whitelist,
+            actions,
+            _harvestActions,
             _rewardAssets_
         );
-        
 
         vm.startPrank(defaultAdmin);
         walletFactory.setCollectionDeployer(address(collectionDeployer));

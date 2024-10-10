@@ -7,24 +7,35 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "../interfaces/IAccountGuardian.sol";
 import "@solidity-bytes-utils/BytesLib.sol";
 import {IERC20, SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "../lib/LibExecutor.sol";
+import "forge-std/console.sol";
+
 /**
- * @title VePendleTerm
- * @notice Strategy to check if a call from delegate NFT of a TBA can be executed
+ * @title VeTerm
+ * @notice major interface
+ * 1. canExecute
+ * 2. execute
  */
-contract VePendleTerm is IExecutionTerm, UUPSUpgradeable, OwnableUpgradeable {
+contract VeTerm is IExecutionTerm, UUPSUpgradeable, OwnableUpgradeable {
     address walletFactory;
     IAccountGuardian guardian;
 
     /** Term properties */
     address nftCollectionAddress;
-    bytes4[] public selectors;
-    address[] public whitelist;
+    bytes4[] public _no_use; // no longer use
+    address[] public _no_use1; // no longer use    
     address[] private _rewardAssets;
-    bytes4[] public harvestSelectors;
+    bytes4[] public _no_use3;
     uint16 public splitRatio; // for farmer - 1 bps = 0.01%, 100% = 10000 
 
     error NonWhitelistTarget();
     error NonWhitelistAction();
+
+    enum ACTION_TYPE { EXECUTION, HARVESTING }
+    mapping(bytes24 => bool) public allowedActions;
+    mapping(bytes24 => bool) public harvestingActions;
+    
+    bool isLimitActionsMode = false;
 
     function initialize(
         address _owner,
@@ -39,16 +50,29 @@ contract VePendleTerm is IExecutionTerm, UUPSUpgradeable, OwnableUpgradeable {
 
     function setTermProperties(
         address _nftCollectionAddress,
-        bytes4[] memory _selectors,
-        bytes4[] memory _harvestSelectors,
-        address[] memory _whitelist,
+        bytes24[] memory _actions,
+        bytes24[] memory _harvestActions,
         address[] memory _rewardAssets_
     ) public onlyOwner {
         nftCollectionAddress = _nftCollectionAddress;
-        selectors = _selectors;
-        harvestSelectors = _harvestSelectors;
-        whitelist = _whitelist;
         _rewardAssets = _rewardAssets_;
+
+        for (uint i = 0; i < _actions.length; i++) {
+            allowedActions[_actions[i]] = true;
+        }
+
+        for (uint i = 0; i < _harvestActions.length; i++) {
+            harvestingActions[_harvestActions[i]] = true;
+        }
+        isLimitActionsMode = _actions.length > 0 ? true : false;
+    }
+
+    function disallowAction(ACTION_TYPE _type, bytes4 action) public onlyOwner {
+        if (_type == ACTION_TYPE.EXECUTION) {
+            allowedActions[action] = false;
+        } else {
+            harvestingActions[action] = false;
+        }
     }
 
     function setSplitRatio(
@@ -62,13 +86,8 @@ contract VePendleTerm is IExecutionTerm, UUPSUpgradeable, OwnableUpgradeable {
         assembly {
             selector := calldataload(data.offset)
         }
-        for (uint256 i = 0; i < harvestSelectors.length; i++) {
-            if (harvestSelectors[i] == selector) {
-                return true;
-            }
-        }
 
-        return false;
+        return harvestingActions[bytes24(abi.encodePacked(selector, bytes20(to)))];
     }
 
     function split(
@@ -95,35 +114,11 @@ contract VePendleTerm is IExecutionTerm, UUPSUpgradeable, OwnableUpgradeable {
 
     function canExecute(address to, uint256 value, bytes calldata data)
         external
-        override
         view
-        // returns (bool,uint8)
-    {
-        bool isWhitelisted = whitelist.length > 0 ? false : true;
+    {   
+        bytes24 actionKey = bytes24(abi.encodePacked(bytes4(data[:4]), bytes20(to)));
 
-        for (uint256 i = 0; i < whitelist.length; i++) {
-            if (whitelist[i] == to) {
-                isWhitelisted = true;
-                break;
-            }
-        }
-        if (!isWhitelisted) revert NonWhitelistTarget();
-
-        bytes4 selector;
-        assembly {
-            selector := calldataload(data.offset)
-        }
-        
-        bool isValidSelector = selectors.length > 0 ? false : true;
-        for (uint256 i = 0; i < selectors.length; i++) {
-            if (selectors[i] == selector) {
-                isValidSelector = true;
-                break;
-            }
-        }
-
-        if (!isValidSelector) revert NonWhitelistAction();
-
+        if (isLimitActionsMode && !allowedActions[actionKey]) revert NonWhitelistAction();
     }
 
     function _authorizeUpgrade(address newImplementation) internal onlyOwner virtual override {
@@ -148,6 +143,15 @@ contract VePendleTerm is IExecutionTerm, UUPSUpgradeable, OwnableUpgradeable {
         // TODO: verify the domain and typeHash
 
         return true;
+    }
+
+    function execute(address to, uint256 value, bytes calldata data, uint8 operation)
+        external
+        payable
+        override
+        returns (bytes memory)
+    {
+        return LibExecutor._execute(to, value, data, LibExecutor.OP_CALL);
     }
     
     function rewardAssets() external view returns(address[] memory) {

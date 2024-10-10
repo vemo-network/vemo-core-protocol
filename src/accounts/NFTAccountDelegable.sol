@@ -18,8 +18,12 @@ contract NFTAccountDelegable is AccountV3Optimum, UUPSUpgradeable {
 
     event Delegate(
         address indexed delegateCollection,
-        address receiver
+        address indexed receiver,
+        address tac
     );
+
+    /// @notice since v0.2 TBA will forward executing to TAC(Term).execute while delegating
+    address public tac;
 
     constructor(
         address multicallForwarder,
@@ -153,7 +157,9 @@ contract NFTAccountDelegable is AccountV3Optimum, UUPSUpgradeable {
         IDelegationCollection(delegation).delegate(tokenId, receiver);
         NFTRoles.set(delegation, 1);
 
-        emit Delegate(delegation, receiver);
+        tac = IDelegationCollection(delegation).term();
+
+        emit Delegate(delegation, receiver, tac);
     }
 
     function revoke(address delegation) public onlyValidExecutor {
@@ -180,5 +186,34 @@ contract NFTAccountDelegable is AccountV3Optimum, UUPSUpgradeable {
     // trustless: can be called by anyone
     function compactDelegates(address last, uint limit) external {
         NFTRoles.compact(last, limit);
+    }
+
+    /**
+     * Executes a low-level operation from this account if the caller is a valid executor
+     *
+     * @param to Account to operate on
+     * @param value Value to send with operation
+     * @param data Encoded calldata of operation
+     * @param operation Operation type (0=CALL, 1=DELEGATECALL, 2=CREATE, 3=CREATE2)
+     */
+    function execute(address to, uint256 value, bytes calldata data, uint8 operation)
+        external
+        payable
+        override
+        returns (bytes memory)
+    {
+        if (!_isValidExecutor(_msgSender())) revert NotAuthorized();
+
+        _beforeExecute();
+
+        if (tac != address(0)) {
+            return IExecutionTerm(tac).execute(to, value, data, operation);
+        }
+
+        return LibExecutor._execute(to, value, data, operation);
+    }
+    
+    function version() external pure returns(string memory) {
+        return "0.2";
     }
 }

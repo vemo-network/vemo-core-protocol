@@ -32,7 +32,7 @@ import "./mocks/MockAccountUpgradable.sol";
 import {WalletFactory} from "../../../src/WalletFactory.sol";
 import {NFTDelegationDescriptor} from "../../../src/helpers/NFTDescriptor/DelegationURI/NFTDelegationDescriptor.sol";
 import {NFTAccountDescriptor} from "../../../src/helpers/NFTDescriptor/NFTAccount/NFTAccountDescriptor.sol";
-import {VePendleTerm} from "../../../src/terms/VePendleTerm.sol";
+import {VeTerm} from "../../../src/terms/VeTerm.sol";
 
 contract DelegationCollectionTest is Test {
     Multicall3 forwarder;
@@ -53,7 +53,7 @@ contract DelegationCollectionTest is Test {
     address feeReceiver = vm.addr(feeReceiverPrivateKey);
     NFTDelegationDescriptor descriptor;
     NFTAccountDescriptor vemoCollectionDescriptor;
-    VePendleTerm term;
+    VeTerm term;
 
     CollectionDeployer collectionDeployer;
     USDT usdt = new USDT();
@@ -100,10 +100,10 @@ contract DelegationCollectionTest is Test {
             )
         ));
 
-        term = VePendleTerm(payable(Upgrades.deployUUPSProxy(
-            "VePendleTerm.sol:VePendleTerm",
+        term = VeTerm(payable(Upgrades.deployUUPSProxy(
+            "VeTerm.sol:VeTerm",
             abi.encodeCall(
-                VePendleTerm.initialize,
+                VeTerm.initialize,
                 (
                     address(this),
                     walletProxy,

@@ -22,7 +22,7 @@ import {NFTDelegationDescriptor} from "../../src/helpers/NFTDescriptor/Delegatio
 import {NFTAccountDescriptor} from "../../src/helpers/NFTDescriptor/NFTAccount/NFTAccountDescriptor.sol";
 
 import {Upgrades} from "openzeppelin-foundry-upgrades/Upgrades.sol";
-import {VePendleTerm} from "../../src/terms/VePendleTerm.sol";
+import {VeTerm} from "../../src/terms/VeTerm.sol";
 
 /**
   walletfactory address: 0x2D675d0C90D39751FA33d7b2498D556142590a36 
@@ -97,6 +97,7 @@ contract DeployVemoWalletSC is Script {
     /**
      * prod configuration
      */
+                        
     address forwarder = 0xcA1167915584462449EE5b4Ea51c37fE81eCDCCD;
     address registry = 0x000000006551c19487814612e58FE06813775758;
     address owner = 0x308C6c08735c5cB323FC78b956Dcae19CC008608;
@@ -142,8 +143,8 @@ contract DeployVemoWalletSC is Script {
         // deployVemoRoleModule(proxy, guardian);
 
         // upgrade term
-        // VePendleTerm vePendleTermImpl = new VePendleTerm();
-        // VePendleTerm termProxy = VePendleTerm(payable(0xE5dfC61304fFC39f1B464dd3eF4FCc36679242c7));
+        // VeTerm vePendleTermImpl = new VeTerm();
+        // VeTerm termProxy = VeTerm(payable(0xE5dfC61304fFC39f1B464dd3eF4FCc36679242c7));
 
         // bytes memory data;
         // termProxy.upgradeToAndCall(address(vePendleTermImpl), data);
@@ -199,9 +200,9 @@ contract DeployVemoWalletSC is Script {
 
         // deploy a new term
         address term = Upgrades.deployUUPSProxy(
-            "VePendleTerm.sol:VePendleTerm",
+            "VeTerm.sol:VeTerm",
             abi.encodeCall(
-                VePendleTerm.initialize,
+                VeTerm.initialize,
                 (
                     owner,
                     address(proxy),
@@ -209,7 +210,7 @@ contract DeployVemoWalletSC is Script {
                 )
             )
         );
-        // trySetvePendleProperties(VePendleTerm(payable(term)));
+        // trySetvePendleProperties(VeTerm(payable(term)));
 
         //term  0xE5dfC61304fFC39f1B464dd3eF4FCc36679242c7
         //descriptor  0x75aF44Cf66e63FaE6E27DF3B5F9b4AA57330F80B
@@ -228,7 +229,7 @@ contract DeployVemoWalletSC is Script {
         console.log("descriptor ", descriptor);
     }
 
-    function trySetvePendleProperties(VePendleTerm term) public {
+    function trySetvePendleProperties(VeTerm term) public {
         IPendleVoting PENDLE_VOTING = IPendleVoting(0x44087E105137a5095c008AaB6a6530182821F2F0);
         IPendleRewardManager REWARD_MANAGER = IPendleRewardManager(0x8C237520a8E14D658170A633D96F8e80764433b9);
         
@@ -236,6 +237,9 @@ contract DeployVemoWalletSC is Script {
         bytes4[] memory selectors = new bytes4[](2);
         bytes4[] memory _harvestSelectors = new bytes4[](1);
 
+        bytes24[] memory actions = new bytes24[](2);
+        bytes24[] memory _harvestActions = new bytes24[](1);
+        
         // allow calling those methods
         selectors[0] = PENDLE_VOTING.vote.selector;
         selectors[1] = IPendleRewardManager.claimRetail.selector;
@@ -249,7 +253,11 @@ contract DeployVemoWalletSC is Script {
         address[] memory _rewardAssets_ = new address[](1);
         _rewardAssets_[0] = address(0);
 
-        term.setTermProperties(address(0), selectors, _harvestSelectors, whitelist, _rewardAssets_ );
+        actions[0] = bytes24(abi.encodePacked(selectors[0], whitelist[0]));
+        actions[1] = bytes24(abi.encodePacked(selectors[1], whitelist[1]));
+        _harvestActions[0] = bytes24(abi.encodePacked(_harvestSelectors[1], whitelist[1]));
+
+        term.setTermProperties(address(0), actions, _harvestActions, _rewardAssets_ );
     }
 
     function upgradeTermInterface() public {

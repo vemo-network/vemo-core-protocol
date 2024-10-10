@@ -13,7 +13,7 @@ import "../../src/CollectionDeployer.sol";
 import "multicall-authenticated/Multicall3.sol";
 import {ERC6551Registry} from "erc6551/ERC6551Registry.sol";
 import "../../src/helpers/NFTDescriptor/DelegationURI/NFTDelegationDescriptor.sol";
-import "../../src/terms/VePendleTerm.sol";
+import "../../src/terms/VeTerm.sol";
 import {Upgrades} from "openzeppelin-foundry-upgrades/Upgrades.sol";
 
 /**
@@ -79,9 +79,9 @@ contract UpgradeVemoWalletTestnetSC is Script {
 
         // // deploy a new term
         address term = Upgrades.deployUUPSProxy(
-            "VePendleTerm.sol:VePendleTerm",
+            "VeTerm.sol:VeTerm",
             abi.encodeCall(
-                VePendleTerm.initialize,
+                VeTerm.initialize,
                 (
                     owner,
                     address(proxy),

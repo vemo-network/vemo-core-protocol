@@ -8,7 +8,7 @@ import "forge-std/console.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import {Upgrades} from "openzeppelin-foundry-upgrades/Upgrades.sol";
 import "./WalletFactory.base.sol";
-import "../../../src/terms/VePendleTerm.sol";
+import "../../../src/terms/VeTerm.sol";
 import {NFTAccountDelegable} from "../../../src/accounts/NFTAccountDelegable.sol";
 import "../../../src/helpers/NFTDescriptor/DelegationURI/NFTDelegationDescriptor.sol";
 
@@ -78,7 +78,7 @@ contract WalletFactoryUtilsTest is Test, WalletFactoryBaseTest {
             "random",
             address(vemoCollectionDescriptor)
         );
-        VePendleTerm vePendleTerm = new VePendleTerm();
+        VeTerm vePendleTerm = new VeTerm();
 
         address delegateCollection = walletFactory.createDelegateCollection(
             "A",
