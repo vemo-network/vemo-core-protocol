@@ -5,6 +5,7 @@ interface IDelegationCollection {
     function term() external view returns (address);
     function issuer() external view returns (address);
     function tba(uint256) external view returns (address);
+    function isValidDelegatee(uint256) external returns (bool);
 
     // actions
     function burn(uint256 tokenId) external;

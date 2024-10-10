@@ -126,6 +126,10 @@ contract VemoDelegationCollection is ERC721, Ownable, IDelegationCollection  {
         revokingRoles[tokenId] = 0;
     }
 
+    function isValidDelegatee(uint256 tokenId) external view returns (bool) {
+        return revokingRoles[tokenId] == 0 || (revokingRoles[tokenId] > 0 && revokingRoles[tokenId] < block.timestamp);
+    }
+
     function tba(uint256 tokenId) external view returns(address) {
         return IWalletFactory(walletFactory).getTokenBoundAccount(issuer, tokenId);
     }

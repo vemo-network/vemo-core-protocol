@@ -271,7 +271,6 @@ contract WalletAccountRoleTest is Test {
         MockERC721(dlgCollection).transferFrom(defaultAdmin, user, tokenId);
 
         vm.startPrank(user);
-        
         NFTAccountDelegable(payable(_tba)).delegateExecute(
             dlgCollection,
             address(pendle),

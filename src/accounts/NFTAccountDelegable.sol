@@ -56,6 +56,7 @@ contract NFTAccountDelegable is AccountV3Optimum, UUPSUpgradeable {
         (, , uint256 tokenId) = ERC6551AccountLib.token();
 
         if (IERC721(delegateCollection).ownerOf(tokenId) != _msgSender()) revert InvalidImplementation();
+        if (!IDelegationCollection(delegateCollection).isValidDelegatee(tokenId)) revert ForbiddenAction();
 
         address term = IDelegationCollection(delegateCollection).term();
         
