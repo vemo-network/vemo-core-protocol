@@ -25,7 +25,7 @@ contract VeTerm is IExecutionTerm, UUPSUpgradeable, OwnableUpgradeable {
     bytes4[] public _no_use; // no longer use
     address[] public _no_use1; // no longer use    
     address[] private _rewardAssets;
-    bytes4[] public _no_use3;
+    bytes4[] public _no_use3; // no longer use, should be clear on new deployment
     uint16 public splitRatio; // for farmer - 1 bps = 0.01%, 100% = 10000 
 
     error NonWhitelistTarget();
@@ -35,7 +35,7 @@ contract VeTerm is IExecutionTerm, UUPSUpgradeable, OwnableUpgradeable {
     mapping(bytes24 => bool) public allowedActions;
     mapping(bytes24 => bool) public harvestingActions;
     
-    bool isLimitActionsMode = false;
+    bool isLimitActionsMode;
 
     function initialize(
         address _owner,
@@ -116,7 +116,11 @@ contract VeTerm is IExecutionTerm, UUPSUpgradeable, OwnableUpgradeable {
         external
         view
     {   
-        bytes24 actionKey = bytes24(abi.encodePacked(bytes4(data[:4]), bytes20(to)));
+        bytes4 selector;
+        assembly {
+            selector := calldataload(data.offset)
+        }
+        bytes24 actionKey = bytes24(abi.encodePacked(selector, bytes20(to)));
 
         if (isLimitActionsMode && !allowedActions[actionKey]) revert NonWhitelistAction();
     }
