@@ -84,7 +84,8 @@ contract NFTAccountDelegable is AccountV3Optimum, UUPSUpgradeable {
         address farmer = payable(
             IERC721(delegationCollection).ownerOf(tokenId)
         );
-
+        
+        // distribute the rewards received in the TBA to farmer, the remain is for the owner
         for (uint i = 0; i < rewardTokens.length; i++) {
             rewards[i] = _balanceOf(rewardTokens[i]) - rewards[i];
             if (rewards[i] == 0) continue;
@@ -95,14 +96,6 @@ contract NFTAccountDelegable is AccountV3Optimum, UUPSUpgradeable {
                 IERC20(rewardTokens[i]).transfer(farmer, rewards[i] * splitRatio / 10_000);
             }
         }
-
-        IExecutionTerm(term).split(
-            payable(owner()),
-            payable(
-                IERC721(delegationCollection).ownerOf(tokenId)
-            ),
-            rewards
-        );
 
         return new bytes(4);
     }
