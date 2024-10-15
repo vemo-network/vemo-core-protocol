@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.23;
+pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import "./AccountV3Optimum.sol";

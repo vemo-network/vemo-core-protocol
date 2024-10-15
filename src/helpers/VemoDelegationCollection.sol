@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.23;
+pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/interfaces/IERC20.sol";
@@ -35,18 +35,22 @@ contract VemoDelegationCollection is ERC721, Ownable, IDelegationCollection  {
     
     constructor(
     ) ERC721(_ERC721Params(0), _ERC721Params(1)) Ownable(_ownerParam()) {
-        (,,,walletFactory, descriptor, term,issuer) = ICollectionDeployer(msg.sender).parameters();
+        walletFactory = ICollectionDeployer(msg.sender).walletFactory();
+        descriptor = ICollectionDeployer(msg.sender).descriptor();
+        term = ICollectionDeployer(msg.sender).term();
+        issuer = ICollectionDeployer(msg.sender).issuer();
     }
 
     function _ERC721Params(uint8 index) private view returns (string memory) {
-        (string memory name, string memory symbol,,,,,) = ICollectionDeployer(msg.sender).parameters();
+        string memory name  = ICollectionDeployer(msg.sender).name();
+        string memory symbol = ICollectionDeployer(msg.sender).symbol();
 
         if (index == 0) return name;
         if (index == 1) return symbol;
     }
 
     function _ownerParam() private view returns (address owner) {
-        (,,owner,,,,) = ICollectionDeployer(msg.sender).parameters();
+        owner = ICollectionDeployer(msg.sender).collectionOwner();
     }
 
     modifier onlyTBA(uint256 tokenId) {

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.23;
+pragma solidity ^0.8.28;
 
 interface IExecutionTerm {
     function isValidSignature(bytes32 hash, bytes calldata signature)

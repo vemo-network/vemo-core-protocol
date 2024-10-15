@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.23;
+pragma solidity ^0.8.28;
 
 library HexStrings {
     bytes16 internal constant ALPHABET = '0123456789abcdef';

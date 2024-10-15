@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.23;
+pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts/interfaces/IERC721.sol";
 import "@openzeppelin/contracts/interfaces/IERC721Receiver.sol";
@@ -163,8 +163,6 @@ contract WalletFactory is IERC721Receiver, IWalletFactory, UUPSUpgradeable, Acce
             _issuer,
             address(this)
         );
-
-        if (Ownable(collection).owner() != address(this)) revert IssuedByOtherFactory();
 
         delegations.push(collection);
 

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.23;
+pragma solidity ^0.8.28;
 
 /// @dev the ERC-165 identifier for this interface is `0x5193025c`
 interface IInscriptable {

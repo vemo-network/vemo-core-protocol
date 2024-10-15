@@ -1,20 +1,15 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.23;
+pragma solidity ^0.8.28;
 
 interface ICollectionDeployer {
-    function parameters()
-        external
-        view
-        returns (
-            string calldata name,
-            string calldata symbol,
-            address owner,
-            address walletFactory,
-            address descriptor, 
-            address term,
-            address issuer
-        );
-    
+    function name() external view returns(string memory);
+    function symbol() external view returns(string memory);
+    function collectionOwner() external view returns(address);
+    function walletFactory() external view returns(address);
+    function descriptor() external view returns(address);
+    function term() external view returns(address);
+    function issuer() external view returns(address);
+
     function createDelegateCollection(
         string memory name,
         string memory symbol,

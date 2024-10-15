@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.13;
+pragma solidity ^0.8.28;
 
 import "forge-std/Test.sol";
 import {Test, console2} from "forge-std/Test.sol";
@@ -132,6 +132,7 @@ contract DelegationCollectionTest is Test {
         (uint256 tokenId, address _tba) = walletFactory.create(nftAddress);
 
         // create delegate collection
+        uint256 gasBefore = gasleft();
         address dlgCollection = walletFactory.createDelegateCollection(
             "A",
             "A1",
@@ -139,6 +140,10 @@ contract DelegationCollectionTest is Test {
             address(term),
             nftAddress
         );
+
+        uint256 gasAfter = gasleft();
+
+        console.log("deployment code ", gasBefore - gasAfter);
 
         assertEq(
             MockERC721(dlgCollection).name(),

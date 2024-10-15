@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.23;
+pragma solidity ^0.8.28;
 
 /// @dev the ERC-165 identifier for this interface is `0x17e6e974`
 interface IComposable {
