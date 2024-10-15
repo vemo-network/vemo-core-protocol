@@ -324,7 +324,7 @@
 //         bytes24[] memory _harvestActions;
 
 //         // allow swapping only
-//         term.setTermProperties(address(0), actions, _harvestActions, _rewardAssets_ );
+//         term.setTermProperties(actions, _harvestActions, _rewardAssets_ );
 
 //         vm.startPrank(signer);
 
@@ -352,7 +352,7 @@
 //         vm.startPrank(defaultAdmin);
 //         actions[0] = bytes24(abi.encodePacked(selectors[0], whitelist[0]));
 
-//         term.setTermProperties(address(0), actions, _harvestActions, _rewardAssets_ );
+//         term.setTermProperties(actions, _harvestActions, _rewardAssets_ );
 
 //         vm.startPrank(signer);
 //         NFTAccountDelegable(payable(globalTba)).delegateExecute(dlgCollection, address(PENDLE_VOTING), 0, voteCalldata, "");
@@ -377,7 +377,7 @@
 //         _harvestActions = new bytes24[](1);
 //         actions[0] = bytes24(abi.encodePacked(_harvestSelectors[0], whitelist[1]));
 
-//         term.setTermProperties(address(0), actions, _harvestActions, whitelist );
+//         term.setTermProperties(actions, _harvestActions, whitelist );
 
 //         // calling harvest
 //         vm.startPrank(signer);

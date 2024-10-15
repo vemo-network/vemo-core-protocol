@@ -128,7 +128,6 @@ contract WalletAccountRoleTest is Test {
         _harvestActions[0] = bytes24(abi.encodePacked(_harvestSelectors[0], pendle));
 
         term.setTermProperties(
-            address(0x0),
             actions,
             _harvestActions,
             _rewardAssets_

@@ -45,7 +45,7 @@ contract VeTermTest is Test {
         bytes24[] memory _harvestActions ;
         
         vm.startPrank(owner);
-        vePendleTerm.setTermProperties(address(0), actions, _harvestActions, _rewardAssets_ );
+        vePendleTerm.setTermProperties(actions, _harvestActions, _rewardAssets_ );
     }
 
     function testCanExecute_NonWhitelistedAddress() public {
@@ -112,14 +112,14 @@ contract VeTermTest is Test {
 //         actions[7] = bytes24(abi.encodePacked(selectors[1], address(2)));
 
 //         vm.startPrank(owner);
-//         original.setTermProperties(address(0), selectors, _harvestSelectors, whitelist, _rewardAssets_ );
+//         original.setTermProperties( selectors, _harvestSelectors, whitelist, _rewardAssets_ );
 
 //         bytes24[] memory _harvestActions =  new bytes24[](10);
 //         actions[0] = bytes24(abi.encodePacked(selectors[0], address(1)));
 //         actions[1] = bytes24(abi.encodePacked(selectors[0], address(1)));
 //         actions[3] = bytes24(abi.encodePacked(selectors[0], address(1)));
 
-//         optimized.setTermProperties(address(0), actions, _harvestActions, _rewardAssets_ );
+//         optimized.setTermProperties( actions, _harvestActions, _rewardAssets_ );
 
 //     }
 
