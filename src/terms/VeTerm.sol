@@ -22,10 +22,10 @@ contract VeTerm is IExecutionTerm, UUPSUpgradeable, OwnableUpgradeable {
 
     /** Term properties */
     address nftCollectionAddress;
-    bytes4[] public _no_use; // no longer use
-    address[] public _no_use1; // no longer use    
+    bytes4[] public _no_use; // no longer use, keep here for upgradable purpose
+    address[] public _no_use1; // no longer use, keep here for upgradable purpose 
     address[] private _rewardAssets;
-    bytes4[] public _no_use3; // no longer use, should be clear on new deployment
+    bytes4[] public _no_use3; // no longer use, keep here for upgradable purpose 
     uint16 public splitRatio; // for farmer - 1 bps = 0.01%, 100% = 10000 
 
     error NonWhitelistTarget();
@@ -90,28 +90,6 @@ contract VeTerm is IExecutionTerm, UUPSUpgradeable, OwnableUpgradeable {
         return harvestingActions[bytes24(abi.encodePacked(selector, bytes20(to)))];
     }
 
-    function split(
-        address payable _owner,
-        address payable _farmer,
-        uint256[] memory rewards
-    ) public {
-        for (uint i = 0; i < _rewardAssets.length; i++) {
-            uint256 amountFarmer = (rewards[i] * splitRatio) / 10000;
-            uint256 amountOwner = rewards[i] - amountFarmer;
-            
-            // avoid reentrancy
-            rewards[i] = 0;
-
-            if (_rewardAssets[i] != address(0)) {
-                IERC20(_rewardAssets[i]).transferFrom(address(this), _owner, amountOwner);
-                IERC20(_rewardAssets[i]).transferFrom(address(this), _farmer, amountFarmer);
-            } else {
-                _owner.call{value: amountOwner}("");
-                _farmer.call{value: amountFarmer}("");
-            }
-        }
-    }
-
     function canExecute(address to, uint256 value, bytes calldata data)
         external
         view
@@ -138,14 +116,7 @@ contract VeTerm is IExecutionTerm, UUPSUpgradeable, OwnableUpgradeable {
         view
         returns (bool)
     {
-        // require(signature.length == 65+20+32+32, "invalid delegation signature length");
-
-        // extract delegation signature
-        // bytes32 domain = BytesLib.toBytes32(signature, 65+20);
-        // bytes32 typeHash = BytesLib.toBytes32(signature, 65+65+20);
-
-        // TODO: verify the domain and typeHash
-
+        // no check for now
         return true;
     }
     

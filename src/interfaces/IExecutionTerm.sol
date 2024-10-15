@@ -17,12 +17,6 @@ interface IExecutionTerm {
         returns (
             bool
         );
-    
-    function split(
-        address payable _owner,
-        address payable _farmer,
-        uint256[] memory rewards
-    ) external;
 
     function revokeTimeout() external returns(uint32);
 

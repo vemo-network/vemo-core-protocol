@@ -72,6 +72,13 @@ contract WalletFactory is IERC721Receiver, IWalletFactory, UUPSUpgradeable, Acce
 
     address[] public delegations;
 
+     /**
+     * Fee structures
+     */
+    address public feeReceiver;
+    uint256 public depositFeeBps; // 1% in basis points
+    uint256 public withdrawalFeeBps; // no fee
+    
     function initialize(
         address _owner,
         address _accountRegistry,
@@ -258,13 +265,6 @@ contract WalletFactory is IERC721Receiver, IWalletFactory, UUPSUpgradeable, Acce
     function setWalletProxy(address _walletProxy) public onlyRole(DEFAULT_ADMIN_ROLE) {
         walletProxy = _walletProxy;
     }
-
-    /**
-     * Fee structures
-     */
-    address public feeReceiver;
-    uint256 public depositFeeBps; // 1% in basis points
-    uint256 public withdrawalFeeBps; // no fee
 
     function setFeeReceiver(address _receiver) public onlyRole(DEFAULT_ADMIN_ROLE) {
         feeReceiver = _receiver;
