@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.23;
 
-import "erc6551/interfaces/IERC6551Executable.sol";
-interface IExecutionTerm is IERC6551Executable {
+interface IExecutionTerm {
     function isValidSignature(bytes32 hash, bytes calldata signature)
         external
         view

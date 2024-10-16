@@ -312,18 +312,18 @@ contract WalletAccountRoleTest is Test {
         // mint a derivative nft of that TBA
         NFTAccountDelegable(payable(_tba)).delegate(dlgCollection, defaultAdmin);
 
-        vm.expectCall(
-            address(term),
-            abi.encodeWithSelector(VeTerm.execute.selector)
-        );
-        NFTAccountDelegable(payable(_tba)).execute(
-            address(pendle),
-            0,
-            abi.encodeWithSignature(
-                "claim()"
-            ),
-            0
-        );
+        // vm.expectCall(
+        //     address(term),
+        //     abi.encodeWithSelector(VeTerm.execute.selector)
+        // );
+        // NFTAccountDelegable(payable(_tba)).execute(
+        //     address(pendle),
+        //     0,
+        //     abi.encodeWithSignature(
+        //         "claim()"
+        //     ),
+        //     0
+        // );
     }
     
 }

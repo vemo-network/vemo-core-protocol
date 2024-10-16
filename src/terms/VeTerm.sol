@@ -148,15 +148,6 @@ contract VeTerm is IExecutionTerm, UUPSUpgradeable, OwnableUpgradeable {
 
         return true;
     }
-
-    function execute(address to, uint256 value, bytes calldata data, uint8 operation)
-        external
-        payable
-        override
-        returns (bytes memory)
-    {
-        return LibExecutor._execute(to, value, data, LibExecutor.OP_CALL);
-    }
     
     function rewardAssets() external view returns(address[] memory) {
         return _rewardAssets;
