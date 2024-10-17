@@ -8,7 +8,6 @@ import "../interfaces/IAccountGuardian.sol";
 import "@solidity-bytes-utils/BytesLib.sol";
 import {IERC20, SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "../lib/LibExecutor.sol";
-import "forge-std/console.sol";
 
 /**
  * @title VeTerm
@@ -60,7 +59,7 @@ contract VeTerm is IExecutionTerm, UUPSUpgradeable, OwnableUpgradeable {
         isLimitActionsMode = _actions.length > 0 ? true : false;
     }
 
-    function disallowAction(ACTION_TYPE _type, bytes4 action) public onlyOwner {
+    function disallowAction(ACTION_TYPE _type, bytes24 action) public onlyOwner {
         if (_type == ACTION_TYPE.EXECUTION) {
             allowedActions[action] = false;
         } else {
