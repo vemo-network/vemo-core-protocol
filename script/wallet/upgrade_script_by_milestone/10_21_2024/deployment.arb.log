@@ -1,0 +1,106 @@
+- code branch: main <-> github main
+- commit: ec3e0f21e2bab2f5b2451d085c63b7358788469e
+- target: deploy bug fix
+- chain: 
+- new contracts
+    - New TBA implementation - reduce gas cost
+    - new CollectionDeployer
+    - new Term contract
+    - New Delegation contract
+- detail log
+
+sh ./script/wallet/deploy.wallet.sh arbitrum-mainnet _private_key  Upgrade.Wallet
+
+##### arbitrum
+New TBA implementation - verified
+✅  [Success]Hash: 0xbbb2fd805a93c986895a3218fc32c05bc106892f57254cec51cf61adb54379fb
+Contract Address: 0x1DcA42945e9168E68a79dF5aED725a82295b1EF4
+Block: 265993262
+Paid: 0.00005534939 ETH (5534939 gas * 0.01 gwei)
+
+
+##### arbitrum
+✅  [Success]Hash: 0x8730d9c7b4bedf8cf6d3aab4073fbb5cf15a33d3900852784c0e6aca85d5e9cd
+Block: 265993297
+Paid: 0.00000095181 ETH (95181 gas * 0.01 gwei)
+
+
+##### arbitrum
+✅  [Success]Hash: 0x2507be74715d0d4496085f8c3c1d1214991f77772ffae59ff6d30b7730e67dcd
+Block: 265993333
+Paid: 0.00000073027 ETH (73027 gas * 0.01 gwei)
+
+
+##### arbitrum
+new collection deployer thru global factory 0x70d06848F7D8a11266c221A06730093a3425CC82 - verified
+✅  [Success]Hash: 0x25643260028bb9b3caedcd812cae8728388ceb57859bd2c8c0603cad1774b7b4
+Block: 265993369
+Paid: 0.0000530333 ETH (5303330 gas * 0.01 gwei)
+
+
+##### arbitrum
+✅  [Success]Hash: 0x7fcea86bcfd5b6ed45d13e79aff82e45d472ea0ddf0263154e9014c43810ef9d
+Block: 265993405
+Paid: 0.00000073082 ETH (73082 gas * 0.01 gwei)
+
+
+##### arbitrum
+new VeTerm implementation 0x732f76447ee8830ae18b45fc678cff5ac98a1316 
+✅  [Success]Hash: 0xcbac619ec159088bc901b20aab65d1b6ba295c2912cc8ec54fca03bacfa46193
+Block: 265993441
+Paid: 0.00001952193 ETH (1952193 gas * 0.01 gwei)
+
+
+##### arbitrum
+new veTERM PROXY: 0x2bAEB210B592008e8b6dF41Ef6b4eEC40714de28
+✅  [Success]Hash: 0x00771c439b488db812b1fe0a698c332b8d69cbc85f7c7daa9c9244a7d9c9e12b
+Block: 265993477
+Paid: 0.00000540104 ETH (540104 gas * 0.01 gwei)
+
+
+##### arbitrum
+✅  [Success]Hash: 0xb94add2701e34b996650745555dcf384d2461e31289dcb09c734d0132020ca4b
+Block: 265993513
+Paid: 0.00000222963 ETH (222963 gas * 0.01 gwei)
+
+
+##### arbitrum
+NEW DELEGATION COLLECTION 0x0cAcC8B55291aF4F8A8D9e300Fa67c74891D5884
+✅  [Success]Hash: 0x2d2e3e8a9acd5c1be7c6d70e398ea557b000329d6af987b3107cfd2742aabe9b
+Block: 265993548
+Paid: 0.00001486548 ETH (1486548 gas * 0.01 gwei)
+
+✅ Sequence #1 on arbitrum | Total Paid: 0.00015281367 ETH (15281367 gas * avg 0.01 gwei)
+
+
+== Logs ==
+  account v3 upgraded to  0x1DcA42945e9168E68a79dF5aED725a82295b1EF4
+  CollectionDeployer is set to WalletFatory  0x70d06848F7D8a11266c221A06730093a3425CC82
+  VeTerm address: 0x732F76447eE8830aE18B45FC678cFF5aC98a1316 
+
+  vePendle voter nft collection  0x0cAcC8B55291aF4F8A8D9e300Fa67c74891D5884
+  term  0x2bAEB210B592008e8b6dF41Ef6b4eEC40714de28
+  descriptor  0x92C301E70Ee2062960D6A8456ea9f340AD2F79a9
+
+## Setting up 1 EVM.
+
+==========================
+
+Chain 42161
+
+Estimated gas price: 0.020000001 gwei
+
+Estimated total gas used for script: 20694911
+
+Estimated amount required: 0.000413898240694911 ETH
+
+==========================
+
+
+==========================
+
+ONCHAIN EXECUTION COMPLETE & SUCCESSFUL.
+
+Transactions saved to: /Users/anhnt/Documents/projects/darenft/vemo-protocol-audit-fix/broadcast/Upgrade.Wallet.s.sol/42161/run-latest.json
+
+Sensitive values saved to: /Users/anhnt/Documents/projects/darenft/vemo-protocol-audit-fix/cache/Upgrade.Wallet.s.sol/42161/run-latest.json

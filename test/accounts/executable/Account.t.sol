@@ -306,8 +306,16 @@ contract AccountTest is Test {
             address(1)
         );
 
+        // get current implementation
+        console.log("current implementation ", address(upgradableImplementation));
+        console.log("get current implementation ");
+        console.logBytes32(
+            AccountV3Optimum(account).extsload(bytes32(0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc))
+        );
+
         vm.expectRevert(InvalidImplementation.selector);
         vm.prank(user1);
+
         bytes memory data;
         account.upgradeToAndCall(address(upgradedImplementation), data);
 
