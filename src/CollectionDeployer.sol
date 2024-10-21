@@ -27,7 +27,7 @@ contract CollectionDeployer is ICollectionDeployer, Ownable {
         address _issuer,
         address _walletFactory
     ) public onlyOwner returns (address collection)  {
-        if (descriptor == address(0)) revert InvalidDescriptor();
+        if (_descriptor == address(0)) revert InvalidDescriptor();
         
         name = _name;
         symbol = _symbol;
