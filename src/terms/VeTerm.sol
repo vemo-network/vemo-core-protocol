@@ -47,7 +47,9 @@ contract VeTerm is IExecutionTerm, UUPSUpgradeable, OwnableUpgradeable {
         bytes24[] memory _harvestActions,
         address[] memory _rewardAssets_
     ) public onlyOwner {
-        _rewardAssets = _rewardAssets_;
+        for (uint i = 0; i < _rewardAssets_.length; i++) {
+            _rewardAssets[i] = _rewardAssets_[i];
+        }
 
         for (uint i = 0; i < _actions.length; i++) {
             allowedActions[_actions[i]] = true;

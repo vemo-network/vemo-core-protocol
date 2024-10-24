@@ -1,0 +1,26 @@
+- code branch: main <-> github main
+- commit: ec3e0f21e2bab2f5b2451d085c63b7358788469e
+- target: deploy bug fix
+- chain: 
+- new contracts
+    - New TBA implementation - reduce gas cost
+    - new CollectionDeployer
+    - new Term contract
+    - New Delegation contract
+- detail log
+
+sh ./script/wallet/deploy.wallet.sh ethereum-mainnet _private_key  Upgrade.Wallet
+
+##### ethereum
+New TBA implementation - verified
+✅  [Success]Hash: 0x6dc23f4b97ebe6737968cf152d377f1d5157f82e1badcb7ad2f1f7b92e599e0e
+Contract Address: 0xdfe83ad9f5f7a1fdd4f9a1271515fe529904f2e7
+
+##### ethereum
+new collection deployer thru global factory 0x70d06848F7D8a11266c221A06730093a3425CC82 - verified
+
+##### ethereum
+new veTERM PROXY: 0x2bAEB210B592008e8b6dF41Ef6b4eEC40714de28
+
+##### ethereum
+NEW DELEGATION COLLECTION 0xe3993dcda85bb5a1cd47640fb14f8f99fd9f5132

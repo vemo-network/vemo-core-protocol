@@ -107,12 +107,14 @@ contract DeployVemoWalletSC is Script {
     address accountProxyAddress = 0xE1E5F84F59BB5B55fAdec8b9496B70Ca0A312c73;
 
     // latest collection using till October - ethereum
-    //address NFTCollectionAddress = 0x7aBD3fb92c722659CAf9A9692e94BcAA651F9759;
-    address NFTCollectionAddress = 0xa815Fd40821b722765Daa326177E3832703C390f;
+    address NFTCollectionAddress = 0x7aBD3fb92c722659CAf9A9692e94BcAA651F9759;
+    // address NFTCollectionAddress = 0xa815Fd40821b722765Daa326177E3832703C390f;
 
     // entrypoint for ERC4337, if there is no erc4337 protocol, leave it zero
     address entrypointERC4337 = 0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789;
     uint160 vemoCollectionIndex = 123456; // current using on production
+    
+    //address proxyVeTerm = 0x2bAEB210B592008e8b6dF41Ef6b4eEC40714de28;
 
     function run() public {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
@@ -120,9 +122,9 @@ contract DeployVemoWalletSC is Script {
 
         WalletFactory _walletFactory = WalletFactory(payable(walletFactoryProxy));
 
-        /**
-         * Deploy new VemoWallet implementation
-         */
+        // /**
+        //  * Deploy new VemoWallet implementation
+        //  */
         AccountGuardian guardian = AccountGuardian(guardianAddress);
         NFTAccountDelegable accountv3Implementation = new NFTAccountDelegable(
             address(forwarder), address(registry), address(guardian)
@@ -161,43 +163,38 @@ contract DeployVemoWalletSC is Script {
         //     )
         // );
 
-        // deploy a new term
-        // address term = Upgrades.deployUUPSProxy(
-        //     "VeTerm.sol:VeTerm",
-        //     abi.encodeCall(
-        //         VeTerm.initialize,
-        //         (
-        //             owner,
-        //             address(proxy),
-        //             address(guardian)
-        //         )
-        //     )
-        // );
-        VeTerm factory = new VeTerm{salt: bytes32(salt)}();
+        VeTerm vetermImplementation = new VeTerm{salt: bytes32(salt)}();
 
-        console2.log("VeTerm address:", address(factory), "\n");
+        console2.log("VeTerm address:", address(vetermImplementation), "\n");
 
         UUPSProxy proxyVeTerm = new UUPSProxy{salt: bytes32(salt)}(
-            address(factory),
+            address(vetermImplementation),
             abi.encodeWithSelector(VeTerm.initialize.selector, owner, address(proxy), address(guardian))
         );
+        
+        VeTerm veproxy = VeTerm(payable(proxyVeTerm));
 
+        bytes memory data;
+        veproxy.upgradeToAndCall(address(vetermImplementation), data);
+
+        // console2.log("proxyVeTerm address:", address(proxyVeTerm), "\n");
+        
         setVePendleProperties(VeTerm(payable(proxyVeTerm)));
 
-        //term  0xE5dfC61304fFC39f1B464dd3eF4FCc36679242c7
-        //descriptor  0x75aF44Cf66e63FaE6E27DF3B5F9b4AA57330F80B
+        // term  0xE5dfC61304fFC39f1B464dd3eF4FCc36679242c7
+        // descriptor  0x75aF44Cf66e63FaE6E27DF3B5F9b4AA57330F80B
         address _descriptorEther = 0xE5dfC61304fFC39f1B464dd3eF4FCc36679242c7;
         address _descriptorArb = 0x92C301E70Ee2062960D6A8456ea9f340AD2F79a9;
         address nftDlgAddress = proxy.createDelegateCollection(
             "vePENDLE Voter Ethereum",
             "VPV",
-            _descriptorArb, 
+            _descriptorEther, 
             address(proxyVeTerm),
             NFTCollectionAddress
         );
 
         console.log("vePendle voter nft collection ", nftDlgAddress);
-        console.log("term ", address(proxyVeTerm));
+        console.log("term ", address(0x2bAEB210B592008e8b6dF41Ef6b4eEC40714de28));
         console.log("descriptor ", _descriptorEther);
     }
 
