@@ -54,6 +54,8 @@ contract WalletFactoryBaseTest is Test {
     NFTAccountDescriptor vemoCollectionDescriptor;
     CollectionDeployer collectionDeployer;
 
+    address nftAddress;
+    
     function setUp() public {
         guardian.setTrustedImplementation(address(accountImpl), true);
         address proxy = Upgrades.deployUUPSProxy(
@@ -80,7 +82,7 @@ contract WalletFactoryBaseTest is Test {
             )
         ));
         
-        address nftAddress = walletFactory.createWalletCollection(
+        nftAddress = walletFactory.createWalletCollection(
             uint160(address(usdt)),
             "walletfactory",
             "walletfactory",
