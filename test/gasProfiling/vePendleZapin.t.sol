@@ -28,6 +28,8 @@ contract PendleZapinTest is Test, IERC721Receiver {
 
     address user = vm.addr(22);
     address user1 = vm.addr(23);
+    address delegatee = vm.addr(24);
+
     //// Vemo setup
     Multicall3 forwarder = Multicall3(0x560123E26A057A3e1006d17091a0e82855Ec52b8);
     NFTAccountDelegable upgradableImplementation;
@@ -45,7 +47,7 @@ contract PendleZapinTest is Test, IERC721Receiver {
     address globalTba;
     address NFTAccountCollection;
     address dlgCollection;
-
+    address delegateCollection;
     uint256 constant PROPOSAL_ID = 1;
     address constant GAUGE_ADDRESS = 0xC374f7eC85F8C7DE3207a10bB1978bA104bdA3B2;
 
@@ -105,13 +107,22 @@ contract PendleZapinTest is Test, IERC721Receiver {
             address(vemoCollectionDescriptor)
         );
 
+        delegateCollection = walletFactory.createDelegateCollection(
+            "A",
+            "B",
+            address(delegationDescriptor),
+            address(0x0),
+            NFTAccountCollection
+        );
+
         zapin = vePendleZapIn(payable(Upgrades.deployUUPSProxy(
             "vePendleZapIn.sol:vePendleZapIn",
             abi.encodeCall(
                 vePendleZapIn.initialize,
                 (
                     defaultAdmin,
-                    walletProxy
+                    walletProxy,
+                    delegatee
                 )
             )
         )));
@@ -130,9 +141,11 @@ contract PendleZapinTest is Test, IERC721Receiver {
         deal(address(zapin.PENDLE()), user, 10 ether);
         
         zapin.PENDLE().approve(address(zapin), depositAmount);
-        (uint256 tokenId, address tba) = zapin.zapIn(NFTAccountCollection, depositAmount, newExpiry);
+        uint256[] memory chains = new uint256[](0);
+        (uint256 tokenId, address tba) = zapin.zapInAndBroadcast(NFTAccountCollection, delegateCollection, depositAmount, newExpiry, chains);
 
         assertTrue(ERC721(NFTAccountCollection).ownerOf(tokenId) == user, "nft is never transfer to end user");
+        assertTrue(ERC721(delegateCollection).ownerOf(tokenId) == zapin.vemoDelegatee(), "nft is never transfer to end user");
         assertTrue(
             zapin.VE_PENDLE().balanceOf(tba) > 0, " vependle should large than zero"
         );
@@ -149,9 +162,10 @@ contract PendleZapinTest is Test, IERC721Receiver {
         zapin.PENDLE().approve(address(zapin), depositAmount);
         uint256[] memory chains = new uint256[](1);
         chains[0] = 42161;
-        (uint256 tokenId, address tba) = zapin.zapInAndBroadcast(NFTAccountCollection, depositAmount, newExpiry, chains);
+        (uint256 tokenId, address tba) = zapin.zapInAndBroadcast(NFTAccountCollection, delegateCollection, depositAmount, newExpiry, chains);
 
         assertTrue(ERC721(NFTAccountCollection).ownerOf(tokenId) == user1, "nft is never transfer to end user");
+        assertTrue(ERC721(delegateCollection).ownerOf(tokenId) == zapin.vemoDelegatee(), "nft is never transfer to end user");
         assertTrue(
             zapin.VE_PENDLE().balanceOf(tba) > 0, " vependle should large than zero"
         );

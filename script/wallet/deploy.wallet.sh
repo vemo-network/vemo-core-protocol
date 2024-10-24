@@ -4,7 +4,7 @@
 usage() {
     echo "Usage: $0 [chain] [private_key] [deployment]"
     echo "Chains supported: avax-fuji, avax-mainnet, bnb-mainnet, bnb-testnet, ethereum-mainnet, arbitrum-mainnet"
-    echo "Deployments supported: Deploy.Wallet, Deploy.Wallet.Account, Deploy.TF, Upgrade.Wallet"
+    echo "Deployments supported: Deploy.Wallet, Deploy.Wallet.Account, Deploy.TF, Upgrade.Wallet, Upgrade.ZapInArb"
     exit 1
 }
 
@@ -19,7 +19,7 @@ PRIVATE_KEY=$2
 DEPLOYMENT=$3
 
 # Validate deployment parameter
-if [[ "$DEPLOYMENT" != "Deploy.Wallet" && "$DEPLOYMENT" != "Deploy.Wallet-testnet" && "$DEPLOYMENT" != "Deploy.Wallet.Account" && "$DEPLOYMENT" != "Deploy.TF" && "$DEPLOYMENT" != "Upgrade.Wallet" ]]; then
+if [[ "$DEPLOYMENT" != "Deploy.Wallet" && "$DEPLOYMENT" != "Deploy.Wallet-testnet" && "$DEPLOYMENT" != "Deploy.Wallet.Account" && "$DEPLOYMENT" != "Deploy.TF" && "$DEPLOYMENT" != "Upgrade.Wallet" && "$DEPLOYMENT" != "Upgrade.ZapInArb" ]]; then
     echo "Error: Unsupported deployment '$DEPLOYMENT'"
     usage
 fi
@@ -39,6 +39,10 @@ case $DEPLOYMENT in
         CONTRACT_SOURCE="src/WalletFactory.sol"
         ;;
     Upgrade.Wallet)
+        CONTRACT_NAME="WalletFactory"
+        CONTRACT_SOURCE="src/WalletFactory.sol"
+        ;;
+    Upgrade.ZapInArb)
         CONTRACT_NAME="WalletFactory"
         CONTRACT_SOURCE="src/WalletFactory.sol"
         ;;

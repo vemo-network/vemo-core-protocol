@@ -21,7 +21,7 @@ interface INFTAccountDelegable {
     function delegate(address delegation, address receiver) external;
 }
 
-contract vePendleZapIn is IERC721Receiver, UUPSUpgradeable, OwnableUpgradeable, ReentrancyGuardUpgradeable {
+contract vePendleZapInArb is IERC721Receiver, UUPSUpgradeable, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     using SafeERC20 for IERC20;
 
     error InvalidZapInAmount();
@@ -38,7 +38,7 @@ contract vePendleZapIn is IERC721Receiver, UUPSUpgradeable, OwnableUpgradeable, 
     }
     
     address public  WALLET_FACTORY;
-    IERC20 public constant PENDLE = IERC20(0x808507121B80c02388fAd14726482e061B8da827);
+    IERC20 public constant PENDLE = IERC20(0x0c880f6761F1af8d9Aa9C466984b80DAb9a8c9e8);
     IVePENDLE public constant VE_PENDLE = IVePENDLE(0x4f30A9D41B80ecC5B94306AB4364951AE3170210);
 
     address public vemoDelegatee;
@@ -83,34 +83,34 @@ contract vePendleZapIn is IERC721Receiver, UUPSUpgradeable, OwnableUpgradeable, 
 
         PENDLE.safeTransferFrom(msg.sender, tba, amount);
 
-        bytes memory approveCalldata = abi.encodeWithSignature(
-            "approve(address,uint256)",
-            address(VE_PENDLE),
-            amount
-        );
+        // bytes memory approveCalldata = abi.encodeWithSignature(
+        //     "approve(address,uint256)",
+        //     address(VE_PENDLE),
+        //     amount
+        // );
 
-        IERC6551Executable(payable(tba)).execute(address(PENDLE), 0, approveCalldata, 0);
+        // IERC6551Executable(payable(tba)).execute(address(PENDLE), 0, approveCalldata, 0);
 
-        // Increase lock position using TBA
-        bytes memory increaseLockCalldata;
+        // // Increase lock position using TBA
+        // bytes memory increaseLockCalldata;
         
-        if (chains.length > 0) {
-            increaseLockCalldata = abi.encodeWithSignature(
-                "increaseLockPositionAndBroadcast(uint128,uint128,uint256[])",
-                amount,
-                newExpiry,
-                chains
-            );
-        } else {
-            // Increase lock position using TBA
-            increaseLockCalldata = abi.encodeWithSignature(
-                "increaseLockPosition(uint128,uint128)",
-                amount,
-                newExpiry
-            );
-        }
+        // if (chains.length > 0) {
+        //     increaseLockCalldata = abi.encodeWithSignature(
+        //         "increaseLockPositionAndBroadcast(uint128,uint128,uint256[])",
+        //         amount,
+        //         newExpiry,
+        //         chains
+        //     );
+        // } else {
+        //     // Increase lock position using TBA
+        //     increaseLockCalldata = abi.encodeWithSignature(
+        //         "increaseLockPosition(uint128,uint128)",
+        //         amount,
+        //         newExpiry
+        //     );
+        // }
 
-        IERC6551Executable(payable(tba)).execute(address(VE_PENDLE), 0, increaseLockCalldata, 0);
+        // IERC6551Executable(payable(tba)).execute(address(VE_PENDLE), 0, increaseLockCalldata, 0);
 
         // transfer tokenId back to msg.sender
         IERC721(nftCollectionAddress).safeTransferFrom(address(this), msg.sender, tokenId);
