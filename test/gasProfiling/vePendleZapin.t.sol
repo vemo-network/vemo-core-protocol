@@ -5,6 +5,7 @@ import "forge-std/Test.sol";
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "../../src/zapper/vePendleZapIn.sol";
+import {vePendleZapInArb} from "../../src/zapper/vePendleZapInArb.sol";
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "multicall-authenticated/Multicall3.sol";
@@ -115,17 +116,7 @@ contract PendleZapinTest is Test, IERC721Receiver {
             NFTAccountCollection
         );
 
-        zapin = vePendleZapIn(payable(Upgrades.deployUUPSProxy(
-            "vePendleZapIn.sol:vePendleZapIn",
-            abi.encodeCall(
-                vePendleZapIn.initialize,
-                (
-                    defaultAdmin,
-                    walletProxy,
-                    delegatee
-                )
-            )
-        )));
+        zapin = new vePendleZapIn(walletProxy, delegatee);
     }
 
     function onERC721Received(address, address, uint256, bytes calldata) public pure override returns (bytes4) {
@@ -133,6 +124,7 @@ contract PendleZapinTest is Test, IERC721Receiver {
     }
 
     function testZapin() public {
+        user = vm.addr(block.number);
         vm.startPrank(user);
 
         uint256 depositAmount = 1 ether;
@@ -149,6 +141,82 @@ contract PendleZapinTest is Test, IERC721Receiver {
         assertTrue(
             zapin.VE_PENDLE().balanceOf(tba) > 0, " vependle should large than zero"
         );
+    }
+
+    // function testZapinArbSimple() public {
+    //     user = vm.addr(block.number);
+    //     vm.startPrank(user);
+    //     uint256 depositAmount = 1 ether;
+    //     uint128 newExpiry = 1788998400;
+
+    //     deal(address(zapin.PENDLE()), user, 10 ether);
+        
+    //     zapin.PENDLE().approve(address(zapin), depositAmount);
+    //     uint256[] memory chains = new uint256[](0);
+    //     (uint256 tokenId, address tba) = zapin.zapInAndBroadcast(NFTAccountCollection, delegateCollection, depositAmount, newExpiry, chains);
+
+    //     assertTrue(ERC721(NFTAccountCollection).ownerOf(tokenId) == user, "nft is never transfer to end user");
+    //     assertTrue(ERC721(delegateCollection).ownerOf(tokenId) == zapin.vemoDelegatee(), "nft is never transfer to end user");
+    // }
+
+    function testZapinNoDelegate() public {
+        user = vm.addr(block.number);
+        vm.startPrank(user);
+        uint256 depositAmount = 1 ether;
+        uint128 newExpiry = 1788998400;
+
+        deal(address(zapin.PENDLE()), user, 10 ether);
+        
+        zapin.PENDLE().approve(address(zapin), depositAmount);
+        uint256[] memory chains = new uint256[](0);
+        (uint256 tokenId, address tba) = zapin.zapInAndBroadcast(NFTAccountCollection, address(0), depositAmount, newExpiry, chains);
+
+        assertTrue(ERC721(NFTAccountCollection).ownerOf(tokenId) == user, "nft is never transfer to end user");
+        assertTrue(ERC721(delegateCollection).balanceOf(user) == 0, "nft is never transfer to end user");
+    }
+
+    function testZapinNoDepositNoStake() public {
+        user = vm.addr(block.number);
+        vm.startPrank(user);
+        uint256 depositAmount = 1 ether;
+        uint128 newExpiry = 1788998400;
+
+        deal(address(zapin.PENDLE()), user, 10 ether);
+        
+        zapin.PENDLE().approve(address(zapin), depositAmount);
+        uint256[] memory chains = new uint256[](0);
+        (uint256 tokenId, address tba) = zapin.zapInAndBroadcast(NFTAccountCollection, address(0), 0, newExpiry, chains);
+
+        assertTrue(ERC721(NFTAccountCollection).ownerOf(tokenId) == user, "nft is never transfer to end user");
+        assertTrue(zapin.PENDLE().balanceOf(tba) == 0, "pendle is transfered to tba");
+    }
+
+    function testZapinDepositNoStake() public {
+        user = vm.addr(block.number);
+        vm.startPrank(user);
+        uint256 depositAmount = 1 ether;
+        deal(address(zapin.PENDLE()), user, 10 ether);
+        
+        zapin.PENDLE().approve(address(zapin), depositAmount);
+        uint256[] memory chains = new uint256[](0);
+        (uint256 tokenId, address tba) = zapin.zapInAndBroadcast(NFTAccountCollection, address(0), depositAmount, 0, chains);
+
+        assertTrue(ERC721(NFTAccountCollection).ownerOf(tokenId) == user, "nft is never transfer to end user");
+        assertTrue(zapin.PENDLE().balanceOf(tba) == depositAmount, "pendle is not transfered to tba");
+    }
+
+    function testZapinDepositDelegateNoStake() public {
+        user = vm.addr(block.number);
+        vm.startPrank(user);
+        uint256 depositAmount = 1 ether;
+        deal(address(zapin.PENDLE()), user, 10 ether);
+        
+        zapin.PENDLE().approve(address(zapin), depositAmount);
+        uint256[] memory chains = new uint256[](0);
+        (uint256 tokenId, address tba) = zapin.zapInAndBroadcast(NFTAccountCollection, delegateCollection, depositAmount, 0, chains);
+
+        assertTrue(ERC721(NFTAccountCollection).ownerOf(tokenId) == user, "nft is never transfer to end user");
+        assertTrue(zapin.PENDLE().balanceOf(tba) == depositAmount, "pendle is not transfered to tba");
     }
 
     function testZapinAndBroadcast() public {

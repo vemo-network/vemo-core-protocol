@@ -2,9 +2,7 @@
 pragma solidity ^0.8.28;
 
 import {IERC20, SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
-import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/interfaces/IERC721.sol";
 import "@openzeppelin/contracts/interfaces/IERC721Receiver.sol";
 
@@ -21,42 +19,24 @@ interface INFTAccountDelegable {
     function delegate(address delegation, address receiver) external;
 }
 
-contract vePendleZapIn is IERC721Receiver, UUPSUpgradeable, OwnableUpgradeable, ReentrancyGuardUpgradeable {
+contract vePendleZapIn is IERC721Receiver, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
-    error InvalidZapInAmount();
     error InvalidAddress();
 
-    bool public stopped;
-
-    modifier stopInEmergency {
-        if (stopped) {
-            revert("Temporarily Paused");
-        } else {
-            _;
-        }
-    }
-    
     address public  WALLET_FACTORY;
     IERC20 public constant PENDLE = IERC20(0x808507121B80c02388fAd14726482e061B8da827);
     IVePENDLE public constant VE_PENDLE = IVePENDLE(0x4f30A9D41B80ecC5B94306AB4364951AE3170210);
 
     address public vemoDelegatee;
 
-    function initialize(
-        address _owner,
+    constructor(
         address _walletFactory,
         address _vemoDelegatee
-    ) public virtual initializer {
+    ) {
         if (_walletFactory == address(0)) revert InvalidAddress();
 
-        __Ownable_init_unchained(_owner);
         WALLET_FACTORY = _walletFactory;
-        stopped = false;
-        vemoDelegatee = _vemoDelegatee;
-    }
-
-    function setDelegatee(address _vemoDelegatee) public onlyOwner {
         vemoDelegatee = _vemoDelegatee;
     }
 
@@ -75,14 +55,34 @@ contract vePendleZapIn is IERC721Receiver, UUPSUpgradeable, OwnableUpgradeable, 
         uint256 amount,
         uint128 newExpiry,
         uint256[] memory chains
-    ) public nonReentrant stopInEmergency returns (uint256, address) {
-        if (amount == 0) revert InvalidZapInAmount();
-
+    ) payable public nonReentrant returns (uint256, address) {
         (uint256 tokenId, address tba) = IWalletFactory(WALLET_FACTORY).create(nftCollectionAddress);
-        INFTAccountDelegable(payable(tba)).delegate(dlgCollectionAddress, vemoDelegatee);
+
+        if (dlgCollectionAddress != address(0)) {
+            INFTAccountDelegable(payable(tba)).delegate(dlgCollectionAddress, vemoDelegatee);
+        }
+
+        if (amount == 0) {
+            // transfer tokenId back to msg.sender
+            IERC721(nftCollectionAddress).safeTransferFrom(address(this), msg.sender, tokenId);
+            return (tokenId, tba);
+        }
 
         PENDLE.safeTransferFrom(msg.sender, tba, amount);
 
+        if (msg.value > 0) {
+            tba.call{value: msg.value}("");
+        }
+
+        if (newExpiry == 0) {
+            // transfer tokenId back to msg.sender
+            IERC721(nftCollectionAddress).safeTransferFrom(address(this), msg.sender, tokenId);
+            return (tokenId, tba);
+        }
+
+        /**
+         * do approve and stake into vependle
+         */
         bytes memory approveCalldata = abi.encodeWithSignature(
             "approve(address,uint256)",
             address(VE_PENDLE),
@@ -114,16 +114,11 @@ contract vePendleZapIn is IERC721Receiver, UUPSUpgradeable, OwnableUpgradeable, 
 
         // transfer tokenId back to msg.sender
         IERC721(nftCollectionAddress).safeTransferFrom(address(this), msg.sender, tokenId);
-        
         return (tokenId, tba);
     }
 
     function onERC721Received(address, address, uint256, bytes calldata) public pure override returns (bytes4) {
         return IERC721Receiver.onERC721Received.selector;
-    }
-
-    function _authorizeUpgrade(address newImplementation) internal onlyOwner virtual override {
-        (newImplementation);
     }
 
     receive() external payable{}
