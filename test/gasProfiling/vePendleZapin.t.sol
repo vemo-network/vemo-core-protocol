@@ -5,7 +5,6 @@ import "forge-std/Test.sol";
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "../../src/zapper/vePendleZapIn.sol";
-import {vePendleZapInArb} from "../../src/zapper/vePendleZapInArb.sol";
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "multicall-authenticated/Multicall3.sol";
@@ -51,13 +50,15 @@ contract PendleZapinTest is Test, IERC721Receiver {
     address delegateCollection;
     uint256 constant PROPOSAL_ID = 1;
     address constant GAUGE_ADDRESS = 0xC374f7eC85F8C7DE3207a10bB1978bA104bdA3B2;
-
+    address constant PENDLE_ETH = 0x808507121B80c02388fAd14726482e061B8da827;
     function setUp() public {
         isForkEnabled = vm.envOr("LOCAL_FORK_ENABLED", false);
 
         if (isForkEnabled) {
             vm.createSelectFork("http://127.0.0.1:8545");
             deployVemoSystem();
+        }else {
+            console.log("ignoring all mainnet fork tests ");
         }
     }
 
@@ -116,7 +117,7 @@ contract PendleZapinTest is Test, IERC721Receiver {
             NFTAccountCollection
         );
 
-        zapin = new vePendleZapIn(walletProxy, delegatee);
+        zapin = new vePendleZapIn(walletProxy, PENDLE_ETH);
     }
 
     function onERC721Received(address, address, uint256, bytes calldata) public pure override returns (bytes4) {
@@ -124,6 +125,7 @@ contract PendleZapinTest is Test, IERC721Receiver {
     }
 
     function testZapin() public {
+        if (!isForkEnabled) return;
         user = vm.addr(block.number);
         vm.startPrank(user);
 
@@ -134,32 +136,39 @@ contract PendleZapinTest is Test, IERC721Receiver {
         
         zapin.PENDLE().approve(address(zapin), depositAmount);
         uint256[] memory chains = new uint256[](0);
-        (uint256 tokenId, address tba) = zapin.zapInAndBroadcast(NFTAccountCollection, delegateCollection, depositAmount, newExpiry, chains);
+        (uint256 tokenId, address tba) = zapin.zapInAndBroadcast(NFTAccountCollection, delegateCollection, defaultAdmin, depositAmount, newExpiry, chains);
 
         assertTrue(ERC721(NFTAccountCollection).ownerOf(tokenId) == user, "nft is never transfer to end user");
-        assertTrue(ERC721(delegateCollection).ownerOf(tokenId) == zapin.vemoDelegatee(), "nft is never transfer to end user");
+        assertTrue(ERC721(delegateCollection).ownerOf(tokenId) == defaultAdmin, "nft is never transfer to end user");
         assertTrue(
             zapin.VE_PENDLE().balanceOf(tba) > 0, " vependle should large than zero"
         );
     }
 
-    // function testZapinArbSimple() public {
-    //     user = vm.addr(block.number);
-    //     vm.startPrank(user);
-    //     uint256 depositAmount = 1 ether;
-    //     uint128 newExpiry = 1788998400;
+    function testZapinLocktime() public {
+        if (!isForkEnabled) return;
+        user = vm.addr(block.number);
+        vm.startPrank(user);
 
-    //     deal(address(zapin.PENDLE()), user, 10 ether);
+        uint256 depositAmount = 1 ether;
+        uint128 WEEK = 7 days;
+        uint128 newExpiry = 1788998400;
+
+        deal(address(zapin.PENDLE()), user, 10 ether);
         
-    //     zapin.PENDLE().approve(address(zapin), depositAmount);
-    //     uint256[] memory chains = new uint256[](0);
-    //     (uint256 tokenId, address tba) = zapin.zapInAndBroadcast(NFTAccountCollection, delegateCollection, depositAmount, newExpiry, chains);
+        zapin.PENDLE().approve(address(zapin), depositAmount);
+        uint256[] memory chains = new uint256[](0);
+        (uint256 tokenId, address tba) = zapin.zapInAndBroadcast(NFTAccountCollection, delegateCollection, defaultAdmin, depositAmount, newExpiry, chains);
 
-    //     assertTrue(ERC721(NFTAccountCollection).ownerOf(tokenId) == user, "nft is never transfer to end user");
-    //     assertTrue(ERC721(delegateCollection).ownerOf(tokenId) == zapin.vemoDelegatee(), "nft is never transfer to end user");
-    // }
+        assertTrue(ERC721(NFTAccountCollection).ownerOf(tokenId) == user, "nft is never transfer to end user");
+        assertTrue(ERC721(delegateCollection).ownerOf(tokenId) == defaultAdmin, "nft is never transfer to end user");
+        assertTrue(
+            zapin.VE_PENDLE().balanceOf(tba) > 0, " vependle should large than zero"
+        );
+    }
 
     function testZapinNoDelegate() public {
+        if (!isForkEnabled) return;
         user = vm.addr(block.number);
         vm.startPrank(user);
         uint256 depositAmount = 1 ether;
@@ -169,13 +178,14 @@ contract PendleZapinTest is Test, IERC721Receiver {
         
         zapin.PENDLE().approve(address(zapin), depositAmount);
         uint256[] memory chains = new uint256[](0);
-        (uint256 tokenId, address tba) = zapin.zapInAndBroadcast(NFTAccountCollection, address(0), depositAmount, newExpiry, chains);
+        (uint256 tokenId, address tba) = zapin.zapInAndBroadcast(NFTAccountCollection, address(0), defaultAdmin, depositAmount, newExpiry, chains);
 
         assertTrue(ERC721(NFTAccountCollection).ownerOf(tokenId) == user, "nft is never transfer to end user");
         assertTrue(ERC721(delegateCollection).balanceOf(user) == 0, "nft is never transfer to end user");
     }
 
     function testZapinNoDepositNoStake() public {
+        if (!isForkEnabled) return;
         user = vm.addr(block.number);
         vm.startPrank(user);
         uint256 depositAmount = 1 ether;
@@ -185,13 +195,14 @@ contract PendleZapinTest is Test, IERC721Receiver {
         
         zapin.PENDLE().approve(address(zapin), depositAmount);
         uint256[] memory chains = new uint256[](0);
-        (uint256 tokenId, address tba) = zapin.zapInAndBroadcast(NFTAccountCollection, address(0), 0, newExpiry, chains);
+        (uint256 tokenId, address tba) = zapin.zapInAndBroadcast(NFTAccountCollection, address(0), defaultAdmin,  0, newExpiry, chains);
 
         assertTrue(ERC721(NFTAccountCollection).ownerOf(tokenId) == user, "nft is never transfer to end user");
         assertTrue(zapin.PENDLE().balanceOf(tba) == 0, "pendle is transfered to tba");
     }
 
     function testZapinDepositNoStake() public {
+        if (!isForkEnabled) return;
         user = vm.addr(block.number);
         vm.startPrank(user);
         uint256 depositAmount = 1 ether;
@@ -199,13 +210,14 @@ contract PendleZapinTest is Test, IERC721Receiver {
         
         zapin.PENDLE().approve(address(zapin), depositAmount);
         uint256[] memory chains = new uint256[](0);
-        (uint256 tokenId, address tba) = zapin.zapInAndBroadcast(NFTAccountCollection, address(0), depositAmount, 0, chains);
+        (uint256 tokenId, address tba) = zapin.zapInAndBroadcast(NFTAccountCollection, address(0), defaultAdmin, depositAmount, 0, chains);
 
         assertTrue(ERC721(NFTAccountCollection).ownerOf(tokenId) == user, "nft is never transfer to end user");
         assertTrue(zapin.PENDLE().balanceOf(tba) == depositAmount, "pendle is not transfered to tba");
     }
 
     function testZapinDepositDelegateNoStake() public {
+        if (!isForkEnabled) return;
         user = vm.addr(block.number);
         vm.startPrank(user);
         uint256 depositAmount = 1 ether;
@@ -213,13 +225,14 @@ contract PendleZapinTest is Test, IERC721Receiver {
         
         zapin.PENDLE().approve(address(zapin), depositAmount);
         uint256[] memory chains = new uint256[](0);
-        (uint256 tokenId, address tba) = zapin.zapInAndBroadcast(NFTAccountCollection, delegateCollection, depositAmount, 0, chains);
+        (uint256 tokenId, address tba) = zapin.zapInAndBroadcast(NFTAccountCollection, delegateCollection, defaultAdmin, depositAmount, 0, chains);
 
         assertTrue(ERC721(NFTAccountCollection).ownerOf(tokenId) == user, "nft is never transfer to end user");
         assertTrue(zapin.PENDLE().balanceOf(tba) == depositAmount, "pendle is not transfered to tba");
     }
 
     function testZapinAndBroadcast() public {
+        if (!isForkEnabled) return;
         vm.startPrank(user1);
 
         uint256 depositAmount = 1 ether;
@@ -230,10 +243,10 @@ contract PendleZapinTest is Test, IERC721Receiver {
         zapin.PENDLE().approve(address(zapin), depositAmount);
         uint256[] memory chains = new uint256[](1);
         chains[0] = 42161;
-        (uint256 tokenId, address tba) = zapin.zapInAndBroadcast(NFTAccountCollection, delegateCollection, depositAmount, newExpiry, chains);
+        (uint256 tokenId, address tba) = zapin.zapInAndBroadcast(NFTAccountCollection, delegateCollection, defaultAdmin, depositAmount, newExpiry, chains);
 
         assertTrue(ERC721(NFTAccountCollection).ownerOf(tokenId) == user1, "nft is never transfer to end user");
-        assertTrue(ERC721(delegateCollection).ownerOf(tokenId) == zapin.vemoDelegatee(), "nft is never transfer to end user");
+        assertTrue(ERC721(delegateCollection).ownerOf(tokenId) == defaultAdmin, "nft is never transfer to end user");
         assertTrue(
             zapin.VE_PENDLE().balanceOf(tba) > 0, " vependle should large than zero"
         );

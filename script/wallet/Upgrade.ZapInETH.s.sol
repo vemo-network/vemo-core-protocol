@@ -55,7 +55,7 @@ contract DeployZapperARB is Script {
     function run() public {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         vm.startBroadcast(deployerPrivateKey);
-        vePendleZapIn vetermImplementation = new vePendleZapIn{salt: bytes32(salt)}(walletFactoryProxy, owner);
+        vePendleZapIn vetermImplementation = new vePendleZapIn{salt: bytes32(salt)}(walletFactoryProxy, address(0x808507121B80c02388fAd14726482e061B8da827));
 
         console.log("zapin vependle address proxy ", address(vetermImplementation));
         vm.stopBroadcast();

@@ -2,7 +2,6 @@
 pragma solidity ^0.8.28;
 
 import {IERC20, SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/interfaces/IERC721.sol";
 import "@openzeppelin/contracts/interfaces/IERC721Receiver.sol";
 
@@ -19,29 +18,31 @@ interface INFTAccountDelegable {
     function delegate(address delegation, address receiver) external;
 }
 
-contract vePendleZapIn is IERC721Receiver, ReentrancyGuard {
+contract vePendleZapIn is IERC721Receiver {
     using SafeERC20 for IERC20;
 
     error InvalidAddress();
 
-    address public  WALLET_FACTORY;
-    IERC20 public constant PENDLE = IERC20(0x808507121B80c02388fAd14726482e061B8da827);
+    // ether IERC20(0x808507121B80c02388fAd14726482e061B8da827)
+    // arb IERC20(0x0c880f6761F1af8d9Aa9C466984b80DAb9a8c9e8);
+    IERC20 public immutable PENDLE;
     IVePENDLE public constant VE_PENDLE = IVePENDLE(0x4f30A9D41B80ecC5B94306AB4364951AE3170210);
 
-    address public vemoDelegatee;
+    address public immutable WALLET_FACTORY;
 
     constructor(
         address _walletFactory,
-        address _vemoDelegatee
+        address _pendle
     ) {
         if (_walletFactory == address(0)) revert InvalidAddress();
 
         WALLET_FACTORY = _walletFactory;
-        vemoDelegatee = _vemoDelegatee;
+        PENDLE = IERC20(_pendle);
     }
 
     /**
      * @notice zap pendle into vependle containing in TBA
+     * during the process, whatever steps which need execute 
      * @param nftCollectionAddress  collection which mint TBA from
      * @param dlgCollectionAddress collection which mint delegatee from
      * @param amount Pendle amount - which approved for this contract
@@ -52,11 +53,16 @@ contract vePendleZapIn is IERC721Receiver, ReentrancyGuard {
     function zapInAndBroadcast(
         address nftCollectionAddress,
         address dlgCollectionAddress,
+        address vemoDelegatee,
         uint256 amount,
         uint128 newExpiry,
         uint256[] memory chains
-    ) payable public nonReentrant returns (uint256, address) {
+    ) payable public returns (uint256, address) {
         (uint256 tokenId, address tba) = IWalletFactory(WALLET_FACTORY).create(nftCollectionAddress);
+        
+        if (msg.value > 0) {
+            tba.call{value: msg.value}("");
+        }
 
         if (dlgCollectionAddress != address(0)) {
             INFTAccountDelegable(payable(tba)).delegate(dlgCollectionAddress, vemoDelegatee);
@@ -69,10 +75,6 @@ contract vePendleZapIn is IERC721Receiver, ReentrancyGuard {
         }
 
         PENDLE.safeTransferFrom(msg.sender, tba, amount);
-
-        if (msg.value > 0) {
-            tba.call{value: msg.value}("");
-        }
 
         if (newExpiry == 0) {
             // transfer tokenId back to msg.sender
