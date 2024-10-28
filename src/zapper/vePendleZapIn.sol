@@ -27,7 +27,6 @@ contract vePendleZapIn is IERC721Receiver {
     // arb IERC20(0x0c880f6761F1af8d9Aa9C466984b80DAb9a8c9e8);
     IERC20 public immutable PENDLE;
     IVePENDLE public constant VE_PENDLE = IVePENDLE(0x4f30A9D41B80ecC5B94306AB4364951AE3170210);
-
     address public immutable WALLET_FACTORY;
 
     constructor(
@@ -59,13 +58,13 @@ contract vePendleZapIn is IERC721Receiver {
         uint256[] memory chains
     ) payable public returns (uint256, address) {
         (uint256 tokenId, address tba) = IWalletFactory(WALLET_FACTORY).create(nftCollectionAddress);
-        
-        if (msg.value > 0) {
-            tba.call{value: msg.value}("");
-        }
 
         if (dlgCollectionAddress != address(0)) {
             INFTAccountDelegable(payable(tba)).delegate(dlgCollectionAddress, vemoDelegatee);
+        }
+
+        if (msg.value > 0) {
+             tba.call{value: msg.value}("");
         }
 
         if (amount == 0) {
@@ -103,6 +102,7 @@ contract vePendleZapIn is IERC721Receiver {
                 newExpiry,
                 chains
             );
+            IERC6551Executable(payable(tba)).execute(address(VE_PENDLE), msg.value, increaseLockCalldata, 0);
         } else {
             // Increase lock position using TBA
             increaseLockCalldata = abi.encodeWithSignature(
@@ -110,12 +110,12 @@ contract vePendleZapIn is IERC721Receiver {
                 amount,
                 newExpiry
             );
+            IERC6551Executable(payable(tba)).execute(address(VE_PENDLE), 0, increaseLockCalldata, 0);
         }
-
-        IERC6551Executable(payable(tba)).execute(address(VE_PENDLE), 0, increaseLockCalldata, 0);
 
         // transfer tokenId back to msg.sender
         IERC721(nftCollectionAddress).safeTransferFrom(address(this), msg.sender, tokenId);
+
         return (tokenId, tba);
     }
 

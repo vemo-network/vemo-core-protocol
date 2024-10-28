@@ -18,8 +18,9 @@ import "./UUPSProxy.sol";
 import {CollectionDeployer} from "../../src/CollectionDeployer.sol";
 import "multicall-authenticated/Multicall3.sol";
 import {ERC6551Registry} from "erc6551/ERC6551Registry.sol";
-import {vePendleZapIn} from "../../src/zapper/vePendleZapIn.sol";
+
 import {Upgrades} from "openzeppelin-foundry-upgrades/Upgrades.sol";
+import {vePendleZapIn} from "../../src/zapper/vePendleZapIn.sol";
 
 interface IPendleRewardManager {
     function claimRetail(
@@ -54,7 +55,7 @@ contract DeployZapperARB is Script {
     function run() public {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         vm.startBroadcast(deployerPrivateKey);
-        vePendleZapIn vetermImplementation = new vePendleZapIn{salt: bytes32(salt)}(walletFactoryProxy, address(0x0c880f6761F1af8d9Aa9C466984b80DAb9a8c9e8));
+        vePendleZapIn vetermImplementation = new vePendleZapIn{salt: bytes32(salt)}(walletFactoryProxy, address(0x808507121B80c02388fAd14726482e061B8da827));
 
         console.log("zapin vependle address proxy ", address(vetermImplementation));
         vm.stopBroadcast();

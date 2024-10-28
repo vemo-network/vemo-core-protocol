@@ -51,6 +51,8 @@ contract PendleZapinTest is Test, IERC721Receiver {
     uint256 constant PROPOSAL_ID = 1;
     address constant GAUGE_ADDRESS = 0xC374f7eC85F8C7DE3207a10bB1978bA104bdA3B2;
     address constant PENDLE_ETH = 0x808507121B80c02388fAd14726482e061B8da827;
+    uint256 CROSS_CHAIN_FEE = 165225714297372;
+
     function setUp() public {
         isForkEnabled = vm.envOr("LOCAL_FORK_ENABLED", false);
 
@@ -128,7 +130,7 @@ contract PendleZapinTest is Test, IERC721Receiver {
         if (!isForkEnabled) return;
         user = vm.addr(block.number);
         vm.startPrank(user);
-
+        deal(user, 10 ether);
         uint256 depositAmount = 1 ether;
         uint128 newExpiry = 1788998400;
 
@@ -136,7 +138,7 @@ contract PendleZapinTest is Test, IERC721Receiver {
         
         zapin.PENDLE().approve(address(zapin), depositAmount);
         uint256[] memory chains = new uint256[](0);
-        (uint256 tokenId, address tba) = zapin.zapInAndBroadcast(NFTAccountCollection, delegateCollection, defaultAdmin, depositAmount, newExpiry, chains);
+        (uint256 tokenId, address tba) = zapin.zapInAndBroadcast{value: CROSS_CHAIN_FEE}(NFTAccountCollection, delegateCollection, defaultAdmin, depositAmount, newExpiry, chains);
 
         assertTrue(ERC721(NFTAccountCollection).ownerOf(tokenId) == user, "nft is never transfer to end user");
         assertTrue(ERC721(delegateCollection).ownerOf(tokenId) == defaultAdmin, "nft is never transfer to end user");
@@ -149,16 +151,16 @@ contract PendleZapinTest is Test, IERC721Receiver {
         if (!isForkEnabled) return;
         user = vm.addr(block.number);
         vm.startPrank(user);
+        deal(user, 10 ether);
 
         uint256 depositAmount = 1 ether;
-        uint128 WEEK = 7 days;
         uint128 newExpiry = 1788998400;
 
         deal(address(zapin.PENDLE()), user, 10 ether);
         
         zapin.PENDLE().approve(address(zapin), depositAmount);
         uint256[] memory chains = new uint256[](0);
-        (uint256 tokenId, address tba) = zapin.zapInAndBroadcast(NFTAccountCollection, delegateCollection, defaultAdmin, depositAmount, newExpiry, chains);
+        (uint256 tokenId, address tba) = zapin.zapInAndBroadcast{value: CROSS_CHAIN_FEE}(NFTAccountCollection, delegateCollection, defaultAdmin, depositAmount, newExpiry, chains);
 
         assertTrue(ERC721(NFTAccountCollection).ownerOf(tokenId) == user, "nft is never transfer to end user");
         assertTrue(ERC721(delegateCollection).ownerOf(tokenId) == defaultAdmin, "nft is never transfer to end user");
@@ -171,6 +173,8 @@ contract PendleZapinTest is Test, IERC721Receiver {
         if (!isForkEnabled) return;
         user = vm.addr(block.number);
         vm.startPrank(user);
+        deal(user, 10 ether);
+
         uint256 depositAmount = 1 ether;
         uint128 newExpiry = 1788998400;
 
@@ -178,7 +182,7 @@ contract PendleZapinTest is Test, IERC721Receiver {
         
         zapin.PENDLE().approve(address(zapin), depositAmount);
         uint256[] memory chains = new uint256[](0);
-        (uint256 tokenId, address tba) = zapin.zapInAndBroadcast(NFTAccountCollection, address(0), defaultAdmin, depositAmount, newExpiry, chains);
+        (uint256 tokenId, address tba) = zapin.zapInAndBroadcast{value: CROSS_CHAIN_FEE}(NFTAccountCollection, address(0), defaultAdmin, depositAmount, newExpiry, chains);
 
         assertTrue(ERC721(NFTAccountCollection).ownerOf(tokenId) == user, "nft is never transfer to end user");
         assertTrue(ERC721(delegateCollection).balanceOf(user) == 0, "nft is never transfer to end user");
@@ -205,6 +209,24 @@ contract PendleZapinTest is Test, IERC721Receiver {
         if (!isForkEnabled) return;
         user = vm.addr(block.number);
         vm.startPrank(user);
+        deal(user, 10 ether);
+
+        uint256 depositAmount = 1 ether;
+        deal(address(zapin.PENDLE()), user, 10 ether);
+        
+        zapin.PENDLE().approve(address(zapin), depositAmount);
+        uint256[] memory chains = new uint256[](0);
+        (uint256 tokenId, address tba) = zapin.zapInAndBroadcast(NFTAccountCollection, address(0), defaultAdmin, depositAmount, 0, chains);
+
+        assertTrue(ERC721(NFTAccountCollection).ownerOf(tokenId) == user, "nft is never transfer to end user");
+        assertTrue(zapin.PENDLE().balanceOf(tba) == depositAmount, "pendle is not transfered to tba");
+    }
+
+    function testZapinDepositNoBroadcast() public {
+        if (!isForkEnabled) return;
+        user = vm.addr(block.number);
+        vm.startPrank(user);
+        
         uint256 depositAmount = 1 ether;
         deal(address(zapin.PENDLE()), user, 10 ether);
         
@@ -220,12 +242,14 @@ contract PendleZapinTest is Test, IERC721Receiver {
         if (!isForkEnabled) return;
         user = vm.addr(block.number);
         vm.startPrank(user);
+        deal(user, 10 ether);
+
         uint256 depositAmount = 1 ether;
         deal(address(zapin.PENDLE()), user, 10 ether);
         
         zapin.PENDLE().approve(address(zapin), depositAmount);
         uint256[] memory chains = new uint256[](0);
-        (uint256 tokenId, address tba) = zapin.zapInAndBroadcast(NFTAccountCollection, delegateCollection, defaultAdmin, depositAmount, 0, chains);
+        (uint256 tokenId, address tba) = zapin.zapInAndBroadcast{value: CROSS_CHAIN_FEE}(NFTAccountCollection, delegateCollection, defaultAdmin, depositAmount, 0, chains);
 
         assertTrue(ERC721(NFTAccountCollection).ownerOf(tokenId) == user, "nft is never transfer to end user");
         assertTrue(zapin.PENDLE().balanceOf(tba) == depositAmount, "pendle is not transfered to tba");
@@ -234,6 +258,7 @@ contract PendleZapinTest is Test, IERC721Receiver {
     function testZapinAndBroadcast() public {
         if (!isForkEnabled) return;
         vm.startPrank(user1);
+        deal(user1, 10 ether);
 
         uint256 depositAmount = 1 ether;
         uint128 newExpiry = 1788998400;
@@ -243,7 +268,7 @@ contract PendleZapinTest is Test, IERC721Receiver {
         zapin.PENDLE().approve(address(zapin), depositAmount);
         uint256[] memory chains = new uint256[](1);
         chains[0] = 42161;
-        (uint256 tokenId, address tba) = zapin.zapInAndBroadcast(NFTAccountCollection, delegateCollection, defaultAdmin, depositAmount, newExpiry, chains);
+        (uint256 tokenId, address tba) = zapin.zapInAndBroadcast{value: CROSS_CHAIN_FEE}(NFTAccountCollection, delegateCollection, defaultAdmin, depositAmount, newExpiry, chains);
 
         assertTrue(ERC721(NFTAccountCollection).ownerOf(tokenId) == user1, "nft is never transfer to end user");
         assertTrue(ERC721(delegateCollection).ownerOf(tokenId) == defaultAdmin, "nft is never transfer to end user");
